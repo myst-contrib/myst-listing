@@ -27,6 +27,16 @@ describe("myst-listing", () => {
   const tables = findListingNodes(ast).filter((n: any) => n.type === "table");
 
   it("renders a table per listing", () => {
+    // 4 valid listings + the unknown-display one that falls back to a table.
+    expect(tables.length).toBe(5);
+  });
+
+  it("warns (does not fail) on an unknown source, rendering an error admonition", () => {
+    const errors = findListingNodes(ast).filter(
+      (n: any) => n.type === "admonition" && n.kind === "error",
+    );
+    expect(JSON.stringify(errors)).toContain("Unknown listing source: 'nope'");
+  });
 
   it("collects items from an external yaml file (title-less entry skipped)", () => {
     // links.yml has 3 entries; the one missing a title is dropped.

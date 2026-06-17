@@ -1,6 +1,11 @@
 /**
  * Display layer. A display turns the (already filtered/sorted/limited) items
- * into a single AST node. Add a built-in view by adding a key to `displays`.
+ * into a single AST node. Add a built-in view by adding a key to `displays`;
+ * an external plugin adds one the same way a collector does — a document-stage
+ * transform that finds `listingPlaceholder` nodes whose `:display:` it owns
+ * (with `node.items` already set) and replaces them with its rendered AST.
+ * Our render leaves placeholders with an unknown display untouched so that
+ * transform can claim them before the project-stage cleanup has the last word.
  */
 export type Display = (items: any[], node: any) => any;
 

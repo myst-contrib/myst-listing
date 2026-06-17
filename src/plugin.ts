@@ -9,7 +9,7 @@
  * Files are split by layer: collect.ts (sources), display.ts (views), and this
  * spine (the directive, the transform middle-layer, and the wiring).
  */
-import type { DirectiveSpec, TransformSpec } from "myst-common";
+import { fileWarn, type DirectiveSpec, type TransformSpec } from "myst-common";
 import { PLACEHOLDER, ctxRef } from "./shared.js";
 import { collectTransform } from "./collect.js";
 import { displays } from "./display.js";
@@ -87,6 +87,7 @@ function sortItems(items: any[], sort: string) {
 
 // --- Render transform: replace each placeholder with its display ------------
 
+// A muted note for the non-error empty state ("No items found").
 function noteNode(message: string) {
   return {
     type: "paragraph",
@@ -95,28 +96,84 @@ function noteNode(message: string) {
   };
 }
 
+// A real error renders as MyST's error admonition (theme styles it; there is no
+// dedicated mdast error node). Pair every errorNode with a fileWarn/fileError.
+function errorNode(message: string) {
+  return {
+    type: "admonition",
+    kind: "error",
+    class: "myst-listing",
+    children: [
+      { type: "admonitionTitle", children: [{ type: "text", value: "Listing error" }] },
+      { type: "paragraph", children: [{ type: "text", value: message }] },
+    ],
+  };
+}
+
+// Replace a placeholder in place with a finished node.
+function replace(node: any, out: any) {
+  for (const key of Object.keys(node)) if (key !== "type") delete node[key];
+  Object.assign(node, out);
+}
+
+// Turn a placeholder that has items (or an error) into its display node.
+function finalize(node: any, vfile: any) {
+  if (node.error) {
+    fileWarn(vfile, `Listing collect failed: ${node.error}`, { node, source: "listing" });
+    return replace(node, errorNode(`Could not collect items: ${node.error}`));
+  }
+  let items = applyFilter(node.items ?? [], node.filter);
+  items = sortItems(items, node.sort).slice(0, node.limit);
+  if (items.length === 0) return replace(node, noteNode("No items found."));
+  // We own every display, so an unknown one is always a typo: warn, fall back.
+  let display = displays[node.display];
+  if (!display) {
+    fileWarn(vfile, `Unknown listing display '${node.display}', using 'table'`, {
+      node,
+      source: "listing",
+    });
+    display = displays.table;
+  }
+  replace(node, display(items, node));
+}
+
 const renderTransform: TransformSpec = {
   name: "listing-render",
   // Document stage (after our collector) so the title links we emit still get
   // resolved by MyST's link resolver, which runs at the start of project stage.
   stage: "document",
   doc: "Render {listing} placeholders into their chosen display.",
-  plugin: (_opts, utils) => (tree) => {
+  plugin: (_opts, utils) => (tree, vfile) => {
     for (const node of utils.selectAll(PLACEHOLDER, tree) as any[]) {
-      let out: any;
-      if (node.error) {
-        out = noteNode(`Listing error: ${node.error}`);
-      } else {
-        let items = applyFilter(node.items ?? [], node.filter);
-        items = sortItems(items, node.sort).slice(0, node.limit);
-        out =
-          items.length === 0
-            ? noteNode("No items found.")
-            : (displays[node.display] ?? displays.table)(items, node);
+      // Only finalize what we fully own *right now*: a known source filled
+      // items AND a known display can render them. Anything else — an unknown
+      // source or an unknown display — we leave alone, because a transform we
+      // don't know about (an external plugin's collector or view) may still
+      // claim it. Finalizing would consume the node and rob it of that chance.
+      // The project-stage cleanup below is the last responder.
+      if (node.error || (node.items !== undefined && displays[node.display])) {
+        finalize(node, vfile);
       }
-      // Replace the placeholder in place.
-      for (const key of Object.keys(node)) if (key !== "type") delete node[key];
-      Object.assign(node, out);
+    }
+  },
+};
+
+const cleanupTransform: TransformSpec = {
+  name: "listing-cleanup",
+  // Project stage runs after every document-stage collector (ours or an
+  // external plugin's). Any placeholder still lacking items here means no
+  // collector owns its source — now it's safe to call it unknown.
+  stage: "project",
+  doc: "Warn on {listing} placeholders no collector claimed.",
+  plugin: (_opts, utils) => (tree, vfile) => {
+    for (const node of utils.selectAll(PLACEHOLDER, tree) as any[]) {
+      if (node.items === undefined && !node.error) {
+        fileWarn(vfile, `Unknown listing source '${node.source}'`, { node, source: "listing" });
+        replace(node, errorNode(`Unknown listing source: '${node.source}'`));
+      } else {
+        // A late external collector filled it; render it now.
+        finalize(node, vfile);
+      }
     }
   },
 };
@@ -124,7 +181,7 @@ const renderTransform: TransformSpec = {
 const plugin = {
   name: "MyST Listing",
   directives: [listingDirective],
-  transforms: [collectTransform, renderTransform],
+  transforms: [collectTransform, renderTransform, cleanupTransform],
 };
 
 export default plugin;
