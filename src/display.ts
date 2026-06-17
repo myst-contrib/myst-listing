@@ -24,7 +24,16 @@ const S: Record<string, any> = {
   summaryCard: { borderLeft: "3px solid rgba(128,128,128,0.3)", paddingLeft: "1rem" },
   summaryRow: { display: "flex", gap: "1rem", alignItems: "flex-start" },
   summaryThumb: { flexShrink: 0, display: "flex", borderRadius: "8px", overflow: "hidden" },
-  cover: { display: "flex", justifyContent: "center", marginBottom: "0.6rem" },
+  // Fixed-height box that centers the image: the box keeps every card's cover
+  // the same height, so wide images letterbox inside it instead of shrinking it.
+  cover: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "140px",
+    overflow: "hidden",
+    marginBottom: "0.6rem",
+  },
   title: { margin: "0.7rem 0 0.3rem", fontWeight: 600, fontSize: "1.05rem" },
   description: { margin: "0.3rem 0", opacity: 0.8 },
   meta: { margin: "0.1rem 0", opacity: 0.6, fontSize: "0.85rem" },
