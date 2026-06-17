@@ -8,10 +8,12 @@ title: MyST Listing
 
 Rendered:
 
-```{listing}
+::::::{myst:demo}
+:::{listing}
 :path: posts/*.md
 :columns: title,date
-```
+:::
+::::::
 
 See [Displays](./displays/index.md) for the table, gallery, and summary views and their options.
 

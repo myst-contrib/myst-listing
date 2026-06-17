@@ -1,12 +1,26 @@
 # Example we use in the docs
 - title: MyST Markdown
   url: https://mystmd.org
-  description: The MyST document engine.
+  description: The MyST document engine — a fast, extensible toolchain for technical writing that turns Markdown and notebooks into books, articles, and websites.
   date: 2024-06-01
   tags: [docs, tools]
+  thumbnail: https://avatars.githubusercontent.com/u/115208022?v=4
 - title: Jupyter Book
   url: https://jupyterbook.org
-  description: Build publication-quality books from notebooks.
+  description: Build publication-quality books and documents from computational material, combining prose, code, and live outputs in a single project.
   date: 2025-01-15
   tags: [docs]
+  thumbnail: https://avatars.githubusercontent.com/u/46299776?v=4
+- title: Project Jupyter
+  url: https://jupyter.org
+  description: The open-source project behind notebooks, JupyterLab, and the broader interactive computing ecosystem used across science and education.
+  date: 2024-09-10
+  tags: [tools, community]
+  thumbnail: https://avatars.githubusercontent.com/u/7388996?v=4
+- title: Executable Books
+  url: https://executablebooks.org
+  description: The community that grew the original Jupyter Book and MyST, dedicated to open tools for reproducible, computational narratives.
+  date: 2024-03-22
+  tags: [community]
+  thumbnail: https://avatars.githubusercontent.com/u/57655115?v=4
 - url: https://example.com   # no title → skipped with a warning
