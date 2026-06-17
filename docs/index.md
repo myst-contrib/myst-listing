@@ -42,3 +42,10 @@ For plugin-level extensions functionality (ie, we want other MyST plugins to ext
 
 - The [GitHub Issue Table plugin](https://github.com/jupyter-book/myst-plugins) has logic for collecting issues, adding columns, and displaying them in a table.
 - The [Project Pythia cookbooks gallery](https://github.com/ProjectPythia/cookbook-gallery) which _collects_ YAML files from a bunch of repositories and then uses them to render the gallery.
+
+## Reasons you might not want to use this plugin
+
+- This is an experimental plugin and its design and UX isn't yet proven!
+- Jupyter Book has an [issue about adding `listing` functionality](https://github.com/jupyter-book/mystmd/issues/840) and if that results in a _different_ MyST implementation, I'll probably shut this project down and recommend people just use that.
+
+But, if you want to be a bit on the bleeding edge and give feedback, that would be great!
