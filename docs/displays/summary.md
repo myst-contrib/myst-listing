@@ -2,10 +2,9 @@
 title: Summary display
 ---
 
-The `summary` display stacks cards that foreground the full `description`.
-Each card shows the linked title, a date meta line, the complete description, and a `tags` row, with the `thumbnail` (if any) floated to the right.
-It suits reading lists and blog indexes, where the text matters more than the image.
-Nothing is truncated, so it works best for items that have a real `description`.
+The `summary` display stacks cards that show the full `description`.
+Each card shows the linked title, a date meta line, the description, and a `tags` row, with the `thumbnail` (if any) floated to the right.
+It suits reading lists and blog indexes, where the full text matters more than the image.
 
 ## A summary from local files
 

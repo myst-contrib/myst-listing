@@ -22,7 +22,7 @@ Each leads with a different field: galleries are image-forward, summaries are te
   - the description
 ```
 
-The rest of this page is a quick tour of each; click the links to each display type's page for a deeper explanation of what you can do with it.
+Below is a quick tour of each; follow the links for the full options.
 
 ## `table`
 

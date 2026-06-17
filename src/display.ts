@@ -24,19 +24,15 @@ const S: Record<string, any> = {
   summaryCard: { borderLeft: "3px solid rgba(128,128,128,0.3)", paddingLeft: "1rem" },
   summaryRow: { display: "flex", gap: "1rem", alignItems: "flex-start" },
   summaryThumb: { flexShrink: 0, display: "flex", borderRadius: "8px", overflow: "hidden" },
-  // Full-width cover at a fixed 3:2 ratio, rendered as a background image (image
-  // nodes don't take `object-fit`) so every card gets the same footprint. We
-  // `contain` rather than `cover` so logos are never cropped; the fill frames
-  // whatever letterboxing that leaves, and a little padding keeps art off the edge.
+  // Background image (not an <image> node) so it can `contain` without cropping
+  // logos, giving every card the same 3:2 footprint.
   cover: {
     width: "100%",
     aspectRatio: "3 / 2",
     padding: "0.6rem",
     boxSizing: "border-box",
-    // Translucent white fill behind contained/transparent images. Inline styles
-    // can't query the theme, but semi-transparent white self-adapts: it vanishes
-    // into a light card yet reads as a light backing on a dark one, so dark logos
-    // stay legible in dark mode without framing them in light mode.
+    // Semi-transparent white: invisible on light cards, a light backing on dark
+    // ones, so dark/transparent logos stay legible in both themes.
     backgroundColor: "rgba(255,255,255,0.7)",
     backgroundSize: "contain",
     backgroundRepeat: "no-repeat",
