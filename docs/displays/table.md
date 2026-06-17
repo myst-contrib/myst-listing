@@ -4,7 +4,7 @@ title: Table display
 
 The `table` display renders items as rows, one column per field you name in `:columns:`.
 It is the default, so a bare `{listing}` is already a table.
-Tables are the densest display — best when readers want to scan or compare many items at a glance rather than browse them.
+Tables are the densest display, best for scanning or comparing many items at a glance.
 
 ## Pick your columns
 

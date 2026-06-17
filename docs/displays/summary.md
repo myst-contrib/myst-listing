@@ -4,10 +4,8 @@ title: Summary display
 
 The `summary` display stacks cards that foreground the full `description`.
 Each card shows the linked title, a date meta line, the complete description, and a `tags` row, with the `thumbnail` (if any) floated to the right.
-It suits reading lists and blog indexes, where the text — more than the image — is what sells each item to the reader.
-
-Because nothing is truncated, this display rewards items with a real `description`.
-A post with only a title will still render, but it has little to say.
+It suits reading lists and blog indexes, where the text matters more than the image.
+Nothing is truncated, so it works best for items that have a real `description`.
 
 ## A summary from local files
 
@@ -17,8 +15,6 @@ A post with only a title will still render, but it has little to say.
 :display: summary
 :::
 ::::::
-
-Unlike [`gallery`](./gallery.md), the description is shown in full — nothing is truncated.
 
 ## Filter it live
 

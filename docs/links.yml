@@ -21,6 +21,5 @@
   url: https://executablebooks.org
   description: The community that grew the original Jupyter Book and MyST, dedicated to open tools for reproducible, computational narratives.
   date: 2024-03-22
-  tags: [community]
   thumbnail: https://avatars.githubusercontent.com/u/57655115?v=4
 - url: https://example.com   # no title → skipped with a warning

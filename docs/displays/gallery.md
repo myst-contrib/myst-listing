@@ -2,10 +2,10 @@
 title: Gallery display
 ---
 
-The `gallery` display is an image-forward card grid — the right choice when the items are things you want people to *look* at: projects, showcases, link directories, or a wall of blog posts with cover images.
+The `gallery` display is an image-forward card grid.
 
 Each card leads with the item's `thumbnail`, then the title, a pill row of `tags`, and a short `description`.
-When an item has a `url`, the **whole card is clickable**, not just the title, so the entire tile is a comfortable target.
+When an item has a `url`, the whole card is clickable.
 
 ## A gallery from YAML
 
@@ -33,8 +33,8 @@ Any post with a `thumbnail` in its frontmatter becomes a card, and the card link
 :::
 ::::::
 
-Items without a `thumbnail` still render — the card simply omits the image.
-The `description` is truncated to keep the grid even; reach for the [`summary`](./summary.md) display when the full text matters.
+Items without a `thumbnail` still render, just without the image.
+Descriptions are truncated to keep the grid even; use the [`summary`](./summary.md) display when the full text matters.
 
 ## Set the number of columns
 

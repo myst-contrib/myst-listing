@@ -2,17 +2,27 @@
 title: Displays
 ---
 
-A `{listing}` renders its collected items with one of three built-in **displays**,
-chosen with the `:display:` option.
-Each foregrounds a different field, so the same items can read as a dense table or a visual gallery.
+A `{listing}` renders its collected items with one of three built-in **displays**, chosen with the `:display:` option.
+Each leads with a different field: galleries are image-forward, summaries are text-forward.
 
-| Display | Best for | Leads with |
-|---|---|---|
-| [`table`](./table.md) | dense, scannable lists | the columns you pick |
-| [`gallery`](./gallery.md) | visual collections | a thumbnail image |
-| [`summary`](./summary.md) | reading lists, blogs | the description |
+```{list-table}
+:header-rows: 1
 
-The rest of this page is a quick tour; follow a link above for the options each display supports.
+* - Display
+  - Best for
+  - Leads with
+* - [`table`](./table.md)
+  - dense, scannable lists
+  - the columns you pick
+* - [`gallery`](./gallery.md)
+  - visual collections
+  - a thumbnail image
+* - [`summary`](./summary.md)
+  - reading lists, blogs
+  - the description
+```
+
+The rest of this page is a quick tour of each; click the links to each display type's page for a deeper explanation of what you can do with it.
 
 ## `table`
 
@@ -48,9 +58,8 @@ Stacked cards that foreground the full `description`.
 :::
 ::::::
 
-## Graceful degradation
+## Graceful degradation for unknown configuration
 
-A listing never fails the build over a typo.
 An unknown `:source:` warns and renders a note:
 
 ::::::{myst:demo}

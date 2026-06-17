@@ -1,7 +1,7 @@
 /**
  * Display layer. A display turns the (already filtered/sorted/limited) items
  * into a single AST node. Add a built-in view via the `displays` map below.
- * See docs/developer.md for adding one from an external plugin.
+ * See docs/extending.md for adding one from an external plugin.
  */
 export type Display = (items: any[], node: any) => any;
 

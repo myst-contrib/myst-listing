@@ -2,7 +2,7 @@
  * Collect layer. A collector fills node.items for placeholders whose :source:
  * it owns. Add a built-in source via the `collectors` map below; an external
  * plugin can do the same from its own document-stage transform (see
- * docs/developer.md).
+ * docs/extending.md).
  */
 import { globSync } from "glob";
 import { readFileSync } from "node:fs";

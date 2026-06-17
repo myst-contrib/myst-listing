@@ -9,12 +9,14 @@ project:
     - https://raw.githubusercontent.com/jupyter-book/myst-plugins/main/plugins/searchfilter/searchfilter.mjs
   toc:
     - file: index.md
+    - file: collectors.md
     - file: displays/index.md
       children:
         - file: displays/table.md
         - file: displays/gallery.md
         - file: displays/summary.md
-    - file: developer.md
+    - file: contributing.md
+    - file: extending.md
     - title: Sample posts
       children:
         - pattern: posts/*.md
