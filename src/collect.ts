@@ -1,8 +1,8 @@
 /**
- * Collect layer. A collector fills `node.items` for placeholders whose
- * `:source:` it owns. Add a built-in source by adding a key to `collectors`;
- * an external plugin adds one by shipping its own document-stage transform
- * that finds `listingPlaceholder` nodes and sets `node.items`.
+ * Collect layer. A collector fills node.items for placeholders whose :source:
+ * it owns. Add a built-in source via the `collectors` map below; an external
+ * plugin can do the same from its own document-stage transform (see
+ * docs/developer.md).
  */
 import { globSync } from "glob";
 import { readFileSync } from "node:fs";
@@ -22,11 +22,9 @@ function collectFiles(node: any, vfile: any) {
   node.items = globSync(pattern).map((path) => {
     const ast = ctxRef.parseMyst!(readFileSync(path, { encoding: "utf-8" }));
     const { frontmatter } = getFrontmatter(vfile, ast);
-    // Frontmatter field names ARE our role names (title/date/description/tags/
-    // thumbnail), so the bag passes through; we only fill url + a title fallback.
-    // url is the source-file path rooted at the project ("/posts/x.md"); MyST's
-    // link resolver rewrites it to the real output URL (respecting folders, etc).
-    // Render therefore runs at document stage so that resolution still applies.
+    // Frontmatter fields already match our field names, so pass them through and
+    // only add url + a title fallback. url is the project-rooted source path
+    // ("/posts/x.md"); MyST's link resolver rewrites it to the real output URL.
     return {
       ...frontmatter,
       url: `/${path}`,
@@ -38,8 +36,7 @@ function collectFiles(node: any, vfile: any) {
 function collectYaml(node: any, vfile: any) {
   const entries = load(readFileSync(node.path, { encoding: "utf-8" }));
   if (!Array.isArray(entries)) throw new Error(`yaml source ${node.path} is not a top-level list`);
-  // Entries already use our canonical field names (title/url/description/date/
-  // tags/thumbnail); pass through. Title is required — skip+warn if missing.
+  // Entries already use our field names; pass them through. Title is required.
   node.items = entries.filter((item: any) => {
     if (item?.title) return true;
     fileWarn(vfile, `Skipping ${node.path} entry with no title`, { node });

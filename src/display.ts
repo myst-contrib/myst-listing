@@ -1,11 +1,7 @@
 /**
  * Display layer. A display turns the (already filtered/sorted/limited) items
- * into a single AST node. Add a built-in view by adding a key to `displays`;
- * an external plugin adds one the same way a collector does — a document-stage
- * transform that finds `listingPlaceholder` nodes whose `:display:` it owns
- * (with `node.items` already set) and replaces them with its rendered AST.
- * Our render leaves placeholders with an unknown display untouched so that
- * transform can claim them before the project-stage cleanup has the last word.
+ * into a single AST node. Add a built-in view via the `displays` map below.
+ * See docs/developer.md for adding one from an external plugin.
  */
 export type Display = (items: any[], node: any) => any;
 
@@ -16,20 +12,15 @@ function cellText(value: any): string {
   return String(value);
 }
 
-// --- Shared role helpers (used by gallery + summary) ------------------------
-//
-// Styling ships *with the plugin* as inline `style` objects on the nodes, so a
-// listing looks right in any theme with no extra CSS. `div`/`span` pass
-// `node.style` through to the renderer (`paragraph`/`image` do not). The gallery
-// reuses MyST's own `grid`/`card` nodes for the responsive grid and the
-// (accessible, clickable) card shell, and we style the bits *inside* the card.
-// Greys-with-alpha read well on light and dark themes; `class` names stay as
-// override hooks.
-
+// Styling ships with the plugin as inline `style` objects on nodes, so a
+// listing looks right in any theme without extra CSS. Only div/span pass
+// node.style through to the renderer (paragraph/image do not), so styled lines
+// are emitted as divs. Greys-with-alpha read well on light and dark themes;
+// class names are override hooks.
 const S: Record<string, any> = {
   summaryStack: { display: "flex", flexDirection: "column", gap: "1.1rem", margin: "1.5rem 0" },
-  // The flex row lives on an inner wrapper, not the card itself: searchfilter
-  // toggles the card's inline `display`, which would otherwise clobber `flex`.
+  // The flex row lives on an inner wrapper, not the card: searchfilter toggles
+  // the card's inline `display`, which would otherwise clobber `flex`.
   summaryCard: { borderLeft: "3px solid rgba(128,128,128,0.3)", paddingLeft: "1rem" },
   summaryRow: { display: "flex", gap: "1rem", alignItems: "flex-start" },
   summaryThumb: { flexShrink: 0, display: "flex", borderRadius: "8px", overflow: "hidden" },
@@ -47,8 +38,8 @@ const S: Record<string, any> = {
   },
 };
 
-// A bold title line (a div, not a heading, so it stays out of the TOC), linking
-// to the item when it has a url.
+// A bold title line (a div, not a heading, so it stays out of the TOC),
+// linked to the item when it has a url.
 function titleLine(item: any) {
   const text = cellText(item.title);
   const label = item.url
@@ -105,8 +96,8 @@ function renderTable(items: any[], node: any) {
   };
   const rows = items.map((item) => ({
     type: "tableRow",
-    // `myst-listing-item` on data rows only (not the header) lets searchfilter
-    // target `.myst-listing-item` and keep the header visible while filtering.
+    // On data rows only (not the header) so searchfilter can hide rows while
+    // keeping the header visible.
     class: "myst-listing-item",
     children: columns.map((col) => {
       const text = cellText(item[col]);
@@ -120,11 +111,9 @@ function renderTable(items: any[], node: any) {
   return { type: "table", class: "myst-listing", children: [header, ...rows] };
 }
 
-// Image-forward grid of cards. We reuse MyST's `grid` + `card` nodes: a `card`
-// with a `url` is the built-in clickable card (one accessible link over the
-// whole card, with the theme's hover affordance and no link-tinted text), and
-// `grid` lays them out responsively. We supply the contents — cover image,
-// title, pill tags, truncated description — and style those inline.
+// Image-forward grid of cards. A `card` with a `url` is MyST's built-in
+// clickable card (one accessible link over the whole card); `grid` lays them
+// out responsively. We supply and style the card contents.
 function renderGallery(items: any[], node: any) {
   const cards = items.map((item) => {
     const desc = cellText(item.description);
@@ -140,7 +129,7 @@ function renderGallery(items: any[], node: any) {
       ].filter(Boolean),
     };
   });
-  // A fixed count if asked, else MyST's responsive 1→4 across breakpoints.
+  // A fixed count if asked, else responsive 1→4 across breakpoints.
   const columns = node.gridColumns ? [node.gridColumns] : [1, 2, 3, 4];
   return { type: "grid", class: "myst-listing myst-listing-gallery", columns, children: cards };
 }
@@ -168,7 +157,7 @@ function renderSummary(items: any[]) {
     const row = { type: "div", style: S.summaryRow, children: thumb ? [content, thumb] : [content] };
     return {
       type: "div",
-      // `myst-listing-item` is the common filtering hook (see renderTable).
+      // myst-listing-item is the searchfilter hook (see renderTable).
       class: "myst-listing-card myst-listing-item",
       style: S.summaryCard,
       children: [row],

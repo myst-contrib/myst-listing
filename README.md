@@ -6,7 +6,7 @@ Out of the box, this plugin supports **tables**, **galleries**, and **summaries*
 
 > [!NOTE]
 >
-> This is an experimental myst plugin, attempting to combine functionality from a bunch of other plugins into a single listing-like directive. It might change rapidly! It has been developed quickly and might be brittle! Feedback is very welcome
+> This is an experimental MyST plugin that combines functionality from several other plugins into a single listing directive. It is early-stage and may change. Feedback is welcome.
 
 ## Usage
 
