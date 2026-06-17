@@ -13,7 +13,7 @@ Rendered:
 :columns: title,date
 ```
 
-See [Examples](./examples.md) for more displays and options.
+See [Displays](./displays/index.md) for the table, gallery, and summary views and their options.
 
 ## Design
 
