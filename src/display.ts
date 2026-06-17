@@ -24,20 +24,34 @@ const S: Record<string, any> = {
   summaryCard: { borderLeft: "3px solid rgba(128,128,128,0.3)", paddingLeft: "1rem" },
   summaryRow: { display: "flex", gap: "1rem", alignItems: "flex-start" },
   summaryThumb: { flexShrink: 0, display: "flex", borderRadius: "8px", overflow: "hidden" },
-  // Fixed-height box that centers the image: the box keeps every card's cover
-  // the same height, so wide images letterbox inside it instead of shrinking it.
+  // Full-width cover at a fixed 3:2 ratio, rendered as a background image (image
+  // nodes don't take `object-fit`) so every card gets the same footprint. We
+  // `contain` rather than `cover` so logos are never cropped; the fill frames
+  // whatever letterboxing that leaves, and a little padding keeps art off the edge.
   cover: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    height: "140px",
-    overflow: "hidden",
-    marginBottom: "0.6rem",
+    width: "100%",
+    aspectRatio: "3 / 2",
+    padding: "0.6rem",
+    boxSizing: "border-box",
+    // Translucent white fill behind contained/transparent images. Inline styles
+    // can't query the theme, but semi-transparent white self-adapts: it vanishes
+    // into a light card yet reads as a light backing on a dark one, so dark logos
+    // stay legible in dark mode without framing them in light mode.
+    backgroundColor: "rgba(255,255,255,0.7)",
+    backgroundSize: "contain",
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "center",
+    backgroundOrigin: "content-box",
+    borderRadius: "8px",
+    marginBottom: "0.5rem",
   },
-  title: { margin: "0.7rem 0 0.3rem", fontWeight: 600, fontSize: "1.05rem" },
-  description: { margin: "0.3rem 0", opacity: 0.8 },
+  title: { margin: "0.5rem 0 0.3rem", fontWeight: 600, fontSize: "1.05rem" },
+  description: { margin: "0.4rem 0", opacity: 0.8 },
   meta: { margin: "0.1rem 0", opacity: 0.6, fontSize: "0.85rem" },
-  tags: { display: "inline-flex", flexWrap: "wrap", gap: "0.35rem", margin: "0.45rem 0" },
+  tags: { display: "inline-flex", flexWrap: "wrap", gap: "0.35rem", margin: "0.4rem 0" },
+  // Gallery-only: clip tags to a single row so a tag-heavy card doesn't grow
+  // taller than its neighbors. One pill is ~1.5rem with line-height.
+  tagsClip: { maxHeight: "1.55rem", overflow: "hidden" },
   tag: {
     fontSize: "0.75rem",
     padding: "0.1rem 0.6rem",
@@ -76,13 +90,13 @@ function line(cls: string, style: any, value: string) {
 
 // One field's values → a row of pills, colored by the field's palette slot.
 // Null when the field is absent/empty (caller omits it).
-function renderTagGroup(values: any, colorIndex: number) {
+function renderTagGroup(values: any, colorIndex: number, extraStyle?: any) {
   if (!Array.isArray(values) || values.length === 0) return null;
   const background = palette[colorIndex % palette.length];
   return {
     type: "span",
     class: "myst-listing-tags",
-    style: S.tags,
+    style: { ...S.tags, ...extraStyle },
     children: values.map((t) => ({
       type: "span",
       class: "myst-listing-tag",
@@ -93,19 +107,21 @@ function renderTagGroup(values: any, colorIndex: number) {
 }
 
 // An item's configured tag fields as colored pill rows, empties skipped.
-function renderTagGroups(item: any, node: any) {
+// extraStyle is merged into each row (gallery passes a one-line clip).
+function renderTagGroups(item: any, node: any, extraStyle?: any) {
   const fields: string[] = node.tagFields ?? ["tags"];
-  return fields.map((f, i) => renderTagGroup(item[f], i)).filter(Boolean);
+  return fields.map((f, i) => renderTagGroup(item[f], i, extraStyle)).filter(Boolean);
 }
 
-// Centered cover image, or null when there is no thumbnail.
+// Full-width cover (background image on an empty div), or null with no thumbnail.
+// Decorative — the card title link carries the accessible name.
 function renderCover(item: any) {
   if (!item.thumbnail) return null;
   return {
     type: "div",
     class: "myst-listing-cover",
-    style: S.cover,
-    children: [{ type: "image", url: String(item.thumbnail), alt: cellText(item.title), height: "120px" }],
+    style: { ...S.cover, backgroundImage: `url("${String(item.thumbnail)}")` },
+    children: [],
   };
 }
 
@@ -149,8 +165,10 @@ function renderGallery(items: any[], node: any) {
       children: [
         renderCover(item),
         { type: "cardTitle", children: [{ type: "text", value: cellText(item.title) }] },
-        ...renderTagGroups(item, node),
         desc && line("myst-listing-description", S.description, truncate(desc)),
+        // Tags last, as a footer — secondary metadata shouldn't break the
+        // title→description read. Matches the summary view's order.
+        ...renderTagGroups(item, node, S.tagsClip),
       ].filter(Boolean),
     };
   });

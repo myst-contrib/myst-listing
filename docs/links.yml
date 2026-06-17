@@ -24,4 +24,20 @@
   description: The community that grew the original Jupyter Book and MyST, dedicated to open tools for reproducible, computational narratives.
   date: 2024-03-22
   thumbnail: https://avatars.githubusercontent.com/u/57655115?v=4
+# Aspect-ratio test entries: the cover crops each to the same 3:2 footprint.
+- title: Wide thumbnail (3:1)
+  url: https://example.com
+  description: A landscape image, cropped at top and bottom to fit the 3:2 cover.
+  tags: [test]
+  thumbnail: https://picsum.photos/seed/wide/900/300
+- title: Tall thumbnail (1:2)
+  url: https://example.com
+  description: A portrait image, cropped at the sides to fit the 3:2 cover.
+  tags: [test]
+  thumbnail: https://picsum.photos/seed/tall/300/600
+- title: Square thumbnail (1:1)
+  url: https://example.com
+  description: A square image, lightly cropped to fit the 3:2 cover.
+  tags: [test]
+  thumbnail: https://picsum.photos/seed/square/500/500
 - url: https://example.com   # no title → skipped with a warning

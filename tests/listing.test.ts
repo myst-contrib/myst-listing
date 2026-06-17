@@ -101,9 +101,13 @@ describe("gallery display (displays/gallery.md)", () => {
     expect(cards.map((c: any) => c.url)).toContain("https://mystmd.org");
   });
 
-  it("leads each card with its thumbnail image", () => {
-    const images = allNodes(galleries[0]).filter((n: any) => n.type === "image");
-    expect(images.length).toBe(galleries[0].children.length);
+  it("leads each card with its thumbnail as a cover background image", () => {
+    const covers = allNodes(galleries[0]).filter(
+      (n: any) => n.class === "myst-listing-cover"
+    );
+    expect(covers.length).toBe(galleries[0].children.length);
+    // The thumbnail rides on the cover div's background, not an image node.
+    expect(covers.every((c: any) => c.style?.backgroundImage?.includes("url("))).toBe(true);
   });
 
   it("honors :grid-columns: for a fixed column count", () => {
