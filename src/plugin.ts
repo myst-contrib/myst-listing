@@ -27,6 +27,7 @@ const listingDirective: DirectiveSpec = {
     limit: { type: Number, doc: "Maximum number of items. Default 10." },
     filter: { type: String, doc: "Keep only items where field=value." },
     columns: { type: String, doc: "Comma-separated fields for the table view. Default 'title,date'." },
+    "grid-columns": { type: Number, doc: "Gallery only: number of columns. Default: responsive 1–4." },
   },
   run(data, _vfile, ctx) {
     if (!ctxRef.parseMyst && ctx?.parseMyst) ctxRef.parseMyst = ctx.parseMyst;
@@ -45,6 +46,7 @@ const listingDirective: DirectiveSpec = {
           .split(",")
           .map((c) => c.trim())
           .filter(Boolean),
+        gridColumns: o["grid-columns"] as number | undefined,
       },
     ];
   },
