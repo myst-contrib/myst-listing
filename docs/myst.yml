@@ -6,6 +6,7 @@ project:
   toc:
     - file: index.md
     - file: examples.md
+    - file: developer.md
     - title: Sample posts
       children:
         - pattern: posts/*.md
