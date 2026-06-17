@@ -1,68 +1,132 @@
 /**
  * Minimal end-to-end check: build the demo docs, then assert that the
- * {listing} examples rendered into real tables with sorted, linked, filtered
- * rows. The examples page (docs/examples.md) is the fixture.
+ * {listing} examples rendered correctly. The pages under docs/displays/ double
+ * as the fixtures — one page per display, plus the overview (displays/index.md).
+ *
+ * Assertions are written to survive growing the demo (more posts, more yaml
+ * entries): they check ordering/containment/shape rather than hard-coded lists.
  */
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
+import { toText } from "myst-common";
 
-const buildPath = "docs/_build/site/content/examples.json";
+const loadPage = (slug: string) =>
+  JSON.parse(readFileSync(`docs/_build/site/content/${slug}.json`, "utf-8")).mdast;
+const POST_COUNT = readdirSync("docs/posts").filter((f) => f.endsWith(".md")).length;
 
-function findListingNodes(node: any): any[] {
-  let out: any[] = [];
-  if (node?.class === "myst-listing") out.push(node);
-  for (const child of node?.children ?? []) out = out.concat(findListingNodes(child));
+function allNodes(node: any): any[] {
+  let out = [node];
+  for (const child of node?.children ?? []) out = out.concat(allNodes(child));
   return out;
 }
+const tablesIn = (ast: any) => allNodes(ast).filter((n: any) => n.type === "table");
+const withClass = (ast: any, cls: string) =>
+  allNodes(ast).filter((n) => typeof n?.class === "string" && n.class.split(" ").includes(cls));
 
-// Title text of each data row (skip the header row).
-const rowTitles = (table: any) =>
-  table.children.slice(1).map((row: any) => {
-    const node = row.children[0].children[0];
-    return node.type === "link" ? node.children[0].value : node.value;
+// --- Table helpers (read cells by column header) ----------------------------
+const headers = (table: any) =>
+  table.children[0].children.map((c: any) => toText(c).toLowerCase());
+const column = (table: any, name: string) => {
+  const i = headers(table).indexOf(name);
+  return table.children.slice(1).map((row: any) => toText(row.children[i]));
+};
+const rowCount = (table: any) => table.children.length - 1;
+
+describe("table display (displays/table.md)", () => {
+  const ast = loadPage("displays.table");
+  const tables = tablesIn(ast);
+  const [byColumns, titleAsc, filtered, limited, yaml] = tables;
+
+  it("renders one table per listing", () => {
+    expect(tables.length).toBe(6); // columns, sort, filter, limit, yaml, filter-live
   });
 
-describe("myst-listing", () => {
-  const ast = JSON.parse(readFileSync(buildPath, "utf-8")).mdast;
-  const tables = findListingNodes(ast).filter((n: any) => n.type === "table");
-
-  it("renders a table per listing", () => {
-    // 4 valid listings + the unknown-display one that falls back to a table.
-    expect(tables.length).toBe(5);
+  it("links the title to the resolved internal page url", () => {
+    const link = byColumns.children[1].children[0].children[0];
+    expect(link.type).toBe("link");
+    expect(link.internal).toBe(true);
+    expect(link.url).toContain("2025-"); // a resolved post url
   });
 
-  it("warns (does not fail) on an unknown source, rendering an error admonition", () => {
-    const errors = findListingNodes(ast).filter(
+  it("sorts by date-desc by default", () => {
+    const dates = column(byColumns, "date");
+    expect(dates).toEqual([...dates].sort().reverse());
+  });
+
+  it("sorts by title-asc when asked", () => {
+    const titles = column(titleAsc, "title");
+    expect(titles).toEqual([...titles].sort());
+  });
+
+  it("filters list fields by containment (tags=news)", () => {
+    const tagCells = column(filtered, "tags");
+    expect(tagCells.length).toBeGreaterThan(0);
+    expect(tagCells.every((t: string) => t.includes("news"))).toBe(true);
+  });
+
+  it("caps rows with :limit:", () => {
+    expect(rowCount(limited)).toBeLessThanOrEqual(3);
+  });
+
+  it("collects from yaml and skips the title-less entry", () => {
+    const titles = column(yaml, "title");
+    expect(titles).toContain("MyST Markdown");
+    expect(titles.every((t: string) => t.length > 0)).toBe(true); // none blank
+  });
+});
+
+describe("gallery display (displays/gallery.md)", () => {
+  const ast = loadPage("displays.gallery");
+  const galleries = withClass(ast, "myst-listing-gallery");
+
+  it("renders every gallery listing on the page", () => {
+    // yaml, files, grid-columns, and the filter-live demo.
+    expect(galleries.length).toBe(4);
+  });
+
+  it("uses MyST's clickable card node, with the url on the whole card", () => {
+    // Every item here has a url, so every card is a `card` node carrying it.
+    const cards = galleries[0].children;
+    expect(cards.length).toBeGreaterThan(0);
+    expect(cards.every((c: any) => c.type === "card")).toBe(true);
+    expect(cards.map((c: any) => c.url)).toContain("https://mystmd.org");
+  });
+
+  it("leads each card with its thumbnail image", () => {
+    const images = allNodes(galleries[0]).filter((n: any) => n.type === "image");
+    expect(images.length).toBe(galleries[0].children.length);
+  });
+
+  it("honors :grid-columns: for a fixed column count", () => {
+    const fixed = galleries.find((g: any) => g.columns?.length === 1);
+    expect(fixed?.columns).toEqual([2]);
+  });
+});
+
+describe("summary display (displays/summary.md)", () => {
+  const ast = loadPage("displays.summary");
+
+  it("renders one description-forward card per post", () => {
+    const summary = withClass(ast, "myst-listing-summary")[0];
+    expect(summary).toBeTruthy();
+    const descriptions = allNodes(summary).filter(
+      (n: any) => n.class === "myst-listing-description",
+    );
+    expect(descriptions.length).toBe(POST_COUNT);
+  });
+});
+
+describe("graceful degradation (displays/index.md)", () => {
+  const ast = loadPage("displays.index");
+
+  it("warns (does not fail) on an unknown source", () => {
+    const errors = allNodes(ast).filter(
       (n: any) => n.type === "admonition" && n.kind === "error",
     );
     expect(JSON.stringify(errors)).toContain("Unknown listing source: 'nope'");
   });
 
-  it("collects items from an external yaml file (title-less entry skipped)", () => {
-    // links.yml has 3 entries; the one missing a title is dropped.
-    expect(rowTitles(tables[3])).toEqual(["Jupyter Book", "MyST Markdown"]);
-  });
-
-  it("links the title to the resolved internal page url", () => {
-    const link = tables[0].children[1].children[0].children[0];
-    expect(link.type).toBe("link");
-    // MyST resolved our source-path link to the real page url.
-    expect(link.internal).toBe(true);
-    expect(link.url).toContain("2025-03-01-zebra");
-  });
-
-  it("sorts by date-desc (default) and title-asc", () => {
-    expect(rowTitles(tables[0])).toEqual([
-      "Zebra release notes",
-      "A February update",
-      "Hello world",
-    ]);
-    const titleAsc = rowTitles(tables[1]);
-    expect(titleAsc).toEqual([...titleAsc].sort());
-  });
-
-  it("filters list fields by containment (tags=news)", () => {
-    // Only the two news-tagged posts, still date-desc.
-    expect(rowTitles(tables[2])).toEqual(["A February update", "Hello world"]);
+  it("falls back to a table on an unknown display", () => {
+    expect(tablesIn(ast).length).toBeGreaterThanOrEqual(2);
   });
 });
