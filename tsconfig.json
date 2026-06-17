@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "es2022",
+    "moduleDetection": "force",
+    "isolatedModules": true,
+    "strict": true,
+    "noImplicitOverride": true,
+    "module": "nodenext",
+    "outDir": "dist",
+    "sourceMap": true,
+    "lib": ["es2022"]
+  }
+}

@@ -1,0 +1,14 @@
+version: 1
+project:
+  title: MyST Listing
+  plugins:
+    - ../dist/plugin.mjs
+  toc:
+    - file: index.md
+    - file: examples.md
+    - title: Sample posts
+      children:
+        - pattern: posts/*.md
+site:
+  template: book-theme
+  folders: true
