@@ -60,10 +60,13 @@ function applyFilter(items: any[], filter?: string) {
 }
 
 function sortItems(items: any[], sort: string) {
+  // Only a trailing "-asc"/"-desc" is a direction; otherwise the whole string
+  // is the field name (so a dash-less "title" stays "title", not "titl").
   const dash = sort.lastIndexOf("-");
-  const order = dash >= 0 ? sort.slice(dash + 1) : "asc";
-  const field = order === "asc" || order === "desc" ? sort.slice(0, dash) : sort;
-  const ascending = order !== "desc";
+  const suffix = dash >= 0 ? sort.slice(dash + 1) : "";
+  const hasOrder = suffix === "asc" || suffix === "desc";
+  const field = hasOrder ? sort.slice(0, dash) : sort;
+  const ascending = suffix !== "desc";
   return [...items].sort((a, b) => {
     let av = a[field];
     let bv = b[field];
