@@ -10,7 +10,18 @@ Out of the box, this plugin supports **tables**, **galleries**, and **summaries*
 
 ## Usage
 
-Add the plugin to your `myst.yml`:
+Reference the released plugin bundle directly from GitHub in your `myst.yml`.
+This pulls the bundle attached to the _latest_ release, so MyST loads it without a build or install step:
+
+```yaml
+project:
+  plugins:
+    - https://github.com/jupyter-book/myst-listing/releases/latest/download/plugin.mjs
+```
+
+To pin a specific version, swap `latest/download` for a tag, e.g. `download/v0.1.0`.
+
+Alternatively, build the bundle yourself (`npm run build`) and reference it from a local path:
 
 ```yaml
 project:
