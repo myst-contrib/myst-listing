@@ -7,6 +7,8 @@ project:
     - https://raw.githubusercontent.com/jupyter-book/myst-plugins/main/plugins/demo/src/index.mjs
     # Live client-side filtering of listing items ({searchfilter}).
     - https://raw.githubusercontent.com/jupyter-book/myst-plugins/main/plugins/searchfilter/searchfilter.mjs
+    # Inline icons via the Iconify API ({icon}), used for the navbar GitHub link.
+    - https://github.com/myst-contrib/myst-iconify/releases/latest/download/index.mjs
   toc:
     - file: index.md
     - file: collectors.md
@@ -24,3 +26,6 @@ site:
   template: book-theme
   options:
     folders: true
+    logo_text: MyST Listing
+  parts:
+    navbar_end: parts/navbar_end.md
