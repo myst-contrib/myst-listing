@@ -1,0 +1,12 @@
+# Example we use in the docs
+- title: MyST Markdown
+  url: https://mystmd.org
+  description: The MyST document engine.
+  date: 2024-06-01
+  tags: [docs, tools]
+- title: Jupyter Book
+  url: https://jupyterbook.org
+  description: Build publication-quality books from notebooks.
+  date: 2025-01-15
+  tags: [docs]
+- url: https://example.com   # no title → skipped with a warning

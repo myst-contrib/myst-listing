@@ -7,8 +7,9 @@
 import { globSync } from "glob";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { load } from "js-yaml";
 import { getFrontmatter } from "myst-transforms";
-import type { TransformSpec } from "myst-common";
+import { fileWarn, type TransformSpec } from "myst-common";
 import { PLACEHOLDER, ctxRef } from "./shared.js";
 
 export type Collector = (node: any, vfile: any) => void;
@@ -34,9 +35,22 @@ function collectFiles(node: any, vfile: any) {
   });
 }
 
+function collectYaml(node: any, vfile: any) {
+  const entries = load(readFileSync(node.path, { encoding: "utf-8" }));
+  if (!Array.isArray(entries)) throw new Error(`yaml source ${node.path} is not a top-level list`);
+  // Entries already use our canonical field names (title/url/description/date/
+  // tags/thumbnail); pass through. Title is required — skip+warn if missing.
+  node.items = entries.filter((item: any) => {
+    if (item?.title) return true;
+    fileWarn(vfile, `Skipping ${node.path} entry with no title`, { node });
+    return false;
+  });
+}
+
 /** Built-in collectors, keyed by `:source:`. */
 export const collectors: Record<string, Collector> = {
   files: collectFiles,
+  yaml: collectYaml,
 };
 
 /** Document-stage transform: fill items for every placeholder we own. */

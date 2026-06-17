@@ -27,7 +27,10 @@ describe("myst-listing", () => {
   const tables = findListingNodes(ast).filter((n: any) => n.type === "table");
 
   it("renders a table per listing", () => {
-    expect(tables.length).toBe(3);
+
+  it("collects items from an external yaml file (title-less entry skipped)", () => {
+    // links.yml has 3 entries; the one missing a title is dropped.
+    expect(rowTitles(tables[3])).toEqual(["Jupyter Book", "MyST Markdown"]);
   });
 
   it("links the title to the resolved internal page url", () => {
