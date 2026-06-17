@@ -4,6 +4,10 @@ A simple MyST plugin for **collecting** items, optionally **transforming** them 
 
 Out of the box, this plugin supports **tables**, **galleries**, and **summaries** of each entry. 
 
+> [!NOTE]
+>
+> This is an experimental myst plugin, attempting to combine functionality from a bunch of other plugins into a single listing-like directive. It might change rapidly! It has been developed quickly and might be brittle! Feedback is very welcome
+
 ## Usage
 
 Add the plugin to your `myst.yml`:
