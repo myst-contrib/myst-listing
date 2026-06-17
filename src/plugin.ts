@@ -9,6 +9,9 @@ import { PLACEHOLDER, ctxRef } from "./shared.js";
 import { collectTransform } from "./collect.js";
 import { displays } from "./display.js";
 
+// Parse a comma-separated option into a trimmed, non-empty list.
+const csv = (s: string) => s.split(",").map((c) => c.trim()).filter(Boolean);
+
 const listingDirective: DirectiveSpec = {
   name: "listing",
   doc: "Collect items and display them as a table, gallery, or summary.",
@@ -36,14 +39,8 @@ const listingDirective: DirectiveSpec = {
         sort: (o.sort as string) ?? "date-desc",
         limit: (o.limit as number) ?? 10,
         filter: o.filter as string | undefined,
-        columns: ((o.columns as string) ?? "title,date")
-          .split(",")
-          .map((c) => c.trim())
-          .filter(Boolean),
-        tagFields: ((o["tag-fields"] as string) ?? "tags")
-          .split(",")
-          .map((c) => c.trim())
-          .filter(Boolean),
+        columns: csv((o.columns as string) ?? "title,date"),
+        tagFields: csv((o["tag-fields"] as string) ?? "tags"),
         gridColumns: o["grid-columns"] as number | undefined,
       },
     ];
