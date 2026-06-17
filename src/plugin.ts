@@ -19,7 +19,7 @@ const listingDirective: DirectiveSpec = {
     source: { type: String, doc: "Where items come from: 'files' or 'yaml'. Default 'files'." },
     display: { type: String, doc: "View: 'table', 'gallery', or 'summary'. Default 'table'." },
     path: { type: String, doc: "Glob for 'files' (default './*.md') or path to a .yml for 'yaml'." },
-    sort: { type: String, doc: "Sort by 'field', 'field-asc', or 'field-desc'. Default 'date-desc'." },
+    sort: { type: String, doc: "Sort by 'field', 'field-asc', 'field-desc', or 'random'. Default 'date-desc'." },
     limit: { type: Number, doc: "Maximum number of items. Default 10." },
     filter: { type: String, doc: "Keep only items where field=value." },
     columns: { type: String, doc: "Comma-separated fields for the table view. Default 'title,date'." },
@@ -61,7 +61,18 @@ function applyFilter(items: any[], filter?: string) {
   });
 }
 
+// Fisher-Yates shuffle (unbiased, unlike a `sort(() => Math.random())`).
+function shuffle(items: any[]) {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
 function sortItems(items: any[], sort: string) {
+  if (sort === "random") return shuffle(items);
   // Only a trailing "-asc"/"-desc" is a direction; otherwise the whole string
   // is the field name (so a dash-less "title" stays "title", not "titl").
   const dash = sort.lastIndexOf("-");

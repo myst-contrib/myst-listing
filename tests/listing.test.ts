@@ -35,10 +35,10 @@ const rowCount = (table: any) => table.children.length - 1;
 describe("table display (displays/table.md)", () => {
   const ast = loadPage("displays.table");
   const tables = tablesIn(ast);
-  const [byColumns, titleAsc, filtered, limited, yaml] = tables;
+  const [byColumns, titleAsc, random, filtered, limited, yaml] = tables;
 
   it("renders one table per listing", () => {
-    expect(tables.length).toBe(6); // columns, sort, filter, limit, yaml, filter-live
+    expect(tables.length).toBe(7); // columns, sort, random, filter, limit, yaml, filter-live
   });
 
   it("links the title to the resolved internal page url", () => {
@@ -56,6 +56,11 @@ describe("table display (displays/table.md)", () => {
   it("sorts by title-asc when asked", () => {
     const titles = column(titleAsc, "title");
     expect(titles).toEqual([...titles].sort());
+  });
+
+  it("shuffles without dropping or duplicating items (sort: random)", () => {
+    // Same posts as the default listing, just reordered.
+    expect(column(random, "title").sort()).toEqual(column(byColumns, "title").sort());
   });
 
   it("filters list fields by containment (tags=news)", () => {

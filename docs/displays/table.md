@@ -29,6 +29,19 @@ The default sort is `date-desc` (newest first). Sort by any field with `:sort: f
 :::
 ::::::
 
+## Shuffle the order
+
+`:sort: random` shuffles the items into a random order each build.
+This is useful if you have a gallery and don't want the same things showing up at the top.
+
+::::::{myst:demo}
+:::{listing}
+:path: posts/*.md
+:columns: title,date
+:sort: random
+:::
+::::::
+
 ## Filter the rows
 
 `:filter: field=value` keeps only matching items. List fields (like `tags`) match when they contain the value.
