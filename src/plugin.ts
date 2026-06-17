@@ -20,6 +20,7 @@ const listingDirective: DirectiveSpec = {
     limit: { type: Number, doc: "Maximum number of items. Default 10." },
     filter: { type: String, doc: "Keep only items where field=value." },
     columns: { type: String, doc: "Comma-separated fields for the table view. Default 'title,date'." },
+    "tag-fields": { type: String, doc: "Gallery/summary: frontmatter fields shown as colored pill groups. Default 'tags'." },
     "grid-columns": { type: Number, doc: "Gallery only: number of columns. Default: responsive 1–4." },
   },
   run(data, _vfile, ctx) {
@@ -36,6 +37,10 @@ const listingDirective: DirectiveSpec = {
         limit: (o.limit as number) ?? 10,
         filter: o.filter as string | undefined,
         columns: ((o.columns as string) ?? "title,date")
+          .split(",")
+          .map((c) => c.trim())
+          .filter(Boolean),
+        tagFields: ((o["tag-fields"] as string) ?? "tags")
           .split(",")
           .map((c) => c.trim())
           .filter(Boolean),

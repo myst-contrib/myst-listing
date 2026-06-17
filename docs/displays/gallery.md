@@ -4,7 +4,7 @@ title: Gallery display
 
 The `gallery` display is an image-forward card grid.
 
-Each card leads with the item's `thumbnail`, then the title, a pill row of `tags`, and a short `description`.
+Each card leads with the item's `thumbnail`, then the title, a pill row of `tags` (or other [tag fields](#color-code-several-tag-fields)), and a short `description`.
 When an item has a `url`, the whole card is clickable.
 
 ## A gallery from YAML
@@ -49,6 +49,23 @@ Pin it to a fixed count with `:grid-columns:`:
 :grid-columns: 2
 :::
 ::::::
+
+## Color-code several tag fields
+
+By default the pill row shows each item's `tags`.
+List several fields with `:tag-fields:` to show more than one kind of tag, each in its own color:
+
+::::::{myst:demo}
+:::{listing}
+:source: yaml
+:path: links.yml
+:display: gallery
+:tag-fields: libraries, domains
+:::
+::::::
+
+Colors come from a small fixed palette, assigned by list order, so keep the order consistent across pages.
+The same option works in the [`summary`](./summary.md) display.
 
 ## Filter it live
 

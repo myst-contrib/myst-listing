@@ -4,6 +4,8 @@
   description: The MyST document engine — a fast, extensible toolchain for technical writing that turns Markdown and notebooks into books, articles, and websites.
   date: 2024-06-01
   tags: [docs, tools]
+  libraries: [mystmd]
+  domains: [publishing]
   thumbnail: https://avatars.githubusercontent.com/u/115208022?v=4
 - title: Jupyter Book
   url: https://jupyterbook.org

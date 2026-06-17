@@ -42,10 +42,18 @@ const S: Record<string, any> = {
     fontSize: "0.75rem",
     padding: "0.1rem 0.6rem",
     borderRadius: "999px",
-    background: "rgba(128,128,128,0.18)",
     whiteSpace: "nowrap",
   },
 };
+
+// Pill backgrounds, indexed by a field's position in :tag-fields:. Index 0 is
+// the original grey, so a default `tags` field is unchanged.
+const palette = [
+  "rgba(128,128,128,0.18)", // grey (default)
+  "rgba(56,139,253,0.20)", // blue
+  "rgba(63,185,80,0.20)", // green
+  "rgba(219,109,40,0.22)", // orange
+];
 
 // A bold title line (a div, not a heading, so it stays out of the TOC),
 // linked to the item when it has a url.
@@ -66,20 +74,28 @@ function line(cls: string, style: any, value: string) {
   return { type: "div", class: cls, style, children: [{ type: "text", value }] };
 }
 
-// Tags → a row of pill spans. Null when there are none (caller omits it).
-function renderTags(tags: any) {
-  if (!Array.isArray(tags) || tags.length === 0) return null;
+// One field's values → a row of pills, colored by the field's palette slot.
+// Null when the field is absent/empty (caller omits it).
+function renderTagGroup(values: any, colorIndex: number) {
+  if (!Array.isArray(values) || values.length === 0) return null;
+  const background = palette[colorIndex % palette.length];
   return {
     type: "span",
     class: "myst-listing-tags",
     style: S.tags,
-    children: tags.map((t) => ({
+    children: values.map((t) => ({
       type: "span",
       class: "myst-listing-tag",
-      style: S.tag,
+      style: { ...S.tag, background },
       children: [{ type: "text", value: String(t) }],
     })),
   };
+}
+
+// An item's configured tag fields as colored pill rows, empties skipped.
+function renderTagGroups(item: any, node: any) {
+  const fields: string[] = node.tagFields ?? ["tags"];
+  return fields.map((f, i) => renderTagGroup(item[f], i)).filter(Boolean);
 }
 
 // Centered cover image, or null when there is no thumbnail.
@@ -133,7 +149,7 @@ function renderGallery(items: any[], node: any) {
       children: [
         renderCover(item),
         { type: "cardTitle", children: [{ type: "text", value: cellText(item.title) }] },
-        renderTags(item.tags),
+        ...renderTagGroups(item, node),
         desc && line("myst-listing-description", S.description, truncate(desc)),
       ].filter(Boolean),
     };
@@ -145,7 +161,7 @@ function renderGallery(items: any[], node: any) {
 
 // Description-forward stacked cards: a content column (title, date meta, full
 // description, tags) with the thumbnail, if any, floated to its right.
-function renderSummary(items: any[]) {
+function renderSummary(items: any[], node: any) {
   const cards = items.map((item) => {
     const content = {
       type: "div",
@@ -154,7 +170,7 @@ function renderSummary(items: any[]) {
         titleLine(item),
         item.date && line("myst-listing-meta", S.meta, cellText(item.date)),
         item.description && line("myst-listing-description", S.description, cellText(item.description)),
-        renderTags(item.tags),
+        ...renderTagGroups(item, node),
       ].filter(Boolean),
     };
     const thumb = item.thumbnail && {

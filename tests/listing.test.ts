@@ -80,8 +80,17 @@ describe("gallery display (displays/gallery.md)", () => {
   const galleries = withClass(ast, "myst-listing-gallery");
 
   it("renders every gallery listing on the page", () => {
-    // yaml, files, grid-columns, and the filter-live demo.
-    expect(galleries.length).toBe(4);
+    // yaml, files, grid-columns, tag-fields, and the filter-live demo.
+    expect(galleries.length).toBe(5);
+  });
+
+  it("colors :tag-fields: groups by their position in the list", () => {
+    // The tag-fields demo (4th gallery) renders `libraries` then `domains`.
+    const pills = withClass(galleries[3], "myst-listing-tag");
+    const backgrounds = new Set(pills.map((p: any) => p.style?.background));
+    expect(pills.length).toBeGreaterThan(0);
+    // Two fields → two distinct pill colors.
+    expect(backgrounds.size).toBe(2);
   });
 
   it("uses MyST's clickable card node, with the url on the whole card", () => {
