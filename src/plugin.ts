@@ -2,7 +2,7 @@
  * MyST Listing: a {listing} directive that collects items and displays them.
  * Pipeline: directive emits a listingPlaceholder -> collect.ts fills node.items
  * -> the render transform here filters/sorts/limits and picks a display.ts view.
- * See docs/developer.md for the extension points.
+ * See docs/extending.md for the extension points.
  */
 import { fileWarn, type DirectiveSpec, type TransformSpec } from "myst-common";
 import { PLACEHOLDER, ctxRef } from "./shared.js";
