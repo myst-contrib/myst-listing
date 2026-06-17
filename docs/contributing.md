@@ -83,3 +83,15 @@ Now `:source: json` `:path: data.json` works.
 The middle layer lives in `src/plugin.ts` (`applyFilter`, `sortItems`).
 To add a new behaviour, read a new option off the placeholder and act on the item list before it reaches the display.
 Return the same shape you receive: a list of items in, a list of items out.
+
+## How this package was developed
+
+Here's a rough timeline for how this package was developed:
+
+- Much of the code was initially developed in a collection of one-off plugins that are mentioned in the "Design use cases" section.
+- We used Claude Code to design a specification and architecture for a listing system that could meet all of those use cases.
+  - Two of them (blog post lists and galleries from a YAML file) were designed as core functionality of the plugin.
+  - Two of them (github issue tables and multi-yaml downloads) were designed as "design cases for pluggability" of this plugin (ie, creating new collectors etc).
+- The result of this is the `collect`, `transform`, `display` build system here.
+- We then spent several cycles building out the core functionality here, using the [Project Pythia Cookbook Gallery](https://cookbooks.projectpythia.org), the [Jupyter Book Gallery](https://jupyterbook.org/gallery), and the [Jupyter Book Blog list](https://jupyterbook.org/blog) as design use-cases.
+- There's probably a lot more to add, but we tried to keep it as simple as possible for now. If this feels like a useful pattern to build upon, then we can keep iterating on this codebase via issues!
