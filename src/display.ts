@@ -3,6 +3,8 @@
  * into a single AST node. Add a built-in view via the `displays` map below.
  * See docs/extending.md for adding one from an external plugin.
  */
+import { rawImageSrc } from "./shared.js";
+
 export type Display = (items: any[], node: any) => any;
 
 function cellText(value: any): string {
@@ -116,7 +118,7 @@ function renderCover(item: any) {
   return {
     type: "div",
     class: "myst-listing-cover",
-    style: { ...S.cover, backgroundImage: `url("${String(item.thumbnail)}")` },
+    style: { ...S.cover, backgroundImage: `url("${rawImageSrc(String(item.thumbnail))}")` },
     children: [],
   };
 }
@@ -191,7 +193,7 @@ function renderSummary(items: any[], node: any) {
       type: "div",
       class: "myst-listing-thumb",
       style: S.summaryThumb,
-      children: [{ type: "image", url: String(item.thumbnail), alt: cellText(item.title), width: "160px" }],
+      children: [{ type: "image", url: rawImageSrc(String(item.thumbnail)), alt: cellText(item.title), width: "160px" }],
     };
     const row = { type: "div", style: S.summaryRow, children: thumb ? [content, thumb] : [content] };
     return {

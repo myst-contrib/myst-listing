@@ -9,6 +9,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import { toText } from "myst-common";
+import { rawImageSrc } from "../src/shared";
 
 const loadPage = (slug: string) =>
   JSON.parse(readFileSync(`docs/_build/site/content/${slug}.json`, "utf-8")).mdast;
@@ -31,6 +32,19 @@ const column = (table: any, name: string) => {
   return table.children.slice(1).map((row: any) => toText(row.children[i]));
 };
 const rowCount = (table: any) => table.children.length - 1;
+
+describe("rawImageSrc", () => {
+  it("rewrites a github blob URL to the raw host", () => {
+    expect(rawImageSrc("https://github.com/o/r/blob/main/logo.png")).toBe(
+      "https://raw.githubusercontent.com/o/r/main/logo.png",
+    );
+  });
+  it("leaves raw and unrelated URLs untouched", () => {
+    const raw = "https://raw.githubusercontent.com/o/r/main/logo.png";
+    expect(rawImageSrc(raw)).toBe(raw);
+    expect(rawImageSrc("https://example.com/x.png")).toBe("https://example.com/x.png");
+  });
+});
 
 describe("table display (displays/table.md)", () => {
   const ast = loadPage("displays.table");

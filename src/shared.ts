@@ -7,3 +7,12 @@ export const PLACEHOLDER = "listingPlaceholder";
  * for the collector to reuse. Remove once transforms get their own `ctx`:
  * https://github.com/jupyter-book/mystmd/issues/2626 */
 export const ctxRef: { parseMyst?: (content: string) => any } = {};
+
+/** A GitHub `/blob/` URL is an HTML file page, not an image, so it can't load as
+ * a thumbnail. Rewrite that common paste mistake to the raw host. */
+export function rawImageSrc(url: string): string {
+  return url.replace(
+    /^(https?:\/\/)github\.com\/([^/]+\/[^/]+)\/blob\//,
+    "$1raw.githubusercontent.com/$2/",
+  );
+}
