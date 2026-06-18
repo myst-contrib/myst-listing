@@ -3,7 +3,7 @@
  * into a single AST node. Add a built-in view via the `displays` map below.
  * See docs/extending.md for adding one from an external plugin.
  */
-import { rawImageSrc } from "./shared.js";
+import { ctxRef, rawImageSrc } from "./shared.js";
 
 export type Display = (items: any[], node: any) => any;
 
@@ -83,14 +83,21 @@ const palette = [
   "rgba(219,109,40,0.22)", // orange
 ];
 
+// Title text may carry inline markup (a `<br>`, code, emphasis). Parse it to
+// inline AST so it renders rather than showing the raw characters, falling back
+// to a plain text node when the parser is unavailable or yields nothing.
+function titleInlines(item: any): any[] {
+  const text = cellText(item.title);
+  const para = ctxRef.parseMyst?.(text)?.children?.find((c: any) => c.type === "paragraph");
+  return para?.children?.length ? para.children : [{ type: "text", value: text }];
+}
+
 // A bold title line (a div, not a heading, so it stays out of the TOC),
 // linked to the item when it has a url.
 function titleLine(item: any) {
-  const text = cellText(item.title);
-  const label = item.url
-    ? { type: "link", url: item.url, children: [{ type: "text", value: text }] }
-    : { type: "text", value: text };
-  return { type: "div", class: "myst-listing-title", style: S.title, children: [{ type: "strong", children: [label] }] };
+  const inlines = titleInlines(item);
+  const label = item.url ? [{ type: "link", url: item.url, children: inlines }] : inlines;
+  return { type: "div", class: "myst-listing-title", style: S.title, children: [{ type: "strong", children: label }] };
 }
 
 function truncate(s: string, n = 140) {
@@ -178,7 +185,7 @@ function renderGallery(items: any[], node: any) {
       url: item.url || undefined,
       children: [
         renderCover(item),
-        { type: "cardTitle", children: [{ type: "text", value: cellText(item.title) }] },
+        { type: "cardTitle", children: titleInlines(item) },
         desc && line("myst-listing-description", S.description, truncate(desc)),
         // Tags last, as a footer — secondary metadata shouldn't break the
         // title→description read. Matches the summary view's order.
@@ -195,12 +202,16 @@ function renderGallery(items: any[], node: any) {
 // description, tags) with the thumbnail, if any, floated to its right.
 function renderSummary(items: any[], node: any) {
   const cards = items.map((item) => {
+    // Date and author(s) on one muted meta line, e.g. "May 20, 2026 · Jane Doe".
+    const meta = [cellText(item.date), cellText(item.authors ?? item.author)]
+      .filter(Boolean)
+      .join(" · ");
     const content = {
       type: "div",
       style: { flex: 1, minWidth: 0 },
       children: [
         titleLine(item),
-        item.date && line("myst-listing-meta", S.meta, cellText(item.date)),
+        meta && line("myst-listing-meta", S.meta, meta),
         item.description && line("myst-listing-description", S.description, cellText(item.description)),
         ...renderTagGroups(item, node),
       ].filter(Boolean),
