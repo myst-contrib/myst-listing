@@ -36,18 +36,18 @@ function cellText(value: any): string {
 // are emitted as divs. Greys-with-alpha read well on light and dark themes;
 // class names are override hooks.
 const S: Record<string, any> = {
-  summaryStack: { display: "flex", flexDirection: "column", gap: "1.1rem", margin: "1.5rem 0" },
+  // Gap between cards is wider than the gaps within one (title/meta/description),
+  // so each post reads as a single grouped unit.
+  summaryStack: { display: "flex", flexDirection: "column", gap: "1.75rem", margin: "1.5rem 0" },
   // The flex row lives on an inner wrapper, not the card: searchfilter toggles
   // the card's inline `display`, which would otherwise clobber `flex`.
   summaryCard: { borderLeft: "3px solid rgba(128,128,128,0.3)", paddingLeft: "1rem" },
   summaryRow: { display: "flex", gap: "1rem", alignItems: "flex-start" },
-  summaryThumb: { flexShrink: 0, display: "flex", borderRadius: "8px", overflow: "hidden" },
-  // Background image (not an <image> node) so it can `contain` without cropping
-  // logos, giving every card the same 3:2 footprint.
-  cover: {
-    width: "100%",
+  // A framed thumbnail: a fixed 3:2 background-image box (not an <image> node) so
+  // it can `contain` without cropping logos, giving every card the same footprint.
+  // Shared by the gallery cover and the summary thumbnail so both read the same.
+  coverBase: {
     aspectRatio: "3 / 2",
-    padding: "0.6rem",
     boxSizing: "border-box",
     // Semi-transparent white: invisible on light cards, a light backing on dark
     // ones, so dark/transparent logos stay legible in both themes.
@@ -57,12 +57,24 @@ const S: Record<string, any> = {
     backgroundPosition: "center",
     backgroundOrigin: "content-box",
     borderRadius: "8px",
-    marginBottom: "0.5rem",
   },
-  title: { margin: "0.5rem 0 0.3rem", fontWeight: 600, fontSize: "1.05rem" },
-  description: { margin: "0.4rem 0", opacity: 0.8 },
+  // Full card width, above the content.
+  cover: { width: "100%", padding: "0.6rem", marginBottom: "0.5rem" },
+  // Fixed-width strip floated beside the summary content, so the column of
+  // thumbnails has a clean, even right edge regardless of each image's shape.
+  summaryThumb: { flexShrink: 0, width: "200px", padding: "0.4rem" },
+  title: { margin: "0 0 0.25rem", fontWeight: 600, fontSize: "1.05rem" },
+  description: { margin: "0.25rem 0", opacity: 0.8 },
+  // Gallery-only: clamp the description to a few lines so every card's text
+  // block is the same height, keeping the grid tidy. Full text stays in the DOM.
+  descriptionClamp: {
+    display: "-webkit-box",
+    WebkitLineClamp: "4",
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
+  },
   meta: { margin: "0.1rem 0", opacity: 0.6, fontSize: "0.85rem" },
-  tags: { display: "inline-flex", flexWrap: "wrap", gap: "0.35rem", margin: "0.4rem 0" },
+  tags: { display: "inline-flex", flexWrap: "wrap", gap: "0.35rem", margin: "0.5rem 0 0" },
   // Gallery-only: clip tags to a single row so a tag-heavy card doesn't grow
   // taller than its neighbors. One pill is ~1.5rem with line-height.
   tagsClip: { maxHeight: "1.55rem", overflow: "hidden" },
@@ -92,16 +104,13 @@ function titleInlines(item: any): any[] {
   return para?.children?.length ? para.children : [{ type: "text", value: text }];
 }
 
-// A bold title line (a div, not a heading, so it stays out of the TOC),
-// linked to the item when it has a url.
-function titleLine(item: any) {
+// A bold title line (a div, not a heading, so it stays out of the TOC), linked
+// to the item when it has a url. Gallery passes linked=false because its card
+// already wraps everything in one link (no nested <a>).
+function titleLine(item: any, linked = true) {
   const inlines = titleInlines(item);
-  const label = item.url ? [{ type: "link", url: item.url, children: inlines }] : inlines;
+  const label = linked && item.url ? [{ type: "link", url: item.url, children: inlines }] : inlines;
   return { type: "div", class: "myst-listing-title", style: S.title, children: [{ type: "strong", children: label }] };
-}
-
-function truncate(s: string, n = 140) {
-  return s.length > n ? s.slice(0, n).trimEnd() + "…" : s;
 }
 
 // A styled text line.
@@ -134,14 +143,15 @@ function renderTagGroups(item: any, node: any, extraStyle?: any) {
   return fields.map((f, i) => renderTagGroup(item[f], i, extraStyle)).filter(Boolean);
 }
 
-// Full-width cover (background image on an empty div), or null with no thumbnail.
-// Decorative — the card title link carries the accessible name.
-function renderCover(item: any) {
+// A framed thumbnail (background image on an empty div), or null with no
+// thumbnail. Decorative — the card title link carries the accessible name.
+// `style` picks the footprint: full-width cover (gallery) or fixed strip (summary).
+function coverDiv(item: any, style: any, cls: string) {
   if (!item.thumbnail) return null;
   return {
     type: "div",
-    class: "myst-listing-cover",
-    style: { ...S.cover, backgroundImage: `url("${rawImageSrc(String(item.thumbnail))}")` },
+    class: cls,
+    style: { ...S.coverBase, ...style, backgroundImage: `url("${rawImageSrc(String(item.thumbnail))}")` },
     children: [],
   };
 }
@@ -179,19 +189,27 @@ function renderTable(items: any[], node: any) {
 function renderGallery(items: any[], node: any) {
   const cards = items.map((item) => {
     const desc = cellText(item.description);
-    return {
-      type: "card",
-      class: "myst-listing-card",
-      url: item.url || undefined,
+    // Tags last, as a footer — secondary metadata shouldn't break the
+    // title→description read. Matches the summary view's order. The wrapping div
+    // gets margin-top:auto so the footer sits on the card's bottom edge, giving
+    // every card in a row the same tag baseline however long its text is.
+    const tagGroups = renderTagGroups(item, node, S.tagsClip);
+    const tagFooter =
+      tagGroups.length > 0 ? { type: "div", style: { marginTop: "auto" }, children: tagGroups } : null;
+    // One flex column filling the card height (the card body is a block, so it
+    // can't pin the footer itself). Title is a plain div, not a cardTitle, so it
+    // can live inside this wrapper; the card's url already links the whole card.
+    const body = {
+      type: "div",
+      style: { display: "flex", flexDirection: "column", height: "100%" },
       children: [
-        renderCover(item),
-        { type: "cardTitle", children: titleInlines(item) },
-        desc && line("myst-listing-description", S.description, truncate(desc)),
-        // Tags last, as a footer — secondary metadata shouldn't break the
-        // title→description read. Matches the summary view's order.
-        ...renderTagGroups(item, node, S.tagsClip),
+        coverDiv(item, S.cover, "myst-listing-cover"),
+        titleLine(item, false),
+        desc && line("myst-listing-description", { ...S.description, ...S.descriptionClamp }, desc),
+        tagFooter,
       ].filter(Boolean),
     };
+    return { type: "card", class: "myst-listing-card", url: item.url || undefined, children: [body] };
   });
   // A fixed count if asked, else responsive 1→4 across breakpoints.
   const columns = node.gridColumns ? [node.gridColumns] : [1, 2, 3, 4];
@@ -216,12 +234,7 @@ function renderSummary(items: any[], node: any) {
         ...renderTagGroups(item, node),
       ].filter(Boolean),
     };
-    const thumb = item.thumbnail && {
-      type: "div",
-      class: "myst-listing-thumb",
-      style: S.summaryThumb,
-      children: [{ type: "image", url: rawImageSrc(String(item.thumbnail)), alt: cellText(item.title), width: "160px" }],
-    };
+    const thumb = coverDiv(item, S.summaryThumb, "myst-listing-thumb");
     const row = { type: "div", style: S.summaryRow, children: thumb ? [content, thumb] : [content] };
     return {
       type: "div",
