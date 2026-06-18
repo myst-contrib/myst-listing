@@ -7,10 +7,26 @@ import { rawImageSrc } from "./shared.js";
 
 export type Display = (items: any[], node: any) => any;
 
+// A long, locale-aware date ("May 20, 2026"). Formatted in UTC because YAML
+// dates are midnight-UTC, and a local timezone could roll them back a day.
+const dateFmt = new Intl.DateTimeFormat("en", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  timeZone: "UTC",
+});
+
+// A field's value as display text. Lists join with commas; dates (a Date or a
+// "YYYY-MM-DD" string) format long; author-like objects render by name.
 function cellText(value: any): string {
   if (value == null) return "";
-  if (value instanceof Date) return value.toISOString().slice(0, 10);
-  if (Array.isArray(value)) return value.join(", ");
+  if (Array.isArray(value)) return value.map(cellText).join(", ");
+  if (value instanceof Date) return dateFmt.format(value);
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+    const d = new Date(value);
+    if (!isNaN(d.getTime())) return dateFmt.format(d);
+  }
+  if (typeof value === "object") return value.name ?? value.id ?? "";
   return String(value);
 }
 

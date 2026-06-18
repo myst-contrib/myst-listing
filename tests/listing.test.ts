@@ -63,8 +63,9 @@ describe("table display (displays/table.md)", () => {
   });
 
   it("sorts by date-desc by default", () => {
-    const dates = column(byColumns, "date");
-    expect(dates).toEqual([...dates].sort().reverse());
+    // Dates render in long form ("May 15, 2025"), so compare chronologically.
+    const times = column(byColumns, "date").map((d: string) => new Date(d).getTime());
+    expect(times).toEqual([...times].sort((a, b) => b - a));
   });
 
   it("sorts by title-asc when asked", () => {
