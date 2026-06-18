@@ -40,7 +40,9 @@ No field is _required_, but the built-in displays and options understand these:
 * - `description`
   - Summary text. Shown in full by `summary`, truncated by `gallery`.
 * - `date`
-  - Sorted on by the default `date-desc`, and shown as a meta line.
+  - Sorted on by the default `date-desc`, and shown as a meta line. A Date or `YYYY-MM-DD` string renders long, e.g. *January 1, 2025*.
+* - `author` / `authors`
+  - A single name or a list. Shown in the `summary` meta line beside the date. Names are shown as written (an id referencing a project author is not resolved).
 * - `tags`
   - A list of strings. Shown as pills; `:filter: tags=news` matches by containment.
 * - `thumbnail`
