@@ -3,7 +3,7 @@
  * into a single AST node. Add a built-in view via the `displays` map below.
  * See docs/extending.md for adding one from an external plugin.
  */
-import { ctxRef, rawImageSrc } from "./shared.js";
+import { ctxRef, rawImageSrc, toTagList } from "./shared.js";
 
 export type Display = (items: any[], node: any) => any;
 
@@ -121,17 +121,18 @@ function line(cls: string, style: any, value: string) {
 // One field's values → a row of pills, colored by the field's palette slot.
 // Null when the field is absent/empty (caller omits it).
 function renderTagGroup(values: any, colorIndex: number, extraStyle?: any) {
-  if (!Array.isArray(values) || values.length === 0) return null;
+  const tags = toTagList(values);
+  if (tags.length === 0) return null;
   const background = palette[colorIndex % palette.length];
   return {
     type: "span",
     class: "myst-listing-tags",
     style: { ...S.tags, ...extraStyle },
-    children: values.map((t) => ({
+    children: tags.map((t) => ({
       type: "span",
       class: "myst-listing-tag",
       style: { ...S.tag, background },
-      children: [{ type: "text", value: String(t) }],
+      children: [{ type: "text", value: t }],
     })),
   };
 }

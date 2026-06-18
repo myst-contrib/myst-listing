@@ -16,3 +16,14 @@ export function rawImageSrc(url: string): string {
     "$1raw.githubusercontent.com/$2/",
   );
 }
+
+/** Tag fields may be a YAML list (`[a, b]`) or a `;`/`,`-delimited shorthand
+ * string (`"a; b, c"`). Normalize either to a trimmed list, dropping empties. */
+export function toTagList(value: unknown): string[] {
+  const parts = Array.isArray(value)
+    ? value.map(String)
+    : typeof value === "string"
+      ? value.split(/[;,]/)
+      : [];
+  return parts.map((s) => s.trim()).filter(Boolean);
+}

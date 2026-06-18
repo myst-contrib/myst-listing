@@ -9,7 +9,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import { toText } from "myst-common";
-import { rawImageSrc } from "../src/shared";
+import { rawImageSrc, toTagList } from "../src/shared";
 
 const loadPage = (slug: string) =>
   JSON.parse(readFileSync(`docs/_build/site/content/${slug}.json`, "utf-8")).mdast;
@@ -43,6 +43,20 @@ describe("rawImageSrc", () => {
     const raw = "https://raw.githubusercontent.com/o/r/main/logo.png";
     expect(rawImageSrc(raw)).toBe(raw);
     expect(rawImageSrc("https://example.com/x.png")).toBe("https://example.com/x.png");
+  });
+});
+
+describe("toTagList", () => {
+  it("keeps a YAML list, trimmed", () => {
+    expect(toTagList(["a", " b "])).toEqual(["a", "b"]);
+  });
+  it("splits a delimited string on ; or , and drops empties", () => {
+    expect(toTagList("a; b, c")).toEqual(["a", "b", "c"]);
+    expect(toTagList("a; b;")).toEqual(["a", "b"]); // trailing delimiter
+  });
+  it("returns [] for empty or non-string/array values", () => {
+    expect(toTagList(undefined)).toEqual([]);
+    expect(toTagList("")).toEqual([]);
   });
 });
 
