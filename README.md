@@ -16,7 +16,7 @@ This pulls the bundle attached to the _latest_ release, so MyST loads it without
 ```yaml
 project:
   plugins:
-    - https://github.com/jupyter-book/myst-listing/releases/latest/download/plugin.mjs
+    - https://github.com/myst-contrib/myst-listing/releases/latest/download/plugin.mjs
 ```
 
 To pin a specific version, swap `latest/download` for a tag, e.g. `download/v0.1.0`.
