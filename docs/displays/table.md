@@ -80,6 +80,21 @@ Set `:source: yaml` and point `:path:` at a `.yml` whose top-level entries use o
 :::
 ::::::
 
+## From inline YAML
+
+For a quick one-off listing, skip the file and write the YAML list straight in the directive body:
+
+::::::{myst:demo}
+:::{listing}
+:source: yaml
+:columns: title,description
+- title: Inline One
+  description: Written in the directive body
+- title: Inline Two
+  description: No file needed
+:::
+::::::
+
 ## Filter it live
 
 Each **data** row carries a `myst-listing-item` class (the header doesn't, so it stays put), which the [`searchfilter`](https://github.com/jupyter-book/myst-plugins/tree/main/plugins/searchfilter) plugin can target to filter rows as you type:

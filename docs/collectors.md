@@ -61,6 +61,9 @@ Most examples in the [displays pages](./displays/index.md) use this source - for
 Set `:source: yaml` and point `:path:` at a `.yml` file whose top-level entries already use the [item fields](#items).
 The [`table`](./displays/table.md) and [`gallery`](./displays/gallery.md) pages both show this in action, collecting from `links.yml`.
 
+You can also write the YAML list directly in the directive body instead of pointing at a file, which is handy for a short, one-off listing.
+The body wins over `:path:` when both are given.
+
 ## Add new collectors
 
 Collectors are designed to be extendable with other MyST plugins.

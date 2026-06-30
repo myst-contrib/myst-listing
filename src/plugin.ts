@@ -15,6 +15,7 @@ const csv = (s: string) => s.split(",").map((c) => c.trim()).filter(Boolean);
 const listingDirective: DirectiveSpec = {
   name: "listing",
   doc: "Collect items and display them as a table, gallery, or summary.",
+  body: { type: String, doc: "Inline YAML list of items (currently only used with source: yaml)." },
   options: {
     source: { type: String, doc: "Where items come from: 'files' or 'yaml'. Default 'files'." },
     display: { type: String, doc: "View: 'table', 'gallery', or 'summary'. Default 'table'." },
@@ -36,6 +37,7 @@ const listingDirective: DirectiveSpec = {
         source: (o.source as string) ?? "files",
         display: (o.display as string) ?? "table",
         path: o.path as string | undefined,
+        body: data.body as string | undefined,
         sort: (o.sort as string) ?? "date-desc",
         limit: (o.limit as number) ?? 10,
         filter: o.filter as string | undefined,

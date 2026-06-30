@@ -34,12 +34,14 @@ function collectFiles(node: any, vfile: any) {
 }
 
 function collectYaml(node: any, vfile: any) {
-  const entries = load(readFileSync(node.path, { encoding: "utf-8" }));
-  if (!Array.isArray(entries)) throw new Error(`yaml source ${node.path} is not a top-level list`);
+  // Inline YAML in the directive body wins over :path:; either is a top-level list.
+  const src = node.body ? "directive body" : node.path;
+  const entries = load(node.body ?? readFileSync(node.path, { encoding: "utf-8" }));
+  if (!Array.isArray(entries)) throw new Error(`yaml source ${src} is not a top-level list`);
   // Entries already use our field names; pass them through. Title is required.
   node.items = entries.filter((item: any) => {
     if (item?.title) return true;
-    fileWarn(vfile, `Skipping ${node.path} entry with no title`, { node });
+    fileWarn(vfile, `Skipping ${src} entry with no title`, { node });
     return false;
   });
 }

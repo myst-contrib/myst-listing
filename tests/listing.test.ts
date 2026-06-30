@@ -63,10 +63,14 @@ describe("toTagList", () => {
 describe("table display (displays/table.md)", () => {
   const ast = loadPage("displays.table");
   const tables = tablesIn(ast);
-  const [byColumns, titleAsc, random, filtered, limited, yaml] = tables;
+  const [byColumns, titleAsc, random, filtered, limited, yaml, inlineYaml] = tables;
 
   it("renders one table per listing", () => {
-    expect(tables.length).toBe(7); // columns, sort, random, filter, limit, yaml, filter-live
+    expect(tables.length).toBe(8); // columns, sort, random, filter, limit, yaml, inline-yaml, filter-live
+  });
+
+  it("collects from inline YAML in the directive body", () => {
+    expect(column(inlineYaml, "title")).toEqual(["Inline One", "Inline Two"]);
   });
 
   it("links the title to the resolved internal page url", () => {
