@@ -29,7 +29,7 @@ For your transform to run at the right time:
 
 Set `node.items` for the source you own; leave the rest alone:
 
-```js
+```javascript
 const collectStars = {
   name: "listing-collect-stars",
   stage: "document",
@@ -51,7 +51,7 @@ Load both plugins in `myst.yml` (yours first), and `:source: stars` now works.
 Replace a node whose `:display:` you own with your own AST.
 By this point a collector has already filled `node.items`:
 
-```js
+```javascript
 const renderBadges = {
   name: "listing-display-badges",
   stage: "document",
