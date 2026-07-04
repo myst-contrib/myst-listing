@@ -87,19 +87,20 @@ const S: Record<string, any> = {
   feedDate: { ...muted, fontWeight: 600, opacity: 0.75 },
   feedByline: { ...muted, margin: 0 },
   readMore: { margin: "0.75rem 0 0", fontWeight: 600 },
-  tags: { display: "inline-flex", flexWrap: "wrap", gap: "0.35rem", margin: "0.5rem 0 0" },
-  // Gallery-only: clip tags to a single row so a tag-heavy card doesn't grow
-  // taller than its neighbors. One pill is ~1.5rem with line-height.
-  tagsClip: { maxHeight: "1.55rem", overflow: "hidden" },
+  tags: { display: "inline-flex", flexWrap: "wrap", gap: "0.3rem", margin: "0.4rem 0 0" },
+  // Gallery-only: clip tags to one row (~1.3rem/pill) so a tag-heavy card
+  // doesn't grow taller than its neighbors.
+  tagsClip: { maxHeight: "1.35rem", overflow: "hidden" },
   tag: {
-    fontSize: "0.75rem",
-    padding: "0.1rem 0.6rem",
-    borderRadius: "999px",
+    fontSize: "0.7rem",
+    padding: "0.05rem 0.4rem",
+    borderRadius: "4px",
+    opacity: 0.85,
     whiteSpace: "nowrap",
   },
 };
 
-// Pill backgrounds, indexed by a field's position in :tag-fields:. Index 0 is
+// Tag backgrounds, indexed by a field's position in :tag-fields:. Index 0 is
 // the original grey, so a default `tags` field is unchanged.
 const palette = [
   "rgba(128,128,128,0.18)", // grey (default)
