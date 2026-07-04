@@ -15,17 +15,20 @@ Rendered:
 :::
 ::::::
 
-See [Displays](./displays/index.md) for the table, gallery, and summary views and their options.
+See [Displays](./displays/index.md) for the built-in displays and their options.
 
 ## Design
 
-This plugin is designed to be extendable at each of the following three levels:
+This plugin is designed around the following three stages:
 
 - Collect: Download, find, or otherwise collect items and return a structured dataset of those items.
 - Transform: Take this dataset and optionally transform them by modifying entries, adding metadata, etc.
 - Display: Take the dataset and use the structured data to render each entry in a few common ways (lists, tables, etc).
 
-This is probably a more complex design that we strictly need for some base functionality, but I'm trying to separate these out *and* make them pluggable, to see if we can build some base functionality here, and then build other plugins that leverage the same rendering infrastructure for other use-cases (like the github issues plugin).
+Other plugins can add their own collectors and displays (see [Extending](./extending.md)).
+The transform stage is not an extension point yet.
+
+This is probably a more complex design than we strictly need for some base functionality, but I'm trying to separate these out *and* make them pluggable, to see if we can build some base functionality here, and then build other plugins that leverage the same rendering infrastructure for other use-cases (like the github issues plugin).
 
 If that results in plugins that feel hacky and unnecessarily complicated, we might simplify this a bit!
 
@@ -37,6 +40,7 @@ For built-in functionality:
 
 - The [blog plugin](https://github.com/jupyter-book/blog-plugin) has some logic for collecting files on disk and displaying them in a table.
 - The [Jupyter Book gallery](https://github.com/jupyter-book/jupyterbook.org/tree/main/docs/src/gallery.yml) has code for hand-rolling a gallery with Python.
+- The `feed` display follows the changelog pattern of the Zen browser and nteract changelogs, and the staff-bio pattern of a Berkeley course staff page; see the screenshots in [issue #7](https://github.com/myst-contrib/myst-listing/issues/7).
 
 For plugin-level extensions functionality (ie, we want other MyST plugins to extend `myst-listing` functionality to meet these extra use-cases):
 
