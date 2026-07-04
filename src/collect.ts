@@ -22,13 +22,15 @@ function collectFiles(node: any, vfile: any) {
   node.items = globSync(pattern).map((path) => {
     const ast = ctxRef.parseMyst!(readFileSync(path, { encoding: "utf-8" }));
     const { frontmatter } = getFrontmatter(vfile, ast);
-    // Frontmatter fields already match our field names, so pass them through and
-    // only add url + a title fallback. url is the project-rooted source path
-    // ("/posts/x.md"); MyST's link resolver rewrites it to the real output URL.
+    // url is the project-rooted source path ("/posts/x.md"); MyST's link
+    // resolver rewrites it to the real output URL. body (parsed blocks, only
+    // rendered by the feed display) has a known limitation: relative image/link
+    // paths resolve against the listing page, not the source file.
     return {
       ...frontmatter,
       url: `/${path}`,
       title: frontmatter?.title ?? "<Untitled>",
+      body: ast.children ?? [],
     };
   });
 }
@@ -38,7 +40,6 @@ function collectYaml(node: any, vfile: any) {
   const src = node.body ? "directive body" : node.path;
   const entries = load(node.body ?? readFileSync(node.path, { encoding: "utf-8" }));
   if (!Array.isArray(entries)) throw new Error(`yaml source ${src} is not a top-level list`);
-  // Entries already use our field names; pass them through. Title is required.
   node.items = entries.filter((item: any) => {
     if (item?.title) return true;
     fileWarn(vfile, `Skipping ${src} entry with no title`, { node });

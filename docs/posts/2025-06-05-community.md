@@ -8,4 +8,12 @@ thumbnail: https://picsum.photos/seed/community/400/300
 
 # Community roundup
 
-What the community has been building.
+Our latest community call was the busiest one yet.
+Here are the highlights from a packed hour of demos and discussion.
+
+- Five new contributors landed their first pull requests this month.
+- Three plugins are in the works, including a GitHub-releases collector.
+- We sketched a roadmap for the next release cycle, with a focus on accessibility.
+
+Thanks to everyone who joined.
+The next call is on the first Thursday of the month.

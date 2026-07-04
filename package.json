@@ -4,7 +4,7 @@
   "main": "dist/plugin.mjs",
   "type": "module",
   "license": "MIT",
-  "description": "Collect items and display them as tables, galleries, or summaries.",
+  "description": "Collect items and display them as tables, galleries, summaries, or feeds.",
   "private": true,
   "devDependencies": {
     "@types/mdast": "^4.0.4",

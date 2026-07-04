@@ -2,8 +2,8 @@
 title: Displays
 ---
 
-A `{listing}` renders its collected items with one of three built-in **displays**, chosen with the `:display:` option.
-Each leads with a different field: galleries are image-forward, summaries are text-forward.
+A `{listing}` renders its collected items with one of four built-in **displays**, chosen with the `:display:` option.
+Each leads with a different field:
 
 ```{list-table}
 :header-rows: 1
@@ -18,8 +18,11 @@ Each leads with a different field: galleries are image-forward, summaries are te
   - visual collections
   - a thumbnail image
 * - [`summary`](./summary.md)
-  - reading lists, blogs
+  - blog indexes, reading lists (scan and click through)
   - the description
+* - [`feed`](./feed.md)
+  - blogs, changelogs, bios (read in place)
+  - the full body
 ```
 
 Below is a quick tour of each; follow the links for the full options.
@@ -37,7 +40,7 @@ The default. Pick the columns you want with `:columns:`.
 
 ## `gallery`
 
-An image-forward card grid. Each card leads with its `thumbnail`.
+An image-forward card grid.
 
 ::::::{myst:demo}
 :::{listing}
@@ -49,12 +52,25 @@ An image-forward card grid. Each card leads with its `thumbnail`.
 
 ## `summary`
 
-Stacked cards that foreground the full `description`.
+Stacked cards that show each item's `description`.
 
 ::::::{myst:demo}
 :::{listing}
 :path: posts/*.md
 :display: summary
+:::
+::::::
+
+## `feed`
+
+The full body of each item, stacked for reading straight down.
+
+::::::{myst:demo}
+:::{listing}
+:path: posts/*.md
+:display: feed
+:body-limit: 2
+:limit: 3
 :::
 ::::::
 

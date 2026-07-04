@@ -41,7 +41,6 @@ Two GitHub Actions handle publishing (see `.github/workflows/`):
 - `release.yml` builds the bundle and attaches `dist/plugin.mjs` to a GitHub Release.
 
 To publish a new bundle, draft a release on GitHub with a tag like `v0.1.0`.
-The workflow above will automatically add the built `.mjs` bundle to the release.
 
 ## Add a built-in display (`:display:`)
 

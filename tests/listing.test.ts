@@ -167,6 +167,49 @@ describe("summary display (displays/summary.md)", () => {
   });
 });
 
+describe("feed display (displays/feed.md)", () => {
+  const ast = loadPage("displays.feed");
+  const feeds = withClass(ast, "myst-listing-feed");
+  const [blog, changelog, staff] = feeds;
+
+  it("renders every feed listing on the page", () => {
+    expect(feeds.length).toBe(5); // blog, changelog, staff, no-images, filter-live
+  });
+
+  it("shows one item per release post, separated by a rule", () => {
+    const items = withClass(changelog, "myst-listing-item");
+    expect(items.length).toBe(3); // posts with :filter: tags=release
+    // The rule is a border on each card after the first (not a sibling <hr>),
+    // so searchfilter hides an item's rule together with the item.
+    expect(items[0].style?.borderTop).toBeUndefined();
+    expect(items.slice(1).every((n: any) => n.style?.borderTop)).toBe(true);
+    // Every post has a date, so every item gets an identity rail; tags render too.
+    expect(withClass(changelog, "myst-listing-rail").length).toBe(3);
+    expect(withClass(changelog, "myst-listing-tag").length).toBeGreaterThan(0);
+  });
+
+  it("renders the post body, not just the description", () => {
+    // A phrase from the Zebra post body, absent from its description.
+    expect(toText(changelog)).toContain("responsive columns");
+  });
+
+  it("keeps body headings out of the TOC by demoting them", () => {
+    expect(withClass(changelog, "myst-listing-heading").length).toBeGreaterThan(0); // Added/Fixed
+    expect(allNodes(changelog).filter((n: any) => n.type === "heading").length).toBe(0);
+  });
+
+  it("caps the body and links on with :body-limit:", () => {
+    const more = withClass(blog, "myst-listing-readmore");
+    expect(more.length).toBeGreaterThan(0);
+    expect(more[0].children[0].type).toBe("link");
+  });
+
+  it("falls back to the description for a yaml source (no page body)", () => {
+    expect(withClass(staff, "myst-listing-item").length).toBeGreaterThan(0);
+    expect(toText(staff).length).toBeGreaterThan(0);
+  });
+});
+
 describe("graceful degradation (displays/index.md)", () => {
   const ast = loadPage("displays.index");
 
