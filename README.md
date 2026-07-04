@@ -2,7 +2,7 @@
 
 A simple MyST plugin for **collecting** items, optionally **transforming** them to add extra metadata, and then **displaying** them in a variety of structured views.
 
-Out of the box, this plugin supports **tables**, **galleries**, and **summaries** of each entry. 
+Out of the box, this plugin supports **tables**, **galleries**, **summaries**, and **feeds** of each entry.
 
 > [!NOTE]
 >

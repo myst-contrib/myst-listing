@@ -9,23 +9,23 @@ import { PLACEHOLDER, ctxRef } from "./shared.js";
 import { collectTransform } from "./collect.js";
 import { displays } from "./display.js";
 
-// Parse a comma-separated option into a trimmed, non-empty list.
 const csv = (s: string) => s.split(",").map((c) => c.trim()).filter(Boolean);
 
 const listingDirective: DirectiveSpec = {
   name: "listing",
-  doc: "Collect items and display them as a table, gallery, or summary.",
+  doc: "Collect items and display them as a table, gallery, summary, or feed.",
   body: { type: String, doc: "Inline YAML list of items (currently only used with source: yaml)." },
   options: {
     source: { type: String, doc: "Where items come from: 'files' or 'yaml'. Default 'files'." },
-    display: { type: String, doc: "View: 'table', 'gallery', or 'summary'. Default 'table'." },
+    display: { type: String, doc: "View: 'table', 'gallery', 'summary', or 'feed'. Default 'table'." },
     path: { type: String, doc: "Glob for 'files' (default './*.md') or path to a .yml for 'yaml'." },
     sort: { type: String, doc: "Sort by 'field', 'field-asc', 'field-desc', or 'random'. Default 'date-desc'." },
     limit: { type: Number, doc: "Maximum number of items. Default 10." },
     filter: { type: String, doc: "Keep only items where field=value." },
     columns: { type: String, doc: "Comma-separated fields for the table view. Default 'title,date'." },
-    "tag-fields": { type: String, doc: "Gallery/summary: frontmatter fields shown as colored pill groups. Default 'tags'." },
+    "tag-fields": { type: String, doc: "Frontmatter fields shown as colored tag groups (all displays except table). Default 'tags'." },
     "grid-columns": { type: Number, doc: "Gallery only: number of columns. Default: responsive 1–4." },
+    "body-limit": { type: Number, doc: "Feed only: cap each item's body to N blocks, with a 'Continue reading' link. Default: full body." },
   },
   run(data, _vfile, ctx) {
     if (!ctxRef.parseMyst && ctx?.parseMyst) ctxRef.parseMyst = ctx.parseMyst;
@@ -44,6 +44,7 @@ const listingDirective: DirectiveSpec = {
         columns: csv((o.columns as string) ?? "title,date"),
         tagFields: csv((o["tag-fields"] as string) ?? "tags"),
         gridColumns: o["grid-columns"] as number | undefined,
+        bodyLimit: o["body-limit"] as number | undefined,
       },
     ];
   },
@@ -75,8 +76,7 @@ function shuffle(items: any[]) {
 
 function sortItems(items: any[], sort: string) {
   if (sort === "random") return shuffle(items);
-  // Only a trailing "-asc"/"-desc" is a direction; otherwise the whole string
-  // is the field name (so a dash-less "title" stays "title", not "titl").
+  // Only a trailing "-asc"/"-desc" is a direction; any other dash is part of the field name.
   const dash = sort.lastIndexOf("-");
   const suffix = dash >= 0 ? sort.slice(dash + 1) : "";
   const hasOrder = suffix === "asc" || suffix === "desc";
@@ -96,7 +96,6 @@ function sortItems(items: any[], sort: string) {
   });
 }
 
-// A muted note for the empty state ("No items found").
 function noteNode(message: string) {
   return {
     type: "paragraph",
@@ -105,8 +104,8 @@ function noteNode(message: string) {
   };
 }
 
-// Errors render as MyST's error admonition (there is no mdast error node).
-// Always pair errorNode with a fileWarn.
+// There is no mdast error node, so errors render as an error admonition.
+// Always pair with a fileWarn.
 function errorNode(message: string) {
   return {
     type: "admonition",
@@ -125,7 +124,7 @@ function replace(node: any, out: any) {
   Object.assign(node, out);
 }
 
-// Turn a placeholder that has items (or an error) into its display node.
+// Turn a placeholder with items (or an error) into its display node.
 function finalize(node: any, vfile: any) {
   if (node.error) {
     fileWarn(vfile, `Listing collect failed: ${node.error}`, { node, source: "listing" });
@@ -134,8 +133,9 @@ function finalize(node: any, vfile: any) {
   let items = applyFilter(node.items ?? [], node.filter);
   items = sortItems(items, node.sort).slice(0, node.limit);
   if (items.length === 0) return replace(node, noteNode("No items found."));
-  // An unknown built-in display is a typo: warn and fall back to the table.
   let display = displays[node.display];
+  // Only reachable from the project-stage cleanup: renderTransform skips
+  // displays it doesn't know, leaving them for an external plugin to claim.
   if (!display) {
     fileWarn(vfile, `Unknown listing display '${node.display}', using 'table'`, {
       node,
@@ -154,9 +154,8 @@ const renderTransform: TransformSpec = {
   doc: "Render {listing} placeholders into their chosen display.",
   plugin: (_opts, utils) => (tree, vfile) => {
     for (const node of utils.selectAll(PLACEHOLDER, tree) as any[]) {
-      // Only finalize what we can render now: items collected and a known
-      // display. Leave anything else for an external collector/view to claim;
-      // the project-stage cleanup is the last responder.
+      // Only finalize what we can render now; leave the rest for an external
+      // collector/view to claim. The project-stage cleanup is the last responder.
       if (node.error || (node.items !== undefined && displays[node.display])) {
         finalize(node, vfile);
       }
@@ -166,9 +165,8 @@ const renderTransform: TransformSpec = {
 
 const cleanupTransform: TransformSpec = {
   name: "listing-cleanup",
-  // Project stage runs after every document-stage collector (ours or an
-  // external plugin's). A placeholder still lacking items here has no
-  // collector for its source, so it's safe to call unknown.
+  // Project stage runs after every document-stage collector, so a placeholder
+  // still lacking items here has no collector and is safe to call unknown.
   stage: "project",
   doc: "Warn on {listing} placeholders no collector claimed.",
   plugin: (_opts, utils) => (tree, vfile) => {

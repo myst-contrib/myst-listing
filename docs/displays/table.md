@@ -4,7 +4,6 @@ title: Table display
 
 The `table` display renders items as rows, one column per field you name in `:columns:`.
 It is the default, so a bare `{listing}` is already a table.
-Tables are the densest display, best for scanning or comparing many items at a glance.
 
 ## Pick your columns
 
@@ -57,7 +56,8 @@ This is useful if you have a gallery and don't want the same things showing up a
 ## Limit how many
 
 `:limit:` caps the number of rows (default 10).
-Combine it with `:sort:` for a "top N" list — here, the three most recent posts:
+Combine it with `:sort:` to make a "top N" list.
+Here, the three most recent posts:
 
 ::::::{myst:demo}
 :::{listing}
@@ -69,8 +69,7 @@ Combine it with `:sort:` for a "top N" list — here, the three most recent post
 
 ## From an external YAML file
 
-Set `:source: yaml` and point `:path:` at a `.yml` whose top-level entries use our field names
-(`title`, `url`, `description`, `date`, `tags`, ...):
+Set `:source: yaml` and point `:path:` at a `.yml` whose top-level entries use the [item fields](../collectors.md#items):
 
 ::::::{myst:demo}
 :::{listing}
