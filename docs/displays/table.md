@@ -4,6 +4,7 @@ title: Table display
 
 The `table` display renders items as rows, one column per field you name in `:columns:`.
 It is the default, so a bare `{listing}` is already a table.
+This page covers the table-specific options; sorting, filtering, and limiting are the same in every display and are covered in [](../transform.md).
 
 ## Pick your columns
 
@@ -13,57 +14,6 @@ It is the default, so a bare `{listing}` is already a table.
 :::{listing}
 :path: posts/*.md
 :columns: title,date,tags
-:::
-::::::
-
-## Sort the rows
-
-The default sort is `date-desc` (newest first). Sort by any field with `:sort: field`, `field-asc`, or `field-desc`.
-
-::::::{myst:demo}
-:::{listing}
-:path: posts/*.md
-:columns: title,date
-:sort: title-asc
-:::
-::::::
-
-## Shuffle the order
-
-`:sort: random` shuffles the items into a random order each build.
-This is useful if you have a gallery and don't want the same things showing up at the top.
-
-::::::{myst:demo}
-:::{listing}
-:path: posts/*.md
-:columns: title,date
-:sort: random
-:::
-::::::
-
-## Filter the rows
-
-`:filter: field=value` keeps only matching items. List fields (like `tags`) match when they contain the value.
-
-::::::{myst:demo}
-:::{listing}
-:path: posts/*.md
-:columns: title,date,tags
-:filter: tags=news
-:::
-::::::
-
-## Limit how many
-
-`:limit:` caps the number of rows (default 10).
-Combine it with `:sort:` to make a "top N" list.
-Here, the three most recent posts:
-
-::::::{myst:demo}
-:::{listing}
-:path: posts/*.md
-:columns: title,date
-:limit: 3
 :::
 ::::::
 

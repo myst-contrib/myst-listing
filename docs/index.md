@@ -21,9 +21,9 @@ See [Displays](./displays/index.md) for the built-in displays and their options.
 
 This plugin is designed around the following three stages:
 
-- Collect: Download, find, or otherwise collect items and return a structured dataset of those items.
-- Transform: Take this dataset and optionally transform them by modifying entries, adding metadata, etc.
-- Display: Take the dataset and use the structured data to render each entry in a few common ways (lists, tables, etc).
+- [Collect](./collectors.md): Download, find, or otherwise collect items and return a structured dataset of those items.
+- [Transform](./transform.md): Take this dataset and optionally transform them by modifying entries, adding metadata, etc.
+- [Display](./displays/index.md): Take the dataset and use the structured data to render each entry in a few common ways (lists, tables, etc).
 
 Other plugins can add their own collectors and displays (see [Extending](./extending.md)).
 The transform stage is not an extension point yet.

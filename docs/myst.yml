@@ -12,6 +12,7 @@ project:
   toc:
     - file: index.md
     - file: collectors.md
+    - file: transform.md
     - file: displays/index.md
       children:
         - file: displays/table.md

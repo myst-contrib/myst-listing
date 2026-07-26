@@ -26,6 +26,7 @@ Each leads with a different field:
 ```
 
 Below is a quick tour of each; follow the links for the full options.
+Sorting, filtering, and limiting work the same in every display and are covered in [](../transform.md).
 
 ## `table`
 

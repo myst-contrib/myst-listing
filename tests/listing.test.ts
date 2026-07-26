@@ -1,7 +1,7 @@
 /**
  * Minimal end-to-end check: build the demo docs, then assert that the
- * {listing} examples rendered correctly. The pages under docs/displays/ double
- * as the fixtures — one page per display, plus the overview (displays/index.md).
+ * {listing} examples rendered correctly. The docs pages double as the fixtures:
+ * one page per display, the overview (displays/index.md), and transform.md.
  *
  * Assertions are written to survive growing the demo (more posts, more yaml
  * entries): they check ordering/containment/shape rather than hard-coded lists.
@@ -63,10 +63,10 @@ describe("toTagList", () => {
 describe("table display (displays/table.md)", () => {
   const ast = loadPage("displays.table");
   const tables = tablesIn(ast);
-  const [byColumns, titleAsc, random, filtered, limited, yaml, inlineYaml, toml, inlineToml] = tables;
+  const [byColumns, yaml, inlineYaml, toml, inlineToml] = tables;
 
   it("renders one table per listing", () => {
-    expect(tables.length).toBe(10); // columns, sort, random, filter, limit, yaml, inline-yaml, toml, inline-toml, filter-live
+    expect(tables.length).toBe(6); // columns, yaml, inline-yaml, toml, inline-toml, filter-live
   });
 
   it("collects from inline YAML in the directive body", () => {
@@ -94,14 +94,25 @@ describe("table display (displays/table.md)", () => {
     expect(times).toEqual([...times].sort((a, b) => b - a));
   });
 
+  it("collects from yaml and skips the title-less entry", () => {
+    const titles = column(yaml, "title");
+    expect(titles).toContain("MyST Markdown");
+    expect(titles.every((t: string) => t.length > 0)).toBe(true); // none blank
+  });
+});
+
+describe("transform options (transform.md)", () => {
+  const ast = loadPage("transform");
+  const [titleAsc, random, filtered, limited] = tablesIn(ast);
+
   it("sorts by title-asc when asked", () => {
     const titles = column(titleAsc, "title");
     expect(titles).toEqual([...titles].sort());
   });
 
   it("shuffles without dropping or duplicating items (sort: random)", () => {
-    // Same posts as the default listing, just reordered.
-    expect(column(random, "title").sort()).toEqual(column(byColumns, "title").sort());
+    // Same posts as the title-asc listing, just reordered.
+    expect(column(random, "title").sort()).toEqual(column(titleAsc, "title").sort());
   });
 
   it("filters list fields by containment (tags=news)", () => {
@@ -112,12 +123,6 @@ describe("table display (displays/table.md)", () => {
 
   it("caps rows with :limit:", () => {
     expect(rowCount(limited)).toBeLessThanOrEqual(3);
-  });
-
-  it("collects from yaml and skips the title-less entry", () => {
-    const titles = column(yaml, "title");
-    expect(titles).toContain("MyST Markdown");
-    expect(titles.every((t: string) => t.length > 0)).toBe(true); // none blank
   });
 });
 
