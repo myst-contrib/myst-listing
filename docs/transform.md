@@ -55,3 +55,13 @@ Here, the three most recent posts:
 :limit: 3
 :::
 ::::::
+
+To show every item with no cap, set `:limit: 0`:
+
+::::::{myst:demo}
+:::{listing}
+:path: posts/*.md
+:columns: title
+:limit: 0
+:::
+::::::

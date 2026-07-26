@@ -103,7 +103,7 @@ describe("table display (displays/table.md)", () => {
 
 describe("transform options (transform.md)", () => {
   const ast = loadPage("transform");
-  const [titleAsc, random, filtered, limited] = tablesIn(ast);
+  const [titleAsc, random, filtered, limited, unlimited] = tablesIn(ast);
 
   it("sorts by title-asc when asked", () => {
     const titles = column(titleAsc, "title");
@@ -123,6 +123,10 @@ describe("transform options (transform.md)", () => {
 
   it("caps rows with :limit:", () => {
     expect(rowCount(limited)).toBeLessThanOrEqual(3);
+  });
+
+  it("shows every item with :limit: 0", () => {
+    expect(rowCount(unlimited)).toBe(POST_COUNT);
   });
 });
 

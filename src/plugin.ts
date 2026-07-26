@@ -20,7 +20,7 @@ const listingDirective: DirectiveSpec = {
     display: { type: String, doc: "View: 'table', 'gallery', 'summary', or 'feed'. Default 'table'." },
     path: { type: String, doc: "Glob for 'files' (default './*.md'), or path to a .yml/.toml file." },
     sort: { type: String, doc: "Sort by 'field', 'field-asc', 'field-desc', or 'random'. Default 'date-desc'." },
-    limit: { type: Number, doc: "Maximum number of items. Default 10." },
+    limit: { type: Number, doc: "Maximum number of items. Default 10; 0 or less means no limit." },
     filter: { type: String, doc: "Keep only items where field=value." },
     columns: { type: String, doc: "Comma-separated fields for the table view. Default 'title,date'." },
     "tag-fields": { type: String, doc: "Frontmatter fields shown as colored tag groups (all displays except table). Default 'tags'." },
@@ -131,7 +131,9 @@ function finalize(node: any, vfile: any) {
     return replace(node, errorNode(`Could not collect items: ${node.error}`));
   }
   let items = applyFilter(node.items ?? [], node.filter);
-  items = sortItems(items, node.sort).slice(0, node.limit);
+  items = sortItems(items, node.sort);
+  // A :limit: of 0 or less means "no limit" (same convention as :body-limit:).
+  if (node.limit > 0) items = items.slice(0, node.limit);
   if (items.length === 0) return replace(node, noteNode("No items found."));
   let display = displays[node.display];
   // Only reachable from the project-stage cleanup: renderTransform skips
