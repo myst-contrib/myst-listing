@@ -1,0 +1,12 @@
+# Example we use in the docs
+[[items]]
+title = "MyST Markdown"
+url = "https://mystmd.org"
+description = "The MyST document engine for technical writing."
+date = 2024-06-01
+
+[[items]]
+title = "Jupyter Book"
+url = "https://jupyterbook.org"
+description = "Publication-quality books from computational material."
+date = 2025-01-15

@@ -8,6 +8,7 @@ import { globSync } from "glob";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { load } from "js-yaml";
+import { parse as parseToml } from "smol-toml";
 import { getFrontmatter } from "myst-transforms";
 import { fileWarn, type TransformSpec } from "myst-common";
 import { PLACEHOLDER, ctxRef } from "./shared.js";
@@ -35,22 +36,38 @@ function collectFiles(node: any, vfile: any) {
   });
 }
 
-function collectYaml(node: any, vfile: any) {
-  // Inline YAML in the directive body wins over :path:; either is a top-level list.
-  const src = node.body ? "directive body" : node.path;
-  const entries = load(node.body ?? readFileSync(node.path, { encoding: "utf-8" }));
-  if (!Array.isArray(entries)) throw new Error(`yaml source ${src} is not a top-level list`);
-  node.items = entries.filter((item: any) => {
+function requireTitles(entries: any[], src: string, node: any, vfile: any) {
+  return entries.filter((item: any) => {
     if (item?.title) return true;
     fileWarn(vfile, `Skipping ${src} entry with no title`, { node });
     return false;
   });
 }
 
+function collectYaml(node: any, vfile: any) {
+  // Inline YAML in the directive body wins over :path:; either is a top-level list.
+  const src = node.body ? "directive body" : node.path;
+  const entries = load(node.body ?? readFileSync(node.path, { encoding: "utf-8" }));
+  if (!Array.isArray(entries)) throw new Error(`yaml source ${src} is not a top-level list`);
+  node.items = requireTitles(entries, src, node, vfile);
+}
+
+function collectToml(node: any, vfile: any) {
+  // TOML has no top-level list, so the items live in one array-of-tables
+  // (e.g. [[items]]); the key's name doesn't matter, but there must be only one.
+  const src = node.body ? "directive body" : node.path;
+  const doc: any = parseToml(node.body ?? readFileSync(node.path, { encoding: "utf-8" }));
+  const keys = Object.keys(doc);
+  const entries = keys.length === 1 ? doc[keys[0]] : undefined;
+  if (!Array.isArray(entries)) throw new Error(`toml source ${src} must hold one top-level array-of-tables, e.g. [[items]]`);
+  node.items = requireTitles(entries, src, node, vfile);
+}
+
 /** Built-in collectors, keyed by `:source:`. */
 export const collectors: Record<string, Collector> = {
   files: collectFiles,
   yaml: collectYaml,
+  toml: collectToml,
 };
 
 /** Document-stage transform: fill items for every placeholder we own. */

@@ -79,7 +79,7 @@ You can also mix items with and without images; the body's left edge stays align
   date: 2026-02-11
   author: Grace Hopper
   tags: [community]
-  description: Every other Thursday we host an open call for contributors — a short demo slot, a triage pass over new issues, and an open floor that we time-box so the call always ends on schedule.
+  description: Every other Thursday we host an open call for contributors, with a short demo slot, a triage pass over new issues, and an open floor that we time-box so the call always ends on schedule.
 :::
 ::::::
 

@@ -4,7 +4,7 @@ title: Collectors
 
 Before a `{listing}` can display anything, it has to **collect** its items.
 The `:source:` option picks a collector, which produces a list of **items** (defined [below](#items)).
-Two collectors are built in:
+Three collectors are built in:
 
 ```{list-table}
 :header-rows: 1
@@ -18,6 +18,9 @@ Two collectors are built in:
 * - `yaml`
   - A YAML file whose top-level entries are items
   - a `.yml` file, e.g. `links.yml`
+* - `toml`
+  - A TOML file whose array-of-tables entries are items
+  - a `.toml` file
 ```
 
 (items)=
@@ -64,6 +67,23 @@ The [`table`](./displays/table.md) and [`gallery`](./displays/gallery.md) pages 
 
 You can also write the YAML list directly in the directive body instead of pointing at a file, which is handy for a short, one-off listing.
 The body wins over `:path:` when both are given.
+
+## `toml`
+
+Like `yaml`, but for TOML.
+TOML has no top-level list, so wrap the items in a single array-of-tables (the key's name is up to you, below we use `items`):
+
+```toml
+[[items]]
+title = "MyST Markdown"
+description = "Write once, publish anywhere"
+
+[[items]]
+title = "Jupyter Book"
+```
+
+Inline TOML in the directive body works the same way as inline YAML.
+See the [table display page](./displays/table.md) for an example.
 
 ## Add new collectors
 

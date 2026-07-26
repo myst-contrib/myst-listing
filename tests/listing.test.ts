@@ -63,14 +63,22 @@ describe("toTagList", () => {
 describe("table display (displays/table.md)", () => {
   const ast = loadPage("displays.table");
   const tables = tablesIn(ast);
-  const [byColumns, titleAsc, random, filtered, limited, yaml, inlineYaml] = tables;
+  const [byColumns, titleAsc, random, filtered, limited, yaml, inlineYaml, toml, inlineToml] = tables;
 
   it("renders one table per listing", () => {
-    expect(tables.length).toBe(8); // columns, sort, random, filter, limit, yaml, inline-yaml, filter-live
+    expect(tables.length).toBe(10); // columns, sort, random, filter, limit, yaml, inline-yaml, toml, inline-toml, filter-live
   });
 
   it("collects from inline YAML in the directive body", () => {
     expect(column(inlineYaml, "title")).toEqual(["Inline One", "Inline Two"]);
+  });
+
+  it("collects from a toml file, sorting its parsed dates", () => {
+    expect(column(toml, "title")).toEqual(["Jupyter Book", "MyST Markdown"]); // date-desc
+  });
+
+  it("collects from inline TOML in the directive body", () => {
+    expect(column(inlineToml, "title")).toEqual(["Toml One", "Toml Two"]);
   });
 
   it("links the title to the resolved internal page url", () => {

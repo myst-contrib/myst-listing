@@ -94,6 +94,35 @@ For a quick one-off listing, skip the file and write the YAML list straight in t
 :::
 ::::::
 
+## From TOML
+
+`:source: toml` works the same way, from a `.toml` file or inline.
+TOML has no top-level list, so wrap the items in an array-of-tables:
+
+::::::{myst:demo}
+:::{listing}
+:source: toml
+:path: links.toml
+:columns: title,description,date
+:::
+::::::
+
+Or write the TOML inline:
+
+::::::{myst:demo}
+:::{listing}
+:source: toml
+:columns: title,description
+[[items]]
+title = "Toml One"
+description = "Written in the directive body"
+
+[[items]]
+title = "Toml Two"
+description = "No file needed"
+:::
+::::::
+
 ## Filter it live
 
 Each **data** row carries a `myst-listing-item` class (the header doesn't, so it stays put), which the [`searchfilter`](https://github.com/jupyter-book/myst-plugins/tree/main/plugins/searchfilter) plugin can target to filter rows as you type:
