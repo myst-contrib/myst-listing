@@ -14,7 +14,7 @@ An id that references a project author is not yet resolved ([issue #4](https://g
 
 ::::::{myst:demo}
 :::{listing}
-:path: posts/*.md
+:path: ../posts/*.md
 :display: summary
 :::
 ::::::
@@ -29,7 +29,7 @@ It matches against everything in each card (title, tags, date, description):
 :::
 
 :::{listing}
-:path: posts/*.md
+:path: ../posts/*.md
 :display: summary
 :::
 ::::::

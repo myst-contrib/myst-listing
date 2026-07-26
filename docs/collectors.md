@@ -23,6 +23,8 @@ Three collectors are built in:
   - a `.toml` file
 ```
 
+A relative `:path:` resolves from the page containing the directive, like a Markdown link.
+
 (items)=
 
 ## Items

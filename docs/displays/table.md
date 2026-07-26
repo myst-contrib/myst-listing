@@ -12,7 +12,7 @@ This page covers the table-specific options; sorting, filtering, and limiting ar
 
 ::::::{myst:demo}
 :::{listing}
-:path: posts/*.md
+:path: ../posts/*.md
 :columns: title,date,tags
 :::
 ::::::
@@ -24,7 +24,7 @@ Set `:source: yaml` and point `:path:` at a `.yml` whose top-level entries use t
 ::::::{myst:demo}
 :::{listing}
 :source: yaml
-:path: links.yml
+:path: ../links.yml
 :columns: title,description,date
 :::
 ::::::
@@ -52,7 +52,7 @@ TOML has no top-level list, so wrap the items in an array-of-tables:
 ::::::{myst:demo}
 :::{listing}
 :source: toml
-:path: links.toml
+:path: ../links.toml
 :columns: title,description,date
 :::
 ::::::
@@ -82,7 +82,7 @@ Each **data** row carries a `myst-listing-item` class (the header doesn't, so it
 :::
 
 :::{listing}
-:path: posts/*.md
+:path: ../posts/*.md
 :columns: title,date,tags
 :::
 ::::::

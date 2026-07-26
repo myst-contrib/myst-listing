@@ -6,7 +6,7 @@
  */
 import { globSync } from "glob";
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { load } from "js-yaml";
 import { parse as parseToml } from "smol-toml";
 import { getFrontmatter } from "myst-transforms";
@@ -15,13 +15,17 @@ import { PLACEHOLDER, ctxRef } from "./shared.js";
 
 export type Collector = (node: any, vfile: any) => void;
 
+/** Resolve a :path: relative to the page containing the directive. */
+const fromPage = (vfile: any, path: string) => resolve(dirname(vfile.path), path);
+
 function collectFiles(node: any, vfile: any) {
   const searchPath = node.path ?? "./*.md";
   // A bare directory gets `/*.md`; anything with glob chars is used as-is.
   const pattern = /[*?[]/.test(searchPath) ? searchPath : join(searchPath, "*.md");
 
-  node.items = globSync(pattern).map((path) => {
-    const ast = ctxRef.parseMyst!(readFileSync(path, { encoding: "utf-8" }));
+  node.items = globSync(fromPage(vfile, pattern)).map((abs) => {
+    const path = relative(process.cwd(), abs);
+    const ast = ctxRef.parseMyst!(readFileSync(abs, { encoding: "utf-8" }));
     const { frontmatter } = getFrontmatter(vfile, ast);
     // url is the project-rooted source path ("/posts/x.md"); MyST's link
     // resolver rewrites it to the real output URL. body (parsed blocks, only
@@ -47,7 +51,7 @@ function requireTitles(entries: any[], src: string, node: any, vfile: any) {
 function collectYaml(node: any, vfile: any) {
   // Inline YAML in the directive body wins over :path:; either is a top-level list.
   const src = node.body ? "directive body" : node.path;
-  const entries = load(node.body ?? readFileSync(node.path, { encoding: "utf-8" }));
+  const entries = load(node.body ?? readFileSync(fromPage(vfile, node.path), { encoding: "utf-8" }));
   if (!Array.isArray(entries)) throw new Error(`yaml source ${src} is not a top-level list`);
   node.items = requireTitles(entries, src, node, vfile);
 }
@@ -56,7 +60,7 @@ function collectToml(node: any, vfile: any) {
   // TOML has no top-level list, so the items live in one array-of-tables
   // (e.g. [[items]]); the key's name doesn't matter, but there must be only one.
   const src = node.body ? "directive body" : node.path;
-  const doc: any = parseToml(node.body ?? readFileSync(node.path, { encoding: "utf-8" }));
+  const doc: any = parseToml(node.body ?? readFileSync(fromPage(vfile, node.path), { encoding: "utf-8" }));
   const keys = Object.keys(doc);
   const entries = keys.length === 1 ? doc[keys[0]] : undefined;
   if (!Array.isArray(entries)) throw new Error(`toml source ${src} must hold one top-level array-of-tables, e.g. [[items]]`);

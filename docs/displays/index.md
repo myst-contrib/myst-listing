@@ -34,7 +34,7 @@ The default. Pick the columns you want with `:columns:`.
 
 ::::::{myst:demo}
 :::{listing}
-:path: posts/*.md
+:path: ../posts/*.md
 :columns: title,date
 :::
 ::::::
@@ -46,7 +46,7 @@ An image-forward card grid.
 ::::::{myst:demo}
 :::{listing}
 :source: yaml
-:path: links.yml
+:path: ../links.yml
 :display: gallery
 :::
 ::::::
@@ -57,7 +57,7 @@ Stacked cards that show each item's `description`.
 
 ::::::{myst:demo}
 :::{listing}
-:path: posts/*.md
+:path: ../posts/*.md
 :display: summary
 :::
 ::::::
@@ -68,7 +68,7 @@ The full body of each item, stacked for reading straight down.
 
 ::::::{myst:demo}
 :::{listing}
-:path: posts/*.md
+:path: ../posts/*.md
 :display: feed
 :body-limit: 2
 :limit: 3
@@ -89,7 +89,7 @@ An unknown `:display:` warns and falls back to a table:
 
 ::::::{myst:demo}
 :::{listing}
-:path: posts/*.md
+:path: ../posts/*.md
 :display: nope
 :::
 ::::::

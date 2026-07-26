@@ -15,7 +15,7 @@ Give each entry a `thumbnail` to lead with and a `url` to link to:
 ::::::{myst:demo}
 :::{listing}
 :source: yaml
-:path: links.yml
+:path: ../links.yml
 :display: gallery
 :::
 ::::::
@@ -27,7 +27,7 @@ Any post with a `thumbnail` in its frontmatter becomes a card, and the card link
 
 ::::::{myst:demo}
 :::{listing}
-:path: posts/*.md
+:path: ../posts/*.md
 :display: gallery
 :limit: 6
 :::
@@ -44,7 +44,7 @@ Pin it to a fixed count with `:grid-columns:`:
 ::::::{myst:demo}
 :::{listing}
 :source: yaml
-:path: links.yml
+:path: ../links.yml
 :display: gallery
 :grid-columns: 2
 :::
@@ -58,7 +58,7 @@ List several fields with `:tag-fields:` to show more than one kind of tag, each 
 ::::::{myst:demo}
 :::{listing}
 :source: yaml
-:path: links.yml
+:path: ../links.yml
 :display: gallery
 :tag-fields: libraries, domains
 :::
@@ -77,7 +77,7 @@ The gallery uses MyST's built-in `card`, whose renderer drops custom classes, so
 
 :::{listing}
 :source: yaml
-:path: links.yml
+:path: ../links.yml
 :display: gallery
 :::
 ::::::

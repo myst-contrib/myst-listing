@@ -17,7 +17,7 @@ Items longer than the cap are trimmed to that many blocks and gain a "Continue r
 
 ::::::{myst:demo}
 :::{listing}
-:path: posts/*.md
+:path: ../posts/*.md
 :display: feed
 :body-limit: 2
 :limit: 3
@@ -31,7 +31,7 @@ Body headings (like the `Added` and `Fixed` sections here) render in place but s
 
 ::::::{myst:demo}
 :::{listing}
-:path: posts/*.md
+:path: ../posts/*.md
 :filter: tags=release
 :display: feed
 :::
@@ -92,7 +92,7 @@ Each item carries the same `myst-listing-item` class as the [summary display](./
 :::
 
 :::{listing}
-:path: posts/*.md
+:path: ../posts/*.md
 :display: feed
 :body-limit: 1
 :::
