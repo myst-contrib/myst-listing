@@ -8,6 +8,7 @@ These options work the same with every display (below we demo with the [table di
 ## Sort the items
 
 The default sort is `date-desc` (newest first). Sort by any field with `:sort: field`, `field-asc`, or `field-desc`.
+A bare field name sorts ascending, so `:sort: title` is the same as `:sort: title-asc`.
 
 ::::::{myst:demo}
 :::{listing}
