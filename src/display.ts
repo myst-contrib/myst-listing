@@ -155,7 +155,7 @@ function renderTagGroups(item: any, node: any, extraStyle?: any) {
   return fields.map((f, i) => renderTagGroup(item[f], i, extraStyle)).filter(Boolean);
 }
 
-// A framed thumbnail (background image on an empty div), or null. Decorative —
+// A framed thumbnail (background image on an empty div), or null. Decorative:
 // the title link carries the accessible name. `style` picks the footprint.
 function coverDiv(item: any, style: any, cls: string) {
   if (!item.thumbnail) return null;
@@ -270,8 +270,8 @@ function demoteHeading(n: any): any {
 }
 
 // An item's body blocks: a file's parsed body, else its description as one
-// paragraph (so yaml items still show something). A leading H1 is dropped —
-// it duplicates the title.
+// paragraph (so yaml items still show something). A leading H1 is dropped
+// because it duplicates the title.
 function itemBody(item: any): any[] {
   let body: any[] = Array.isArray(item.body) ? item.body : [];
   if (body.length === 0 && item.description) {
@@ -290,7 +290,7 @@ function renderFeed(items: any[], node: any) {
   const cards = items.map((item, i) => {
     const date = cellText(item.date);
     const author = authorText(item);
-    // Tags live in the rail with the other scan-metadata — a tag footer as in
+    // Tags live in the rail with the other scan-metadata; a tag footer as in
     // gallery/summary would be lost below a long body.
     const rail = [
       coverDiv(item, S.feedThumb, "myst-listing-thumb"),

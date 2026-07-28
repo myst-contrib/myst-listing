@@ -29,8 +29,8 @@ project:
     - path/to/plugin.mjs
 ```
 
-Then collect a folder of pages and display them. With no options, `{listing}`
-shows a table of the markdown files in the current folder:
+Then collect a folder of pages and display them.
+With no options, `{listing}` shows a table of the markdown files in the page's own folder:
 
 ````markdown
 ```{listing}

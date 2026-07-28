@@ -68,8 +68,8 @@ Now `:display: count` works:
 A collector fills `node.items`. Add a function to the `collectors` map in `src/collect.ts`. For example, a source that reads a JSON array of items:
 
 ```ts
-function collectJson(node: any) {
-  node.items = JSON.parse(readFileSync(node.path, "utf-8"));
+function collectJson(node: any, vfile: any) {
+  node.items = JSON.parse(readFileSync(fromPage(vfile, node.path), "utf-8"));
 }
 
 export const collectors = { files: collectFiles, json: collectJson };

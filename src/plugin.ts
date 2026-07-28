@@ -18,7 +18,7 @@ const listingDirective: DirectiveSpec = {
   options: {
     source: { type: String, doc: "Where items come from: 'files', 'yaml', or 'toml'. Default 'files'." },
     display: { type: String, doc: "View: 'table', 'gallery', 'summary', or 'feed'. Default 'table'." },
-    path: { type: String, doc: "Glob for 'files' (default './*.md'), or path to a .yml/.toml file." },
+    path: { type: String, doc: "Glob for 'files' (default './*.md'), or path to a .yml/.toml file. Relative to the page." },
     sort: { type: String, doc: "Sort by 'field' (ascending), 'field-asc', 'field-desc', or 'random'. Default 'date-desc'." },
     limit: { type: Number, doc: "Maximum number of items. Default 10; 0 or less means no limit." },
     filter: { type: String, doc: "Keep only items where field=value." },
