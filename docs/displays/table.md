@@ -19,7 +19,7 @@ This page covers the table-specific options; sorting, filtering, and limiting ar
 
 ## From an external YAML file
 
-Set `:source: yaml` and point `:path:` at a `.yml` whose top-level entries use the [item fields](../collectors.md#items):
+Set `:source: yaml` and point `:path:` at a `.yml` whose top-level entries use the [item fields](#items):
 
 ::::::{myst:demo}
 :::{listing}

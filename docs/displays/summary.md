@@ -7,7 +7,7 @@ Each card shows the linked title, a meta line with the date and author(s), the d
 It suits reading lists and blog indexes, where readers scan the blurbs and click through.
 To render each item's full content in place, use [`feed`](./feed.md) instead.
 
-Author names come from the `author` or `authors` frontmatter fields (see [Items](../collectors.md#items)).
+Author names come from the `author` or `authors` frontmatter fields (see [Items](#items)).
 An id that references a project author is not yet resolved ([issue #4](https://github.com/myst-contrib/myst-listing/issues/4)).
 
 ## A summary from local files

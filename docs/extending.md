@@ -14,7 +14,7 @@ Your plugin should ship a `document`-stage transform that selects those nodes an
 - **collects**: sets `node.items` to a list of items (a collector), or
 - **displays**: replaces a node whose `:display:` you own with your rendered AST (a display).
 
-An item is a plain object; see [Items](./collectors.md#items) for the fields the built-ins understand.
+An item is a plain object; see [Items](#items) for the fields the built-ins understand.
 
 ## Staging and ordering
 
