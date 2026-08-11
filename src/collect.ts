@@ -56,6 +56,14 @@ function collectYaml(node: any, vfile: any) {
   node.items = requireTitles(entries, src, node, vfile);
 }
 
+function collectJson(node: any, vfile: any) {
+  // Same shape as yaml: the file (or directive body) is one top-level list.
+  const src = node.body ? "directive body" : node.path;
+  const entries = JSON.parse(node.body ?? readFileSync(fromPage(vfile, node.path), { encoding: "utf-8" }));
+  if (!Array.isArray(entries)) throw new Error(`json source ${src} is not a top-level list`);
+  node.items = requireTitles(entries, src, node, vfile);
+}
+
 function collectToml(node: any, vfile: any) {
   // TOML has no top-level list, so the items live in one array-of-tables
   // (e.g. [[items]]); the key's name doesn't matter, but there must be only one.
@@ -71,6 +79,7 @@ function collectToml(node: any, vfile: any) {
 export const collectors: Record<string, Collector> = {
   files: collectFiles,
   yaml: collectYaml,
+  json: collectJson,
   toml: collectToml,
 };
 

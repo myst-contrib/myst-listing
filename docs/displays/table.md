@@ -44,6 +44,20 @@ For a quick one-off listing, skip the file and write the YAML list straight in t
 :::
 ::::::
 
+## From JSON
+
+`:source: json` reads a `.json` file (or inline body) holding one top-level array.
+The file below came from `gh issue list --limit 5 --json title,url,updatedAt`, so the table shows this repo's own open issues:
+
+::::::{myst:demo}
+:::{listing}
+:source: json
+:path: ../issues.json
+:columns: title,updatedAt
+:sort: updatedAt-desc
+:::
+::::::
+
 ## From TOML
 
 `:source: toml` works the same way, from a `.toml` file or inline.
