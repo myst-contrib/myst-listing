@@ -19,7 +19,7 @@ This page covers the table-specific options; sorting, filtering, and limiting ar
 
 ## From an external YAML file
 
-Set `:source: yaml` and point `:path:` at a `.yml` whose top-level entries use the [item fields](../collectors.md#items):
+Set `:source: yaml` and point `:path:` at a `.yml` whose top-level entries use the [item fields](#items):
 
 ::::::{myst:demo}
 :::{listing}
@@ -98,5 +98,20 @@ Each **data** row carries a `myst-listing-item` class (the header doesn't, so it
 :::{listing}
 :path: ../posts/*.md
 :columns: title,date,tags
+:::
+::::::
+
+(interactive-sorting)=
+## Interactive sorting
+
+Add the `:sortable:` flag and readers can re-sort the table by clicking a column header.
+Re-sorting happens in the browser and only rearranges the rows shown, so `:limit:` still applies.
+There's some basic logic to try to sort sensibly (e.g., dates are sorted by date, not alpha-numerically).
+
+::::::{myst:demo}
+:::{listing}
+:path: ../posts/*.md
+:columns: title,date,tags
+:sortable:
 :::
 ::::::

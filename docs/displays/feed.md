@@ -6,7 +6,7 @@ The `feed` display shows each item's **full body**, for reading straight down th
 It suits blogs read in place, changelogs, and staff or bio pages.
 
 Each item is a row: a left **rail** with the `thumbnail` (if any), date, author(s), and tags, and the linked title and rendered body on the right.
-Tags use the same [`:tag-fields:`](./gallery.md#color-code-several-tag-fields) option as the other displays.
+Tags use the same [`:tag-fields:`](#color-code-several-tag-fields) option as the other displays.
 On a narrow screen the rail stacks above the body.
 To show only each item's description, use [`summary`](./summary.md) instead.
 

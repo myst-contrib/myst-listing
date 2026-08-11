@@ -7,8 +7,8 @@ import { ctxRef, rawImageSrc, toTagList } from "./shared.js";
 
 export type Display = (items: any[], node: any) => any;
 
-// A long, locale-aware date ("May 20, 2026"). Formatted in UTC because YAML
-// dates are midnight-UTC, and a local timezone could roll them back a day.
+/** A long, locale-aware date ("May 20, 2026"). Formatted in UTC because YAML
+ * dates are midnight-UTC, and a local timezone could roll them back a day. */
 const dateFmt = new Intl.DateTimeFormat("en", {
   year: "numeric",
   month: "long",
@@ -16,27 +16,45 @@ const dateFmt = new Intl.DateTimeFormat("en", {
   timeZone: "UTC",
 });
 
-// A field's value as display text: lists join with commas, dates format long,
-// author-like objects render by name.
+/** A YAML/ISO date (Date object or "2026-05-20..." string), else null. */
+function asDate(value: any): Date | null {
+  if (value instanceof Date) return value;
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+    const d = new Date(value);
+    if (!isNaN(d.getTime())) return d;
+  }
+  return null;
+}
+
+/** A field's value as display text: lists join with commas, dates format long,
+ * author-like objects render by name. */
 function cellText(value: any): string {
   if (value == null) return "";
   if (Array.isArray(value)) return value.map(cellText).join(", ");
-  if (value instanceof Date) return dateFmt.format(value);
-  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value)) {
-    const d = new Date(value);
-    if (!isNaN(d.getTime())) return dateFmt.format(d);
-  }
+  const d = asDate(value);
+  if (d) return dateFmt.format(d);
   if (typeof value === "object") return value.name ?? value.id ?? "";
   return String(value);
 }
 
-// Shared muted-text look for meta lines (date · author).
+/** A field's value as a sort key: dates become epoch ms, empties become null
+ * (sorted last). Used by both the build-time sort and the sort widget's
+ * precomputed orders (see plugin.ts). */
+export function sortValue(value: any): string | number | null {
+  if (value == null || value === "") return null;
+  if (typeof value === "number") return value;
+  const d = asDate(value);
+  if (d) return d.getTime();
+  return cellText(value);
+}
+
+/** Shared muted-text look for meta lines (date · author). */
 const muted = { opacity: 0.6, fontSize: "0.85rem" };
 
-// Styling ships as inline `style` objects so a listing works in any theme
-// without extra CSS; class names are override hooks. Only div/span pass
-// node.style through to the renderer (paragraph/image do not), so styled lines
-// are emitted as divs. Greys-with-alpha read well on light and dark themes.
+/** Styling ships as inline `style` objects so a listing works in any theme
+ * without extra CSS; class names are override hooks. Only div/span pass
+ * node.style through to the renderer (paragraph/image do not), so styled lines
+ * are emitted as divs. Greys-with-alpha read well on light and dark themes. */
 const S: Record<string, any> = {
   // Card gap wider than the gaps within a card, so each post reads as one unit.
   summaryStack: { display: "flex", flexDirection: "column", gap: "1.75rem", margin: "1.5rem 0" },
@@ -100,8 +118,8 @@ const S: Record<string, any> = {
   },
 };
 
-// Tag backgrounds, indexed by a field's position in :tag-fields:. Index 0 is
-// the original grey, so a default `tags` field is unchanged.
+/** Tag backgrounds, indexed by a field's position in :tag-fields:. Index 0 is
+ * the original grey, so a default `tags` field is unchanged. */
 const palette = [
   "rgba(128,128,128,0.18)", // grey (default)
   "rgba(56,139,253,0.20)", // blue
@@ -109,10 +127,10 @@ const palette = [
   "rgba(219,109,40,0.22)", // orange
 ];
 
-// A bold title line (a div, not a heading, so it stays out of the TOC), linked
-// to the item when it has a url. Gallery passes linked=false because its card
-// is already one link (no nested <a>). Titles may carry inline markup (code,
-// emphasis), so parse to inline AST, falling back to plain text.
+/** A bold title line (a div, not a heading, so it stays out of the TOC),
+ * linked to the item when it has a url. Gallery passes linked=false because
+ * its card is already one link (no nested <a>). Titles may carry inline markup
+ * (code, emphasis), so parse to inline AST, falling back to plain text. */
 function titleLine(item: any, linked = true) {
   const text = cellText(item.title);
   const para = ctxRef.parseMyst?.(text)?.children?.find((c: any) => c.type === "paragraph");
@@ -121,7 +139,7 @@ function titleLine(item: any, linked = true) {
   return { type: "div", class: "myst-listing-title", style: S.title, children: [{ type: "strong", children: label }] };
 }
 
-// A styled text line.
+/** A styled text line. */
 function line(cls: string, style: any, value: string) {
   return { type: "div", class: cls, style, children: [{ type: "text", value }] };
 }
@@ -130,8 +148,8 @@ function authorText(item: any): string {
   return cellText(item.authors ?? item.author);
 }
 
-// One field's values as a row of tag chips, colored by the field's palette
-// slot; null when the field is absent/empty.
+/** One field's values as a row of tag chips, colored by the field's palette
+ * slot; null when the field is absent/empty. */
 function renderTagGroup(values: any, colorIndex: number, extraStyle?: any) {
   const tags = toTagList(values);
   if (tags.length === 0) return null;
@@ -149,14 +167,14 @@ function renderTagGroup(values: any, colorIndex: number, extraStyle?: any) {
   };
 }
 
-// An item's configured tag fields as colored tag rows, empties skipped.
+/** An item's configured tag fields as colored tag rows, empties skipped. */
 function renderTagGroups(item: any, node: any, extraStyle?: any) {
   const fields: string[] = node.tagFields ?? ["tags"];
   return fields.map((f, i) => renderTagGroup(item[f], i, extraStyle)).filter(Boolean);
 }
 
-// A framed thumbnail (background image on an empty div), or null. Decorative:
-// the title link carries the accessible name. `style` picks the footprint.
+/** A framed thumbnail (background image on an empty div), or null. Decorative:
+ * the title link carries the accessible name. `style` picks the footprint. */
 function coverDiv(item: any, style: any, cls: string) {
   if (!item.thumbnail) return null;
   return {
@@ -194,9 +212,9 @@ function renderTable(items: any[], node: any) {
   return { type: "table", class: "myst-listing", children: [header, ...rows] };
 }
 
-// Image-forward grid of cards. A `card` with a `url` is MyST's built-in
-// clickable card (one accessible link over the whole card); `grid` lays them
-// out responsively. We supply and style the card contents.
+/** Image-forward grid of cards. A `card` with a `url` is MyST's built-in
+ * clickable card (one accessible link over the whole card); `grid` lays them
+ * out responsively. We supply and style the card contents. */
 function renderGallery(items: any[], node: any) {
   const cards = items.map((item) => {
     const desc = cellText(item.description);
@@ -224,8 +242,8 @@ function renderGallery(items: any[], node: any) {
   return { type: "grid", class: "myst-listing myst-listing-gallery", columns, children: cards };
 }
 
-// Description-forward stacked cards: a content column with the thumbnail, if
-// any, beside it on the right.
+/** Description-forward stacked cards: a content column with the thumbnail, if
+ * any, beside it on the right. */
 function renderSummary(items: any[], node: any) {
   const cards = items.map((item) => {
     // One muted line, e.g. "May 20, 2026 · Jane Doe".
@@ -254,10 +272,10 @@ function renderSummary(items: any[], node: any) {
   return { type: "div", class: "myst-listing myst-listing-summary", style: S.summaryStack, children: cards };
 }
 
-// Demote body headings to bold divs so every post's H2s don't land in the
-// page's TOC (at the cost of heading semantics for screen readers). Sizes stay
-// at or below the item title's 1.05rem.
 const headingSize = ["1.05rem", "1rem", "0.95rem", "0.9rem", "0.85rem", "0.8rem"];
+/** Demote body headings to bold divs so every post's H2s don't land in the
+ * page's TOC (at the cost of heading semantics for screen readers). Sizes stay
+ * at or below the item title's 1.05rem. */
 function demoteHeading(n: any): any {
   if (n?.type !== "heading") return n;
   const size = headingSize[Math.min((n.depth ?? 1) - 1, headingSize.length - 1)];
@@ -269,9 +287,9 @@ function demoteHeading(n: any): any {
   };
 }
 
-// An item's body blocks: a file's parsed body, else its description as one
-// paragraph (so yaml items still show something). A leading H1 is dropped
-// because it duplicates the title.
+/** An item's body blocks: a file's parsed body, else its description as one
+ * paragraph (so yaml items still show something). A leading H1 is dropped
+ * because it duplicates the title. */
 function itemBody(item: any): any[] {
   let body: any[] = Array.isArray(item.body) ? item.body : [];
   if (body.length === 0 && item.description) {
@@ -281,9 +299,9 @@ function itemBody(item: any): any[] {
   return body;
 }
 
-// Read-down items: an identity rail (image, date, author, tags) beside the
-// linked title and rendered body, items after the first topped by a rule.
-// Design notes: docs/displays/feed.md.
+/** Read-down items: an identity rail (image, date, author, tags) beside the
+ * linked title and rendered body, items after the first topped by a rule.
+ * Design notes: docs/displays/feed.md. */
 function renderFeed(items: any[], node: any) {
   // A :body-limit: of 0 or less means "no limit", not an empty entry.
   const limit = node.bodyLimit > 0 ? node.bodyLimit : undefined;

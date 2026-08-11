@@ -50,6 +50,7 @@ Pin it to a fixed count with `:grid-columns:`:
 :::
 ::::::
 
+(color-code-several-tag-fields)=
 ## Color-code several tag fields
 
 By default the tag row shows each item's `tags`.
