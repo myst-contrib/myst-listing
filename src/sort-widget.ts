@@ -26,9 +26,13 @@ export default {
       const style = document.createElement("style");
       style.dataset.mystListingSort = "1";
       style.textContent = [
-        ".myst-sort-arrow{display:inline-block;width:1em;margin-left:0.2em;opacity:0;transition:opacity 0.15s;}",
-        "th:hover>.myst-sort-arrow,th:focus-visible>.myst-sort-arrow{opacity:0.5;}",
-        "th[aria-sort]>.myst-sort-arrow{opacity:0.8;}",
+        // Arrows visible at rest so readers can tell the table is sortable.
+        ".myst-sort-arrow{display:inline-block;width:1em;margin-left:0.2em;opacity:0.35;transition:opacity 0.15s;}",
+        "th:hover>.myst-sort-arrow,th:focus-visible>.myst-sort-arrow{opacity:0.7;}",
+        "th[aria-sort]>.myst-sort-arrow{opacity:1;}",
+        // Grey-with-alpha tint reads on light and dark themes; :has scopes it
+        // to sortable headers so other tables on the page are untouched.
+        "th:has(>.myst-sort-arrow):hover{background:rgba(128,128,128,0.12);}",
       ].join("");
       document.head.append(style);
     }
@@ -52,7 +56,7 @@ export default {
         ths.forEach((h) => h.removeAttribute("aria-sort"));
         th.setAttribute("aria-sort", dir === 1 ? "ascending" : "descending");
         root.querySelectorAll(".myst-sort-arrow").forEach((s) => (s.textContent = "⇅"));
-        arrow.textContent = dir === 1 ? "▲" : "▼";
+        arrow.textContent = dir === 1 ? "↑" : "↓";
         // appendChild moves existing nodes, so this reorders in place.
         (orders[col + ":" + dir] || []).forEach((r) => rows[r] && rows[r].parentNode.appendChild(rows[r]));
       };

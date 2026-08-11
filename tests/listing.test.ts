@@ -66,7 +66,7 @@ describe("table display (displays/table.md)", () => {
   const [byColumns, yaml, inlineYaml, json, toml, inlineToml] = tables;
 
   it("renders one table per listing", () => {
-    expect(tables.length).toBe(7); // columns, sortable, yaml, inline-yaml, json, toml, inline-toml, filter-live
+    expect(tables.length).toBe(8); // columns, sortable, yaml, inline-yaml, json, toml, inline-toml, filter-live
   });
 
   it("collects from a json file", () => {
