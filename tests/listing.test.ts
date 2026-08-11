@@ -276,3 +276,17 @@ describe("graceful degradation (displays/index.md)", () => {
     expect(tablesIn(ast).length).toBeGreaterThanOrEqual(2);
   });
 });
+
+describe("labels and embeds (index.md)", () => {
+  const ast = loadPage("index");
+
+  it("keeps :label: on the rendered listing", () => {
+    expect(allNodes(ast).some((n: any) => n.identifier === "recent-posts")).toBe(true);
+  });
+
+  it("resolves ![](#label) to an embed containing the rendered table", () => {
+    const embed = allNodes(ast).find((n: any) => n.type === "embed");
+    expect(embed).toBeTruthy();
+    expect(tablesIn(embed).length).toBe(1);
+  });
+});

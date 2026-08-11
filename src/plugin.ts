@@ -4,7 +4,13 @@
  * -> the render transform here filters/sorts/limits and picks a display.ts view.
  * See docs/extending.md for the extension points.
  */
-import { createId, fileWarn, type DirectiveSpec, type TransformSpec } from "myst-common";
+import {
+  createId,
+  fileWarn,
+  normalizeLabel,
+  type DirectiveSpec,
+  type TransformSpec,
+} from "myst-common";
 import { PLACEHOLDER, ctxRef } from "./shared.js";
 import { collectTransform } from "./collect.js";
 import { displays, sortValue } from "./display.js";
@@ -28,14 +34,18 @@ const listingDirective: DirectiveSpec = {
     "tag-fields": { type: String, doc: "Frontmatter fields shown as colored tag groups (all displays except table). Default 'tags'." },
     "grid-columns": { type: Number, doc: "Gallery only: number of columns. Default: responsive 1–4." },
     "body-limit": { type: Number, doc: "Feed only: cap each item's body to N blocks, with a 'Continue reading' link. Default: full body." },
+    label: { type: String, doc: "Label to target this listing from links or ![](#label) embeds." },
   },
   run(data, _vfile, ctx) {
     if (!ctxRef.parseMyst && ctx?.parseMyst) ctxRef.parseMyst = ctx.parseMyst;
     const o = data.options ?? {};
+    const { label, identifier } = normalizeLabel(o.label as string | undefined) ?? {};
     return [
       {
         type: PLACEHOLDER,
         children: [],
+        label,
+        identifier,
         source: (o.source as string) ?? "files",
         display: (o.display as string) ?? "table",
         path: o.path as string | undefined,
@@ -124,10 +134,14 @@ function errorNode(message: string) {
   };
 }
 
-/** Replace a placeholder in place with a finished node. */
+/** Replace a placeholder in place with a finished node, keeping any reference
+ * target (from :label: or a `(target)=` line) so links and ![](#label) embeds
+ * still resolve. */
 function replace(node: any, out: any) {
+  const target = { label: node.label, identifier: node.identifier, html_id: node.html_id };
   for (const key of Object.keys(node)) if (key !== "type") delete node[key];
   Object.assign(node, out);
+  for (const [key, value] of Object.entries(target)) if (value) node[key] = value;
 }
 
 /** Turn a placeholder with items (or an error) into its display node. */
