@@ -4,7 +4,7 @@ title: Collectors
 
 Before a `{listing}` can display anything, it has to **collect** its items.
 The `:source:` option picks a collector, which produces a list of **items** (defined [below](#items)).
-Three collectors are built in:
+Four collectors are built in:
 
 ```{list-table}
 :header-rows: 1
@@ -18,6 +18,9 @@ Three collectors are built in:
 * - `yaml`
   - A YAML file whose top-level entries are items
   - a `.yml` file, e.g. `links.yml`
+* - `json`
+  - A JSON file whose top-level array entries are items
+  - a `.json` file
 * - `toml`
   - A TOML file whose array-of-tables entries are items
   - a `.toml` file
@@ -69,6 +72,19 @@ The [`table`](./displays/table.md) and [`gallery`](./displays/gallery.md) pages 
 
 You can also write the YAML list directly in the directive body instead of pointing at a file, which is handy for a short, one-off listing.
 The body wins over `:path:` when both are given.
+
+## `json`
+
+Like `yaml`, but for JSON: point `:path:` at a `.json` file holding one top-level array, or write the array inline in the directive body.
+
+JSON is most useful when another tool writes the data for you.
+For example, `gh` can dump GitHub issues into a listing-ready file:
+
+```bash
+gh issue list --limit 5 --json title,url,updatedAt > issues.json
+```
+
+See the [table display page](./displays/table.md) for a listing built from this file.
 
 ## `toml`
 
