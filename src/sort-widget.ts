@@ -12,6 +12,7 @@ export default {
   render({ model }) {
     const columns = model.get("columns");
     const orders = model.get("orders"); // "column:dir" -> sorted row order, computed at build (plugin.ts)
+    const firstDirection = model.get("firstDirection") || []; // first-click direction per column: text 1 (A-Z), numbers/dates -1
     const root = document.querySelector(".myst-listing-sort-" + model.get("id"));
     // Header cells live in the light DOM and survive effect re-runs; wire once.
     if (!root || root.dataset.mystSortWired) return;
@@ -51,7 +52,7 @@ export default {
       // is only announced on column headers.
       th.tabIndex = 0;
       const activate = () => {
-        dir = current === col ? -dir : 1;
+        dir = current === col ? -dir : firstDirection[i] || 1;
         current = col;
         ths.forEach((h) => h.removeAttribute("aria-sort"));
         th.setAttribute("aria-sort", dir === 1 ? "ascending" : "descending");

@@ -164,8 +164,14 @@ function finalize(node: any, vfile: any) {
   // sort. The browser only rearranges rows to match these lists, so clicking
   // a header sorts exactly as :sort: would (dates, empties, ties and all).
   const orders: Record<string, number[]> = {};
+  // First click sorts text A-Z, but numbers and dates largest/newest first
+  // (matching the ':sort: date-desc' default). sortValue turns dates into
+  // epoch numbers, so "all values numeric" covers both.
+  const firstDirection: number[] = [];
   for (const col of node.columns) {
     const vals = items.map((it: any) => sortValue(it[col]));
+    const nums = vals.filter((v) => v != null);
+    firstDirection.push(nums.length && nums.every((v) => typeof v === "number") ? -1 : 1);
     for (const dir of [1, -1]) {
       orders[`${col}:${dir}`] = items
         .map((_: any, i: number) => i)
@@ -178,7 +184,7 @@ function finalize(node: any, vfile: any) {
   const widget = {
     type: "anywidget",
     esm: sortWidgetEsm(vfile),
-    model: { id, columns: node.columns, orders },
+    model: { id, columns: node.columns, orders, firstDirection },
   };
   replace(node, { type: "div", children: [widget, out] });
 }

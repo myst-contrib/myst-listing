@@ -106,7 +106,7 @@ Each **data** row carries a `myst-listing-item` class (the header doesn't, so it
 
 Add the `:sortable:` flag and readers can re-sort the table by clicking a column header.
 Re-sorting happens in the browser and only rearranges the rows shown, so `:limit:` still applies.
-There's some basic logic to try to sort sensibly (e.g., dates are sorted by date, not alpha-numerically).
+There's some basic logic to try to sort sensibly: dates are sorted by date, not alpha-numerically, and the first click on a numeric or date column sorts largest/newest first (text sorts A–Z).
 
 ::::::{myst:demo}
 :::{listing}
