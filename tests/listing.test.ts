@@ -66,7 +66,7 @@ describe("table display (displays/table.md)", () => {
   const [byColumns, yaml, inlineYaml, toml, inlineToml] = tables;
 
   it("renders one table per listing", () => {
-    expect(tables.length).toBe(6); // columns, yaml, inline-yaml, toml, inline-toml, filter-live
+    expect(tables.length).toBe(7); // columns, sortable, yaml, inline-yaml, toml, inline-toml, filter-live
   });
 
   it("collects from inline YAML in the directive body", () => {
@@ -168,6 +168,37 @@ describe("gallery display (displays/gallery.md)", () => {
   it("honors :grid-columns: for a fixed column count", () => {
     const fixed = galleries.find((g: any) => g.columns?.length === 1);
     expect(fixed?.columns).toEqual([2]);
+  });
+});
+
+describe("client-side sorting (:sortable:, displays/table.md)", () => {
+  // Ours only: searchfilter demos also emit anywidget nodes.
+  const widgets = (ast: any) =>
+    allNodes(ast).filter((n: any) => n.type === "anywidget" && n.esm?.includes("myst-listing-sort"));
+  const table = loadPage("displays.table");
+
+  it("emits a sort widget wired to its table, with a permutation per column and direction", () => {
+    expect(widgets(table).length).toBe(1); // only the :sortable: demo
+    const [widget] = widgets(table);
+    const roots = withClass(table, `myst-listing-sort-${widget.model.id}`);
+    expect(roots.length).toBe(1);
+    expect(roots[0].type).toBe("table");
+    const expectedKeys = widget.model.columns.flatMap((c: string) => [`${c}:1`, `${c}:-1`]).sort();
+    expect(Object.keys(widget.model.orders).sort()).toEqual(expectedKeys);
+    for (const order of Object.values(widget.model.orders) as number[][]) {
+      expect([...order].sort((a, b) => a - b)).toEqual([...Array(rowCount(roots[0])).keys()]);
+    }
+  });
+
+  it("emits no widget for listings without :sortable:", () => {
+    expect(widgets(loadPage("transform")).length).toBe(0);
+  });
+
+  it("emits a widget module that parses as JS and exports render()", async () => {
+    // The module ships embedded in a TS string (see sort-widget.ts), so a JS
+    // error inside it would otherwise only surface in the browser.
+    const mod = await import("../dist/myst-listing-sort.mjs");
+    expect(typeof mod.default.render).toBe("function");
   });
 });
 

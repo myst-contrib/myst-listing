@@ -18,6 +18,8 @@ A bare field name sorts ascending, so `:sort: title` is the same as `:sort: titl
 :::
 ::::::
 
+To let readers re-sort a table in the browser, see [`:sortable:`](#interactive-sorting).
+
 ## Shuffle the order
 
 `:sort: random` shuffles the items into a random order each build.
