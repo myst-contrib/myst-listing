@@ -63,10 +63,14 @@ describe("toTagList", () => {
 describe("table display (displays/table.md)", () => {
   const ast = loadPage("displays.table");
   const tables = tablesIn(ast);
-  const [byColumns, yaml, inlineYaml, toml, inlineToml] = tables;
+  const [byColumns, yaml, inlineYaml, json, toml, inlineToml] = tables;
 
   it("renders one table per listing", () => {
-    expect(tables.length).toBe(6); // columns, yaml, inline-yaml, toml, inline-toml, filter-live
+    expect(tables.length).toBe(7); // columns, yaml, inline-yaml, json, toml, inline-toml, filter-live
+  });
+
+  it("collects from a json file", () => {
+    expect(column(json, "title")).toContain("Add a JSON collector");
   });
 
   it("collects from inline YAML in the directive body", () => {
