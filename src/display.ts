@@ -3,6 +3,7 @@
  * into a single AST node. Add a built-in view via the `displays` map below.
  * See docs/extending.md for adding one from an external plugin.
  */
+import { htmlTransform, reconstructHtmlTransform } from "myst-transforms";
 import { ctxRef, rawImageSrc, toTagList } from "./shared.js";
 
 export type Display = (items: any[], node: any) => any;
@@ -292,6 +293,16 @@ function demoteHeading(n: any): any {
  * because it duplicates the title. */
 function itemBody(item: any): any[] {
   let body: any[] = Array.isArray(item.body) ? item.body : [];
+  // Collected bodies come from a bare parseMyst, which runs after the page
+  // pipeline's html pass, so raw HTML (e.g. GitHub's <img> uploads) would
+  // otherwise render as escaped text. This runs the same transforms in the
+  // same order, as the pipeline. Related upstream discussion that might
+  // mean this isn't needed anymore if resolved:
+  // https://github.com/jupyter-book/mystmd/issues/2626
+  const root = { type: "root", children: body };
+  reconstructHtmlTransform(root);
+  htmlTransform(root);
+  body = root.children;
   if (body.length === 0 && item.description) {
     body = [{ type: "paragraph", class: "myst-listing-description", children: [{ type: "text", value: cellText(item.description) }] }];
   }
