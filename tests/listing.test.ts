@@ -265,14 +265,16 @@ describe("feed display (displays/feed.md)", () => {
   it("converts raw html in bodies to mdast (bare parseMyst skips the html pass)", () => {
     const item = {
       title: "Post",
-      body: [{ type: "html", value: '<img src="shot.png" alt="a screenshot">' }],
+      body: [{ type: "html", value: '<img src="shot.png" alt="a screenshot" width="800" height="683">' }],
     };
     const out = displays.feed([item], {});
     const nodes = allNodes(out);
-    expect(nodes.filter((n: any) => n.type === "image").map((n: any) => n.url)).toEqual([
-      "shot.png",
-    ]);
+    const images = nodes.filter((n: any) => n.type === "image");
+    expect(images.map((n: any) => n.url)).toEqual(["shot.png"]);
     expect(nodes.some((n: any) => n.type === "html")).toBe(false);
+    // Fixed height is dropped so a CSS-narrowed image keeps its aspect ratio.
+    expect(images[0].width).toBe(800);
+    expect(images[0].height).toBeUndefined();
   });
 });
 
