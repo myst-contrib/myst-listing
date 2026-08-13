@@ -10,6 +10,7 @@ import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import { toText } from "myst-common";
 import { rawImageSrc, toTagList } from "../src/shared";
+import { displays } from "../src/display";
 
 const loadPage = (slug: string) =>
   JSON.parse(readFileSync(`docs/_build/site/content/${slug}.json`, "utf-8")).mdast;
@@ -259,6 +260,19 @@ describe("feed display (displays/feed.md)", () => {
   it("falls back to the description for a yaml source (no page body)", () => {
     expect(withClass(staff, "myst-listing-item").length).toBeGreaterThan(0);
     expect(toText(staff).length).toBeGreaterThan(0);
+  });
+
+  it("converts raw html in bodies to mdast (bare parseMyst skips the html pass)", () => {
+    const item = {
+      title: "Post",
+      body: [{ type: "html", value: '<img src="shot.png" alt="a screenshot">' }],
+    };
+    const out = displays.feed([item], {});
+    const nodes = allNodes(out);
+    expect(nodes.filter((n: any) => n.type === "image").map((n: any) => n.url)).toEqual([
+      "shot.png",
+    ]);
+    expect(nodes.some((n: any) => n.type === "html")).toBe(false);
   });
 });
 
