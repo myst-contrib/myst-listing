@@ -302,6 +302,14 @@ function itemBody(item: any): any[] {
   const root = { type: "root", children: body };
   reconstructHtmlTransform(root);
   htmlTransform(root);
+  // Images with fixed pixel width+height (e.g. GitHub uploads) render with
+  // both inline, so CSS narrowing our columns squishes them. Drop the height
+  // and the browser keeps the natural aspect ratio.
+  const dropFixedHeight = (n: any) => {
+    if (n.type === "image" && n.width && n.height) delete n.height;
+    n.children?.forEach(dropFixedHeight);
+  };
+  dropFixedHeight(root);
   body = root.children;
   if (body.length === 0 && item.description) {
     body = [{ type: "paragraph", class: "myst-listing-description", children: [{ type: "text", value: cellText(item.description) }] }];
