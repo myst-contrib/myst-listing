@@ -23,12 +23,13 @@ The **item** is the plain object that flows between these stages; see [Items](./
 
 ## Build and test
 
-We use [nox](https://nox.thea.codes) to drive the build:
+We use [bun](https://bun.sh) to drive the build:
 
 ```bash
-nox -s build      # bundle the plugin to dist/plugin.mjs
-nox -s test       # build the docs, then run the vitest suite against the output
-nox -s docs-live  # live docs server while you work
+bun install        # install dependencies
+bun run build      # bundle the plugin to dist/plugin.mjs
+bun run test       # build the docs, then run the vitest suite against the output
+bun run docs:live  # live docs server while you work
 ```
 
 The tests build the demo docs and assert on the rendered `mdast`, so a passing run means the examples on the displays pages actually render.

@@ -21,7 +21,7 @@ project:
 
 To pin a specific version, swap `latest/download` for a tag, e.g. `download/v0.1.0`.
 
-Alternatively, build the bundle yourself (`npm run build`) and reference it from a local path:
+Alternatively, build the bundle yourself (`bun run build`) and reference it from a local path:
 
 ```yaml
 project:

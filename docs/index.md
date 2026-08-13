@@ -10,12 +10,21 @@ Rendered:
 
 ::::::{myst:demo}
 :::{listing}
+:label: recent-posts
 :path: posts/*.md
 :columns: title,date
 :::
 ::::::
 
 See [Displays](./displays/index.md) for the built-in displays and their options.
+
+## Labels and embeds
+
+A `:label:` makes a listing a reference target, so you can link to it or embed it on another page with `![](#label)`:
+
+::::::{myst:demo}
+![](#recent-posts)
+::::::
 
 ## Design
 

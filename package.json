@@ -8,13 +8,13 @@
   "private": true,
   "devDependencies": {
     "@types/node": "^22.10.5",
-    "esbuild": "0.25.4",
     "vitest": "^2.1.8"
   },
   "scripts": {
-    "build": "esbuild src/plugin.ts --bundle --outfile=dist/plugin.mjs --platform=node --format=esm",
-    "build:docs": "npm run build && cd docs && npx mystmd build --html",
-    "test": "npm run build:docs && vitest run"
+    "build": "bun build src/plugin.ts --outfile dist/plugin.mjs --target node --format esm",
+    "build:docs": "bun run build && cd docs && bunx mystmd build --html",
+    "docs:live": "bun run build && cd docs && bunx mystmd start",
+    "test": "bun run build:docs && bunx vitest run"
   },
   "dependencies": {
     "glob": "^11.0.2",
