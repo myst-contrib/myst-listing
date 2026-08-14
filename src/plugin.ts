@@ -13,18 +13,18 @@ import {
 } from "myst-common";
 import { PLACEHOLDER, ctxRef } from "./shared.js";
 import { collectTransform } from "./collect.js";
-import { displays, sortValue } from "./display.js";
+import { displays, resetSectionIds, sortValue } from "./display.js";
 import { sortWidgetEsm } from "./sort-widget.js";
 
 const csv = (s: string) => s.split(",").map((c) => c.trim()).filter(Boolean);
 
 const listingDirective: DirectiveSpec = {
   name: "listing",
-  doc: "Collect items and display them as a table, gallery, summary, or feed.",
+  doc: "Collect items and display them as a table, gallery, summary, feed, or sections.",
   body: { type: String, doc: "Inline list of items (used with source: yaml, json, or toml)." },
   options: {
     source: { type: String, doc: "Where items come from: 'files', 'yaml', 'json', or 'toml'. Default 'files'." },
-    display: { type: String, doc: "View: 'table', 'gallery', 'summary', or 'feed'. Default 'table'." },
+    display: { type: String, doc: "View: 'table', 'gallery', 'summary', 'feed', or 'sections'. Default 'table'." },
     path: { type: String, doc: "Glob for 'files' (default './*.md'), or path to a .yml/.json/.toml file. Relative to the page." },
     sort: { type: String, doc: "Sort by 'field' (ascending), 'field-asc', 'field-desc', or 'random'. Default 'date-desc'." },
     limit: { type: Number, doc: "Maximum number of items. Default 10; 0 or less means no limit." },
@@ -150,6 +150,11 @@ function finalize(node: any, vfile: any) {
     fileWarn(vfile, `Listing collect failed: ${node.error}`, { node, source: "listing" });
     return replace(node, errorNode(`Could not collect items: ${node.error}`));
   }
+  // Wrapper directives that emit their own placeholder (see extending.md) may
+  // omit these; default them here so they don't have to copy our defaults.
+  node.sort ??= "date-desc";
+  node.columns ??= ["title", "date"];
+  node.display ??= "table";
   let items = applyFilter(node.items ?? [], node.filter);
   items = sortItems(items, node.sort);
   // A :limit: of 0 or less means "no limit" (same convention as :body-limit:).
@@ -210,6 +215,8 @@ const renderTransform: TransformSpec = {
   stage: "document",
   doc: "Render {listing} placeholders into their chosen display.",
   plugin: (_opts, utils) => (tree, vfile) => {
+    // Each call renders one page, so this scopes section anchors per page.
+    resetSectionIds();
     for (const node of utils.selectAll(PLACEHOLDER, tree) as any[]) {
       // Only finalize what we can render now; leave the rest for an external
       // collector/view to claim. The project-stage cleanup is the last responder.
@@ -227,6 +234,7 @@ const cleanupTransform: TransformSpec = {
   stage: "project",
   doc: "Warn on {listing} placeholders no collector claimed.",
   plugin: (_opts, utils) => (tree, vfile) => {
+    resetSectionIds();
     for (const node of utils.selectAll(PLACEHOLDER, tree) as any[]) {
       if (node.items === undefined && !node.error) {
         fileWarn(vfile, `Unknown listing source '${node.source}'`, { node, source: "listing" });

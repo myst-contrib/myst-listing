@@ -3,6 +3,7 @@
  * into a single AST node. Add a built-in view via the `displays` map below.
  * See docs/extending.md for adding one from an external plugin.
  */
+import { createHtmlId, normalizeLabel } from "myst-common";
 import { htmlTransform, reconstructHtmlTransform } from "myst-transforms";
 import { ctxRef, rawImageSrc, toTagList } from "./shared.js";
 
@@ -128,16 +129,26 @@ const palette = [
   "rgba(219,109,40,0.22)", // orange
 ];
 
-/** A bold title line (a div, not a heading, so it stays out of the TOC),
- * linked to the item when it has a url. Gallery passes linked=false because
- * its card is already one link (no nested <a>). Titles may carry inline markup
- * (code, emphasis), so parse to inline AST, falling back to plain text. */
-function titleLine(item: any, linked = true) {
+/** The title as inline nodes, linked to the item when it has a url. Titles may
+ * carry inline markup (code, emphasis), so parse to inline AST, falling back
+ * to plain text. */
+function titleInlines(item: any, linked = true) {
   const text = cellText(item.title);
   const para = ctxRef.parseMyst?.(text)?.children?.find((c: any) => c.type === "paragraph");
   const inlines = para?.children?.length ? para.children : [{ type: "text", value: text }];
-  const label = linked && item.url ? [{ type: "link", url: item.url, children: inlines }] : inlines;
-  return { type: "div", class: "myst-listing-title", style: S.title, children: [{ type: "strong", children: label }] };
+  return linked && item.url ? [{ type: "link", url: item.url, children: inlines }] : inlines;
+}
+
+/** A bold title line (a div, not a heading, so it stays out of the TOC).
+ * Gallery passes linked=false because its card is already one link (no nested
+ * <a>). */
+function titleLine(item: any, linked = true) {
+  return {
+    type: "div",
+    class: "myst-listing-title",
+    style: S.title,
+    children: [{ type: "strong", children: titleInlines(item, linked) }],
+  };
 }
 
 /** A styled text line. */
@@ -366,10 +377,67 @@ function renderFeed(items: any[], node: any) {
   return { type: "div", class: "myst-listing myst-listing-feed", style: S.feedStack, children: cards };
 }
 
+/** Each item as a real section of the page: an H2 that shows up in the page
+ * outline, a date line linking to the item, tags, and the full body. Use
+ * `feed` instead to keep items out of the outline. */
+// Heading ids already used on the current page. Shared between listings so
+// the same item in two listings gets two different anchors; plugin.ts resets
+// this for each page.
+const usedSectionIds = new Map<string, number>();
+export function resetSectionIds() {
+  usedSectionIds.clear();
+}
+
+function renderSections(items: any[], node: any) {
+  const sections = items.map((item, i) => {
+    // MyST's own heading-label pass has already run, so set the anchor here.
+    // Like that pass, identifier and html_id are the same slugified value.
+    let id = createHtmlId(normalizeLabel(cellText(item.title))?.identifier) || `item-${i + 1}`;
+    const n = usedSectionIds.get(id) ?? 0;
+    usedSectionIds.set(id, n + 1);
+    if (n) id = `${id}-${n}`;
+    const heading = {
+      type: "heading",
+      depth: 2,
+      identifier: id,
+      html_id: id,
+      // Implicit like MyST's own heading targets, so the same title on two
+      // pages doesn't warn as a duplicate.
+      implicit: true,
+      // Clicking a heading shouldn't leave the page, so the date line below
+      // carries the item's link instead.
+      children: titleInlines(item, false),
+    };
+    const date = cellText(item.date);
+    const author = authorText(item);
+    const dateNode = item.url
+      ? { type: "link", url: item.url, children: [{ type: "text", value: date || "View →" }] }
+      : date && { type: "text", value: date };
+    const metaParts = [
+      dateNode,
+      author && { type: "text", value: `${dateNode ? " · " : ""}${author}` },
+    ].filter(Boolean);
+    const meta =
+      metaParts.length &&
+      ({ type: "div", class: "myst-listing-meta", style: S.meta, children: metaParts } as any);
+    const body = itemBody(item).map(demoteHeading);
+    return {
+      type: "div",
+      // myst-listing-item is the searchfilter hook (see renderTable); the rule
+      // between items is a border on the card, as in feed.
+      class: "myst-listing-card myst-listing-item",
+      style: i ? S.feedDivider : undefined,
+      children: [heading, meta, ...renderTagGroups(item, node), ...body].filter(Boolean),
+    };
+  });
+  return { type: "div", class: "myst-listing myst-listing-sections", style: S.feedStack, children: sections };
+}
+
 /** Built-in displays, keyed by `:display:`. */
 export const displays: Record<string, Display> = {
   table: renderTable,
   gallery: renderGallery,
   summary: renderSummary,
   feed: renderFeed,
+  sections: renderSections,
 };

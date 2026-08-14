@@ -27,7 +27,8 @@ Items longer than the cap are trimmed to that many blocks and gain a "Continue r
 ## A changelog
 
 Release notes read best in full, so leave `:body-limit:` off and use `:filter:` to keep only release posts.
-Body headings (like the `Added` and `Fixed` sections here) render in place but stay out of the page's table of contents:
+Body headings (like the `Added` and `Fixed` sections here) render in place but stay out of the page's table of contents.
+To put each release in the table of contents as its own section, use [`sections`](./sections.md) instead:
 
 ::::::{myst:demo}
 :::{listing}

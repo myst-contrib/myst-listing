@@ -25,6 +25,7 @@ project:
         - file: displays/gallery.md
         - file: displays/summary.md
         - file: displays/feed.md
+        - file: displays/sections.md
     - file: contributing.md
     - file: extending.md
     - file: releases.md

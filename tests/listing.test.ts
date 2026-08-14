@@ -278,6 +278,49 @@ describe("feed display (displays/feed.md)", () => {
   });
 });
 
+describe("sections display (displays/sections.md)", () => {
+  const ast = loadPage("displays.sections");
+  const [changelog] = withClass(ast, "myst-listing-sections");
+
+  it("renders each item as a real, anchorable H2 heading", () => {
+    const items = withClass(changelog, "myst-listing-item");
+    expect(items.length).toBe(3); // posts with :filter: tags=release
+    for (const item of items) {
+      const heading = item.children[0];
+      expect(heading.type).toBe("heading");
+      expect(heading.depth).toBe(2);
+      // identifier and html_id match, as MyST's own heading labels do.
+      expect(heading.html_id).toBeTruthy();
+      expect(heading.identifier).toBe(heading.html_id);
+    }
+  });
+
+  it("keeps anchors unique across the whole page, not just one listing", () => {
+    // The page has two listings sharing posts, plus its own real headings; a
+    // per-listing dedup would emit duplicate DOM ids here.
+    const ids = allNodes(ast)
+      .filter((n: any) => n.type === "heading")
+      .map((n: any) => n.html_id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("keeps headings as in-page anchors: the item url rides on the date line", () => {
+    const items = withClass(changelog, "myst-listing-item");
+    for (const item of items) {
+      expect(allNodes(item.children[0]).some((n: any) => n.type === "link")).toBe(false);
+    }
+    const metas = withClass(changelog, "myst-listing-meta");
+    expect(metas.length).toBe(items.length);
+    expect(metas.every((m: any) => m.children[0]?.type === "link")).toBe(true);
+  });
+
+  it("still demotes body headings so only item titles hit the outline", () => {
+    expect(withClass(changelog, "myst-listing-heading").length).toBeGreaterThan(0); // Added/Fixed
+    const headings = allNodes(changelog).filter((n: any) => n.type === "heading");
+    expect(headings.length).toBe(withClass(changelog, "myst-listing-item").length);
+  });
+});
+
 describe("graceful degradation (displays/index.md)", () => {
   const ast = loadPage("displays.index");
 

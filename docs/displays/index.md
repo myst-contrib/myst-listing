@@ -2,7 +2,7 @@
 title: Displays
 ---
 
-A `{listing}` renders its collected items with one of four built-in **displays**, chosen with the `:display:` option.
+A `{listing}` renders its collected items with one of five built-in **displays**, chosen with the `:display:` option.
 Each leads with a different field:
 
 ```{list-table}
@@ -21,8 +21,11 @@ Each leads with a different field:
   - blog indexes, reading lists (scan and click through)
   - the description
 * - [`feed`](./feed.md)
-  - blogs, changelogs, bios (read in place)
+  - blogs, bios (read in place)
   - the full body
+* - [`sections`](./sections.md)
+  - pages that are the listing: release notes or combined meeting notes
+  - an `##` heading per item, then the full body
 ```
 
 Below is a quick tour of each; follow the links for the full options.
@@ -72,6 +75,19 @@ The full body of each item, stacked for reading straight down.
 :display: feed
 :body-limit: 2
 :limit: 3
+:::
+::::::
+
+## `sections`
+
+Like `feed`, but each item is a real `##`-level section that appears in the page outline.
+
+::::::{myst:demo}
+:::{listing}
+:path: ../posts/*.md
+:filter: tags=release
+:display: sections
+:limit: 2
 :::
 ::::::
 
