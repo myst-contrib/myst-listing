@@ -46,6 +46,31 @@ export default { name: "Listing stars", transforms: [collectStars] };
 
 Load both plugins in `myst.yml` (yours first), and `:source: stars` now works.
 
+## Wrap it in your own directive
+
+A collector plugin can also ship its own directive, so users write `{stars}` instead of a `{listing}` with `:source: stars`.
+The directive emits the same placeholder node that `{listing}` would, and your collector and myst-listing take it from there:
+
+```javascript
+const starsDirective = {
+  name: "stars",
+  arg: { type: String, doc: "GitHub repository in org/repo format" },
+  run: (data) => [
+    {
+      type: "listingPlaceholder",
+      children: [],
+      source: "stars", // claimed by your collector
+      path: data.arg,
+      display: "gallery", // any {listing} option; omitted ones get its defaults
+    },
+  ],
+};
+
+export default { name: "Listing stars", directives: [starsDirective], transforms: [collectStars] };
+```
+
+[myst-release-notes](https://github.com/myst-contrib/myst-release-notes) uses this pattern for its `{release-notes}` directive.
+
 ## Add a display
 
 Replace a node whose `:display:` you own with your own AST.
