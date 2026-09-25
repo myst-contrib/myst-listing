@@ -224,6 +224,23 @@ function renderTable(items: any[], node: any) {
   return { type: "table", class: "myst-listing", children: [header, ...rows] };
 }
 
+/** One bullet per item: the first column links to the item, then ": " and the
+ * other columns joined by " · ". Empty fields are dropped with their separator. */
+function renderList(items: any[], node: any) {
+  const [first, ...rest] = node.columns as string[];
+  const bullets = items.map((item) => {
+    const label = titleInlines({ ...item, title: cellText(item[first]) || item.title });
+    const meta = rest.map((col) => cellText(item[col])).filter(Boolean).join(" · ");
+    return {
+      type: "listItem",
+      // myst-listing-item is the searchfilter hook (see renderTable).
+      class: "myst-listing-item",
+      children: meta ? [...label, { type: "text", value: `: ${meta}` }] : label,
+    };
+  });
+  return { type: "list", ordered: false, class: "myst-listing myst-listing-list", children: bullets };
+}
+
 /** Image-forward grid of cards. A `card` with a `url` is MyST's built-in
  * clickable card (one accessible link over the whole card); `grid` lays them
  * out responsively. We supply and style the card contents. */
@@ -436,6 +453,7 @@ function renderSections(items: any[], node: any) {
 /** Built-in displays, keyed by `:display:`. */
 export const displays: Record<string, Display> = {
   table: renderTable,
+  list: renderList,
   gallery: renderGallery,
   summary: renderSummary,
   feed: renderFeed,

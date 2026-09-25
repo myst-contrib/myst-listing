@@ -20,17 +20,17 @@ const csv = (s: string) => s.split(",").map((c) => c.trim()).filter(Boolean);
 
 const listingDirective: DirectiveSpec = {
   name: "listing",
-  doc: "Collect items and display them as a table, gallery, summary, feed, or sections.",
+  doc: "Collect items and display them as a table, list, gallery, summary, feed, or sections.",
   body: { type: String, doc: "Inline list of items (used with source: yaml, json, or toml)." },
   options: {
     source: { type: String, doc: "Where items come from: 'files', 'yaml', 'json', or 'toml'. Default 'files'." },
-    display: { type: String, doc: "View: 'table', 'gallery', 'summary', 'feed', or 'sections'. Default 'table'." },
+    display: { type: String, doc: "View: 'table', 'list', 'gallery', 'summary', 'feed', or 'sections'. Default 'table'." },
     path: { type: String, doc: "Glob for 'files' (default './*.md'), or path to a .yml/.json/.toml file. Relative to the page." },
     sort: { type: String, doc: "Sort by 'field' (ascending), 'field-asc', 'field-desc', or 'random'. Default 'date-desc'." },
     limit: { type: Number, doc: "Maximum number of items. Default 10; 0 or less means no limit." },
     filter: { type: String, doc: "Keep only items where field=value." },
     sortable: { type: Boolean, doc: "Let readers re-sort the table by clicking its column headers. Table display only." },
-    columns: { type: String, doc: "Comma-separated fields for the table view. Default 'title,date'." },
+    columns: { type: String, doc: "Comma-separated fields for the table and list views. Default 'title,date' (table) or 'title,description' (list)." },
     "tag-fields": { type: String, doc: "Frontmatter fields shown as colored tag groups (all displays except table). Default 'tags'." },
     "grid-columns": { type: Number, doc: "Gallery only: number of columns. Default: responsive 1–4." },
     "body-limit": { type: Number, doc: "Feed only: cap each item's body to N blocks, with a 'Continue reading' link. Default: full body." },
@@ -53,7 +53,7 @@ const listingDirective: DirectiveSpec = {
         sort: (o.sort as string) ?? "date-desc",
         limit: (o.limit as number) ?? 10,
         filter: o.filter as string | undefined,
-        columns: csv((o.columns as string) ?? "title,date"),
+        columns: o.columns ? csv(o.columns as string) : undefined,
         sortable: o.sortable as boolean | undefined,
         tagFields: csv((o["tag-fields"] as string) ?? "tags"),
         gridColumns: o["grid-columns"] as number | undefined,
@@ -150,11 +150,11 @@ function finalize(node: any, vfile: any) {
     fileWarn(vfile, `Listing collect failed: ${node.error}`, { node, source: "listing" });
     return replace(node, errorNode(`Could not collect items: ${node.error}`));
   }
-  // Wrapper directives that emit their own placeholder (see extending.md) may
-  // omit these; default them here so they don't have to copy our defaults.
-  node.sort ??= "date-desc";
-  node.columns ??= ["title", "date"];
+  // Defaults live here, not in the directive, so they can depend on the display
+  // and so wrapper directives (see extending.md) don't have to copy them.
   node.display ??= "table";
+  node.sort ??= "date-desc";
+  node.columns ??= node.display === "list" ? ["title", "description"] : ["title", "date"];
   let items = applyFilter(node.items ?? [], node.filter);
   items = sortItems(items, node.sort);
   // A :limit: of 0 or less means "no limit" (same convention as :body-limit:).

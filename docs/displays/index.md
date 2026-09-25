@@ -2,7 +2,7 @@
 title: Displays
 ---
 
-A `{listing}` renders its collected items with one of five built-in **displays**, chosen with the `:display:` option.
+A `{listing}` renders its collected items with one of six built-in **displays**, chosen with the `:display:` option.
 Each leads with a different field:
 
 ```{list-table}
@@ -14,6 +14,9 @@ Each leads with a different field:
 * - [`table`](./table.md)
   - dense, scannable lists
   - the columns you pick
+* - [`list`](./list.md)
+  - compact link lists, section landing pages
+  - the first column you pick, then the rest on one line
 * - [`gallery`](./gallery.md)
   - visual collections
   - a thumbnail image
@@ -39,6 +42,18 @@ The default. Pick the columns you want with `:columns:`.
 :::{listing}
 :path: ../posts/*.md
 :columns: title,date
+:::
+::::::
+
+## `list`
+
+One bullet per item, with the linked title and its description on one line.
+
+::::::{myst:demo}
+:::{listing}
+:path: ../posts/*.md
+:display: list
+:limit: 3
 :::
 ::::::
 

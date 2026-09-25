@@ -220,6 +220,26 @@ describe("summary display (displays/summary.md)", () => {
   });
 });
 
+describe("list display (displays/list.md)", () => {
+  const ast = loadPage("displays.list");
+  const lists = withClass(ast, "myst-listing-list");
+
+  it("links the first field, then joins the rest on one line", () => {
+    const [first] = lists[1].children;
+    expect(first.children[0].type).toBe("link");
+    expect(toText(first)).toMatch(/^.+: .+ · .+$/);
+  });
+
+  it("drops empty fields and falls back to the title for an empty first field", () => {
+    const bullets = lists[2].children.map((li: any) => toText(li));
+    expect(bullets).toEqual([
+      "Authors: publish your work",
+      "Administrator guide: manage users and organizations",
+      "Deployer guide",
+    ]);
+  });
+});
+
 describe("feed display (displays/feed.md)", () => {
   const ast = loadPage("displays.feed");
   const feeds = withClass(ast, "myst-listing-feed");
