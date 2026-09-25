@@ -81,7 +81,10 @@ function collectToc(node: any, vfile: any) {
   const toc = (load(readFileSync("myst.yml", { encoding: "utf-8" })) as any)?.project?.toc;
   if (!Array.isArray(toc)) throw new Error("the toc source needs a `toc` in myst.yml");
   const page = node.path ? fromPage(vfile, node.path) : resolve(vfile.path);
-  const children = findEntry(toc, page)?.children ?? [];
+  const entry = findEntry(toc, page);
+  // mystmd makes the first toc entry the root page and won't let it have
+  // children, so the rest of the top-level toc count as its children.
+  const children = entry && entry === toc[0] ? toc.slice(1) : entry?.children ?? [];
   if (children.length === 0) {
     fileWarn(vfile, `No toc children found for ${relative(process.cwd(), page)}`, { node, source: "listing" });
   }

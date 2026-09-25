@@ -250,6 +250,12 @@ describe("toc source (collectors.md)", () => {
     const expected = displays.children.map((e: any) => `/${e.file.replace(/\.md$/, "")}`);
     expect(urls).toEqual(expected);
   });
+
+  it("lists the other top-level entries for the root page", () => {
+    const list = withClass(loadPage("collectors"), "myst-listing-list")[2];
+    const toc = (load(readFileSync("docs/myst.yml", "utf-8")) as any).project.toc;
+    expect(list.children.length).toBe(toc.length - 1);
+  });
 });
 
 describe("feed display (displays/feed.md)", () => {

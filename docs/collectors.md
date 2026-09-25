@@ -96,6 +96,17 @@ The first column is the link text, so `short_title` gives shorter links (pages w
 :::
 ::::::
 
+The first page in the toc is the site's root page, so its children are the other top-level entries.
+This lists the top level of this site from any page:
+
+::::::{myst:demo}
+:::{listing}
+:source: toc
+:path: index.md
+:display: list
+:::
+::::::
+
 Items come in toc order, so they aren't sorted or limited unless you set `:sort:` or `:limit:`.
 A few things to know:
 
