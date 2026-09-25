@@ -1,5 +1,7 @@
 ---
 title: Feed display
+short_title: Feed
+description: The full body of each item, stacked for reading.
 ---
 
 The `feed` display shows each item's **full body**, for reading straight down the page rather than scanning and clicking through.

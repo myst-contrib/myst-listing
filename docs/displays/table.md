@@ -1,5 +1,7 @@
 ---
 title: Table display
+short_title: Table
+description: Rows and columns of the fields you pick.
 ---
 
 The `table` display renders items as rows, one column per field you name in `:columns:`.

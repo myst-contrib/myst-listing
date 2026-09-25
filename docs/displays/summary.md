@@ -1,5 +1,7 @@
 ---
 title: Summary display
+short_title: Summary
+description: Stacked cards that show each description.
 ---
 
 The `summary` display stacks cards that show each item's `description`, the short blurb from its frontmatter.

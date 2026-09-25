@@ -23,11 +23,11 @@ const listingDirective: DirectiveSpec = {
   doc: "Collect items and display them as a table, list, gallery, summary, feed, or sections.",
   body: { type: String, doc: "Inline list of items (used with source: yaml, json, or toml)." },
   options: {
-    source: { type: String, doc: "Where items come from: 'files', 'yaml', 'json', or 'toml'. Default 'files'." },
+    source: { type: String, doc: "Where items come from: 'files', 'toc', 'yaml', 'json', or 'toml'. Default 'files'." },
     display: { type: String, doc: "View: 'table', 'list', 'gallery', 'summary', 'feed', or 'sections'. Default 'table'." },
-    path: { type: String, doc: "Glob for 'files' (default './*.md'), or path to a .yml/.json/.toml file. Relative to the page." },
-    sort: { type: String, doc: "Sort by 'field' (ascending), 'field-asc', 'field-desc', or 'random'. Default 'date-desc'." },
-    limit: { type: Number, doc: "Maximum number of items. Default 10; 0 or less means no limit." },
+    path: { type: String, doc: "Glob for 'files' (default './*.md'), page whose toc children 'toc' lists (default: this page), or path to a .yml/.json/.toml file. Relative to the page." },
+    sort: { type: String, doc: "Sort by 'field' (ascending), 'field-asc', 'field-desc', or 'random'. Default 'date-desc' (toc order for 'toc')." },
+    limit: { type: Number, doc: "Maximum number of items. Default 10 (no limit for 'toc'); 0 or less means no limit." },
     filter: { type: String, doc: "Keep only items where field=value." },
     sortable: { type: Boolean, doc: "Let readers re-sort the table by clicking its column headers. Table display only." },
     columns: { type: String, doc: "Comma-separated fields for the table and list views. Default 'title,date' (table) or 'title,description' (list)." },
@@ -50,8 +50,8 @@ const listingDirective: DirectiveSpec = {
         display: (o.display as string) ?? "table",
         path: o.path as string | undefined,
         body: data.body as string | undefined,
-        sort: (o.sort as string) ?? "date-desc",
-        limit: (o.limit as number) ?? 10,
+        sort: o.sort as string | undefined,
+        limit: o.limit as number | undefined,
         filter: o.filter as string | undefined,
         columns: o.columns ? csv(o.columns as string) : undefined,
         sortable: o.sortable as boolean | undefined,
@@ -153,10 +153,14 @@ function finalize(node: any, vfile: any) {
   // Defaults live here, not in the directive, so they can depend on the display
   // and so wrapper directives (see extending.md) don't have to copy them.
   node.display ??= "table";
-  node.sort ??= "date-desc";
+  // A collector sets `ordered` when its item order is meaningful (e.g. toc).
+  if (!node.ordered) {
+    node.sort ??= "date-desc";
+    node.limit ??= 10;
+  }
   node.columns ??= node.display === "list" ? ["title", "description"] : ["title", "date"];
   let items = applyFilter(node.items ?? [], node.filter);
-  items = sortItems(items, node.sort);
+  if (node.sort) items = sortItems(items, node.sort);
   // A :limit: of 0 or less means "no limit" (same convention as :body-limit:).
   if (node.limit > 0) items = items.slice(0, node.limit);
   if (items.length === 0) return replace(node, noteNode("No items found."));

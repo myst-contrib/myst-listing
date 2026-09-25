@@ -7,7 +7,8 @@ These options work the same with every display (below we demo with the [table di
 
 ## Sort the items
 
-The default sort is `date-desc` (newest first). Sort by any field with `:sort: field`, `field-asc`, or `field-desc`.
+The default sort is `date-desc` (newest first), except for the [`toc` source](#toc-source), which keeps toc order.
+Sort by any field with `:sort: field`, `field-asc`, or `field-desc`.
 A bare field name sorts ascending, so `:sort: title` is the same as `:sort: title-asc`.
 
 ::::::{myst:demo}
@@ -47,7 +48,7 @@ This is useful if you have a gallery and don't want the same things showing up a
 
 ## Limit how many
 
-`:limit:` caps the number of items (default 10).
+`:limit:` caps the number of items (default 10, or no limit for the `toc` source).
 Combine it with `:sort:` to make a "top N" list.
 Here, the three most recent posts:
 

@@ -1,5 +1,7 @@
 ---
 title: List display
+short_title: List
+description: One bullet per item, with a few fields on the same line.
 ---
 
 The `list` display renders one bullet per item, with a few fields on the same line.
@@ -48,6 +50,10 @@ If the first field is empty (say, a page with no `short_title`), the bullet fall
 - title: Deployer guide
 :::
 ::::::
+
+## A table of contents
+
+Pair `list` with the [`toc` source](#toc-source) to list the pages under a page in your `myst.yml` table of contents, each with its description.
 
 ## Filter it live
 

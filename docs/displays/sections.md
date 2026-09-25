@@ -1,5 +1,7 @@
 ---
 title: Sections display
+short_title: Sections
+description: Each item as a real section in the page outline.
 ---
 
 The `sections` display renders each item as a real section of the page: an `##`-level heading per item, so every item shows up in the page's table of contents and can be deep-linked.

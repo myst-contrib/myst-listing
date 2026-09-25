@@ -1,5 +1,7 @@
 ---
 title: Gallery display
+short_title: Gallery
+description: A grid of image-forward cards.
 ---
 
 The `gallery` display is an image-forward card grid.

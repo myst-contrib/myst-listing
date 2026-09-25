@@ -9,6 +9,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import { toText } from "myst-common";
+import { load } from "js-yaml";
 import { rawImageSrc, toTagList } from "../src/shared";
 import { displays } from "../src/display";
 
@@ -237,6 +238,17 @@ describe("list display (displays/list.md)", () => {
       "Administrator guide: manage users and organizations",
       "Deployer guide",
     ]);
+  });
+});
+
+describe("toc source (collectors.md)", () => {
+  it("lists a page's toc children in toc order, not re-sorted", () => {
+    const list = withClass(loadPage("collectors"), "myst-listing-list")[0];
+    const urls = list.children.map((li: any) => li.children[0].url);
+    const toc = (load(readFileSync("docs/myst.yml", "utf-8")) as any).project.toc;
+    const displays = toc.find((e: any) => e.file === "displays/index.md");
+    const expected = displays.children.map((e: any) => `/${e.file.replace(/\.md$/, "")}`);
+    expect(urls).toEqual(expected);
   });
 });
 

@@ -4,7 +4,7 @@ title: Collectors
 
 Before a `{listing}` can display anything, it has to **collect** its items.
 The `:source:` option picks a collector, which produces a list of **items** (defined [below](#items)).
-Four collectors are built in:
+Five collectors are built in:
 
 ```{list-table}
 :header-rows: 1
@@ -15,6 +15,9 @@ Four collectors are built in:
 * - `files` (default)
   - Markdown files on disk, using their frontmatter
   - a glob, e.g. `posts/*.md`
+* - `toc`
+  - The pages under one page in `myst.yml`'s `toc`, in toc order
+  - the parent page, e.g. `guides/index.md` (default: this page)
 * - `yaml`
   - A YAML file whose top-level entries are items
   - a `.yml` file, e.g. `links.yml`
@@ -64,6 +67,44 @@ Any other fields pass through untouched; use them as `:columns:` or `:filter:` t
 
 The default. Point `:path:` at a glob of Markdown files; each file's frontmatter becomes an item, and its URL links to the built page.
 Most examples in the [displays pages](./displays/index.md) use this source.
+
+(toc-source)=
+
+## `toc`
+
+Set `:source: toc` to list the pages nested under a page in your `myst.yml` [table of contents](https://mystmd.org/guide/table-of-contents), in the same order.
+By default it lists the children of the page holding the listing; point `:path:` at another page to list its children instead.
+Pair it with the [`list`](./displays/list.md) display for a table of contents that shows each page's `description`:
+
+::::::{myst:demo}
+:::{listing}
+:source: toc
+:path: displays/index.md
+:display: list
+:::
+::::::
+
+Each item is the page's frontmatter, so `:columns:` can show any field it has.
+The first column is the link text, so `short_title` gives shorter links (pages without one fall back to `title`):
+
+::::::{myst:demo}
+:::{listing}
+:source: toc
+:path: displays/index.md
+:display: list
+:columns: short_title,description
+:::
+::::::
+
+Items come in toc order, so they aren't sorted or limited unless you set `:sort:` or `:limit:`.
+A few things to know:
+
+- Only direct children are listed, not grandchildren.
+- A `url` entry becomes an external link, and a `title` with no `file` becomes an unlinked item.
+- `hidden` entries are skipped.
+- A notebook's fields come from the frontmatter in its first cell.
+- Your `myst.yml` needs an explicit `toc`; `extends:` and `_toc.yml` aren't read.
+- `file` entries need their extension (`guides/intro.md`, not `guides/intro`), as mystmd itself recommends.
 
 ## `yaml`
 
