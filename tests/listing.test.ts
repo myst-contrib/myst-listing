@@ -269,7 +269,8 @@ describe("toc source (collectors.md)", () => {
   it("lists the other top-level entries for the root page", () => {
     const list = withClass(loadPage("collectors"), "myst-listing-list")[2];
     const toc = (load(readFileSync("docs/myst.yml", "utf-8")) as any).project.toc;
-    expect(list.children.length).toBe(toc.length - 1);
+    // Minus the root page itself and the hidden sample posts.
+    expect(list.children.length).toBe(toc.length - 2);
   });
 });
 

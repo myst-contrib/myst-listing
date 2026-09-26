@@ -36,9 +36,8 @@ project:
         - file: develop/contributing.md
         - file: develop/extending.md
     - file: releases.md
-    - title: Sample posts
-      children:
-        - pattern: posts/*.md
+    - pattern: posts/*.md
+      hidden: true
 site:
   template: book-theme
   options:
