@@ -34,12 +34,12 @@ This plugin is designed around the following three stages:
 - [Transform](./transform.md): Take this dataset and optionally transform them by modifying entries, adding metadata, etc.
 - [Display](./displays/index.md): Take the dataset and use the structured data to render each entry in a few common ways (lists, tables, etc).
 
-Other plugins can add their own collectors and displays (see [Extending](./extending.md)).
+Other plugins can add their own collectors and displays (see [Extending](./develop/extending.md)).
 The transform stage is not an extension point yet.
 
-This is probably a more complex design than we strictly need for some base functionality, but I'm trying to separate these out *and* make them pluggable, to see if we can build some base functionality here, and then build other plugins that leverage the same rendering infrastructure for other use-cases (like the github issues plugin).
-
-If that results in plugins that feel hacky and unnecessarily complicated, we might simplify this a bit!
+The code for each stage is described in [Architecture](./develop/architecture.md).
+The design came from several one-off plugins, listed below, that each hand-rolled their own collect-and-display logic.
+It separates the stages so that other plugins can reuse the same displays; if that turns out to be more complex than it's worth, we'll simplify it.
 
 ## Design usecases
 

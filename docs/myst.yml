@@ -1,11 +1,14 @@
 version: 1
 project:
   title: MyST Listing
+  github: https://github.com/myst-contrib/myst-listing
   plugins:
     # Release notes from GitHub ({release-notes}), loaded before myst-listing
     # so its collector runs before the listing render transform.
     - https://github.com/myst-contrib/myst-release-notes/releases/latest/download/index.mjs
     - ../dist/plugin.mjs
+    # Rewrites relative links in {include}d repo files (README, CONTRIBUTING) to GitHub.
+    - https://github.com/myst-contrib/myst-include-link-rewrites/releases/latest/download/index.mjs
     # Shows each example's source alongside its rendered output ({myst:demo}).
     - https://raw.githubusercontent.com/jupyter-book/myst-plugins/main/plugins/demo/src/index.mjs
     # Live client-side filtering of listing items ({searchfilter}).
@@ -27,8 +30,11 @@ project:
         - file: displays/summary.md
         - file: displays/feed.md
         - file: displays/sections.md
-    - file: contributing.md
-    - file: extending.md
+    - file: develop/index.md
+      children:
+        - file: develop/architecture.md
+        - file: develop/contributing.md
+        - file: develop/extending.md
     - file: releases.md
     - title: Sample posts
       children:

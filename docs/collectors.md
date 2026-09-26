@@ -158,4 +158,4 @@ See the [table display page](./displays/table.md) for an example.
 ## Add new collectors
 
 Collectors are designed to be extendable with other MyST plugins.
-See [Extending from another plugin](./extending.md).
+See [Extending from another plugin](./develop/extending.md).

@@ -2,7 +2,7 @@
  * MyST Listing: a {listing} directive that collects items and displays them.
  * Pipeline: directive emits a listingPlaceholder -> collect.ts fills node.items
  * -> transform.ts filters/sorts/limits -> the render transform here picks a display.ts view.
- * See docs/extending.md for the extension points.
+ * See docs/develop/extending.md for the extension points.
  */
 import {
   createId,

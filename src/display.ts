@@ -1,7 +1,7 @@
 /**
  * Display layer. A display turns the items chosen by transform.ts
  * into a single AST node. Add a built-in view via the `displays` map below.
- * See docs/extending.md for adding one from an external plugin.
+ * See docs/develop/extending.md for adding one from an external plugin.
  */
 import { createHtmlId, normalizeLabel } from "myst-common";
 import { htmlTransform, reconstructHtmlTransform } from "myst-transforms";
