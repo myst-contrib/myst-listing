@@ -52,7 +52,7 @@ const listingDirective: DirectiveSpec = {
         label,
         identifier,
         source: (o.source as string) ?? "files",
-        display: (o.display as string) ?? "table",
+        display: o.display as string | undefined,
         path: o.path as string | undefined,
         body: data.body as string | undefined,
         sort: o.sort as string | undefined,
@@ -60,7 +60,7 @@ const listingDirective: DirectiveSpec = {
         filter: o.filter as string | undefined,
         columns: o.columns ? csv(o.columns as string) : undefined,
         sortable: o.sortable as boolean | undefined,
-        tagFields: csv((o["tag-fields"] as string) ?? "tags"),
+        tagFields: o["tag-fields"] ? csv(o["tag-fields"] as string) : undefined,
         gridColumns: o["grid-columns"] as number | undefined,
         bodyLimit: o["body-limit"] as number | undefined,
       },
@@ -106,9 +106,6 @@ function finalize(node: any, vfile: any) {
     fileWarn(vfile, `Listing collect failed: ${node.error}`, { node, source: "listing" });
     return replace(node, errorNode(`Could not collect items: ${node.error}`));
   }
-  // Defaults live here, in selectItems and in each display, not in the directive,
-  // so wrapper directives (see extending.md) needn't copy them.
-  node.display ??= "table";
   const items = selectItems(node.items ?? [], node);
   if (items.length === 0) return replace(node, noteNode("No items found."));
   let display = displays[node.display];
@@ -132,6 +129,9 @@ const renderTransform: TransformSpec = {
   doc: "Render {listing} placeholders into their chosen display.",
   plugin: (_opts, utils) => (tree, vfile) => {
     for (const node of utils.selectAll(PLACEHOLDER, tree) as any[]) {
+      // Defaults live here, in selectItems and in each display, not in the
+      // directive, so wrapper directives (see extending.md) needn't copy them.
+      node.display ??= "table";
       // Only finalize what we can render now; leave the rest for an external
       // collector/view to claim. The project-stage cleanup is the last responder.
       if (node.error || (node.items !== undefined && displays[node.display])) {

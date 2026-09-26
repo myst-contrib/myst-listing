@@ -62,6 +62,13 @@ The Transform stage can only be changed here, not from a separate plugin.
 ## From a separate plugin
 
 The `{listing}` directive emits a `listingPlaceholder` node carrying the user's options (`source`, `display`, `path`, `sort`, `limit`, ...).
+Each option is a field of the same name, camelCased when hyphenated (`:tag-fields:` → `node.tagFields`), and left unset when the user didn't give it.
+Collectors fill in the rest:
+
+- `items`: the list of items.
+- `ordered`: set to `true` if the item order is meaningful (as the `toc` source does). This skips the default `date-desc` sort and limit of 10.
+- `error`: a message to show instead of the listing. myst-listing warns and renders it as an error box.
+
 Your plugin should ship a `document`-stage transform that selects those nodes and either:
 
 - **collects**: sets `node.items` to a list of items (a collector), or
@@ -114,7 +121,7 @@ const starsDirective = {
       children: [],
       source: "stars", // claimed by your collector
       path: data.arg,
-      display: "gallery", // any {listing} option; omitted ones get its defaults
+      display: "gallery", // any {listing} option field; omitted ones get its defaults
     },
   ],
 };
