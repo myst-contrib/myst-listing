@@ -14,7 +14,10 @@ There are two ways to add a new `:source:` or `:display:`:
 
 ### Add a built-in display
 
-A display takes the items and returns a single AST node. Add a function to the `displays` map in `src/display.ts`:
+A display takes the items and returns a single AST node.
+It also gets the placeholder `node` (for its options) and the page's `vfile`.
+Defaults and options that only one display uses belong inside that display, like `renderTable`'s handling of `:sortable:`.
+Add a function to the `displays` map in `src/display.ts`:
 
 ```ts
 function renderCount(items: any[]) {

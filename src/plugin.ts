@@ -5,7 +5,6 @@
  * See docs/develop/extending.md for the extension points.
  */
 import {
-  createId,
   fileWarn,
   normalizeLabel,
   type DirectiveSpec,
@@ -13,9 +12,8 @@ import {
 } from "myst-common";
 import { PLACEHOLDER, ctxRef } from "./shared.js";
 import { collectTransform } from "./collect.js";
-import { displays, resetSectionIds } from "./display.js";
-import { compareValues, selectItems, sortValue } from "./transform.js";
-import { sortWidgetEsm } from "./sort-widget.js";
+import { displays } from "./display.js";
+import { selectItems } from "./transform.js";
 
 const csv = (s: string) => s.split(",").map((c) => c.trim()).filter(Boolean);
 
@@ -37,9 +35,15 @@ const listingDirective: DirectiveSpec = {
     "body-limit": { type: Number, doc: "Feed only: cap each item's body to N blocks, with a 'Continue reading' link. Default: full body." },
     label: { type: String, doc: "Label to target this listing from links or ![](#label) embeds." },
   },
-  run(data, _vfile, ctx) {
+  run(data, vfile, ctx) {
     if (!ctxRef.parseMyst && ctx?.parseMyst) ctxRef.parseMyst = ctx.parseMyst;
     const o = data.options ?? {};
+    if (o.sortable && (o.display ?? "table") !== "table") {
+      fileWarn(vfile, `:sortable: only works with the table display (ignored for '${o.display}')`, {
+        node: data.node,
+        source: "listing",
+      });
+    }
     const { label, identifier } = normalizeLabel(o.label as string | undefined) ?? {};
     return [
       {
@@ -102,10 +106,9 @@ function finalize(node: any, vfile: any) {
     fileWarn(vfile, `Listing collect failed: ${node.error}`, { node, source: "listing" });
     return replace(node, errorNode(`Could not collect items: ${node.error}`));
   }
-  // Defaults live here (and in selectItems), not in the directive, so they can
-  // depend on the display and wrapper directives (see extending.md) needn't copy them.
+  // Defaults live here, in selectItems and in each display, not in the directive,
+  // so wrapper directives (see extending.md) needn't copy them.
   node.display ??= "table";
-  node.columns ??= node.display === "list" ? ["title", "description"] : ["title", "date"];
   const items = selectItems(node.items ?? [], node);
   if (items.length === 0) return replace(node, noteNode("No items found."));
   let display = displays[node.display];
@@ -118,42 +121,7 @@ function finalize(node: any, vfile: any) {
     });
     display = displays.table;
   }
-  const out = display(items, node);
-  if (!node.sortable) return replace(node, out);
-  if (node.display !== "table") {
-    fileWarn(vfile, `:sortable: only works with the table display (ignored for '${node.display}')`, {
-      node,
-      source: "listing",
-    });
-    return replace(node, out);
-  }
-  // For each column, list the row order for an ascending and a descending
-  // sort. The browser only rearranges rows to match these lists, so clicking
-  // a header sorts exactly as :sort: would (dates, empties, ties and all).
-  const orders: Record<string, number[]> = {};
-  // First click sorts text A-Z, but numbers and dates largest/newest first
-  // (matching the ':sort: date-desc' default). sortValue turns dates into
-  // epoch numbers, so "all values numeric" covers both.
-  const firstDirection: number[] = [];
-  for (const col of node.columns) {
-    const vals = items.map((it: any) => sortValue(it[col]));
-    const nums = vals.filter((v) => v != null);
-    firstDirection.push(nums.length && nums.every((v) => typeof v === "number") ? -1 : 1);
-    for (const dir of [1, -1]) {
-      orders[`${col}:${dir}`] = items
-        .map((_: any, i: number) => i)
-        .sort((a, b) => compareValues(vals[a], vals[b], dir));
-    }
-  }
-  const id = createId();
-  // The sort widget locates its table by this class (see sort-widget.ts).
-  out.class = `${out.class} myst-listing-sort-${id}`;
-  const widget = {
-    type: "anywidget",
-    esm: sortWidgetEsm(vfile),
-    model: { id, columns: node.columns, orders, firstDirection },
-  };
-  replace(node, { type: "div", children: [widget, out] });
+  replace(node, display(items, node, vfile));
 }
 
 const renderTransform: TransformSpec = {
@@ -163,8 +131,6 @@ const renderTransform: TransformSpec = {
   stage: "document",
   doc: "Render {listing} placeholders into their chosen display.",
   plugin: (_opts, utils) => (tree, vfile) => {
-    // Each call renders one page, so this scopes section anchors per page.
-    resetSectionIds();
     for (const node of utils.selectAll(PLACEHOLDER, tree) as any[]) {
       // Only finalize what we can render now; leave the rest for an external
       // collector/view to claim. The project-stage cleanup is the last responder.
@@ -182,7 +148,6 @@ const cleanupTransform: TransformSpec = {
   stage: "project",
   doc: "Warn on {listing} placeholders no collector claimed.",
   plugin: (_opts, utils) => (tree, vfile) => {
-    resetSectionIds();
     for (const node of utils.selectAll(PLACEHOLDER, tree) as any[]) {
       if (node.items === undefined && !node.error) {
         fileWarn(vfile, `Unknown listing source '${node.source}'`, { node, source: "listing" });

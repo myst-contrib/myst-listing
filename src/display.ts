@@ -3,11 +3,13 @@
  * into a single AST node. Add a built-in view via the `displays` map below.
  * See docs/develop/extending.md for adding one from an external plugin.
  */
-import { createHtmlId, normalizeLabel } from "myst-common";
+import { createHtmlId, createId, normalizeLabel } from "myst-common";
 import { htmlTransform, reconstructHtmlTransform } from "myst-transforms";
 import { cellText, ctxRef, rawImageSrc, toTagList } from "./shared.js";
+import { sortWidgetEsm } from "./sort-widget.js";
+import { compareValues, sortValue } from "./transform.js";
 
-export type Display = (items: any[], node: any) => any;
+export type Display = (items: any[], node: any, vfile: any) => any;
 
 /** Shared muted-text look for meta lines (date · author). */
 const muted = { opacity: 0.6, fontSize: "0.85rem" };
@@ -156,8 +158,8 @@ function coverDiv(item: any, style: any, cls: string) {
   };
 }
 
-function renderTable(items: any[], node: any) {
-  const columns: string[] = node.columns;
+function renderTable(items: any[], node: any, vfile: any) {
+  const columns: string[] = node.columns ?? ["title", "date"];
   const header = {
     type: "tableRow",
     children: columns.map((col) => ({
@@ -180,13 +182,41 @@ function renderTable(items: any[], node: any) {
       return { type: "tableCell", children };
     }),
   }));
-  return { type: "table", class: "myst-listing", children: [header, ...rows] };
+  const table = { type: "table", class: "myst-listing", children: [header, ...rows] };
+  if (!node.sortable) return table;
+  // For each column, list the row order for an ascending and a descending
+  // sort. The browser only rearranges rows to match these lists, so clicking
+  // a header sorts exactly as :sort: would (dates, empties, ties and all).
+  const orders: Record<string, number[]> = {};
+  // First click sorts text A-Z, but numbers and dates largest/newest first
+  // (matching the ':sort: date-desc' default). sortValue turns dates into
+  // epoch numbers, so "all values numeric" covers both.
+  const firstDirection: number[] = [];
+  for (const col of columns) {
+    const vals = items.map((it: any) => sortValue(it[col]));
+    const nums = vals.filter((v) => v != null);
+    firstDirection.push(nums.length && nums.every((v) => typeof v === "number") ? -1 : 1);
+    for (const dir of [1, -1]) {
+      orders[`${col}:${dir}`] = items
+        .map((_: any, i: number) => i)
+        .sort((a, b) => compareValues(vals[a], vals[b], dir));
+    }
+  }
+  const id = createId();
+  // The sort widget locates its table by this class (see sort-widget.ts).
+  table.class = `${table.class} myst-listing-sort-${id}`;
+  const widget = {
+    type: "anywidget",
+    esm: sortWidgetEsm(vfile),
+    model: { id, columns, orders, firstDirection },
+  };
+  return { type: "div", children: [widget, table] };
 }
 
 /** One bullet per item: the first column links to the item, then ": " and the
  * other columns joined by " · ". Empty fields are dropped with their separator. */
 function renderList(items: any[], node: any) {
-  const [first, ...rest] = node.columns as string[];
+  const [first, ...rest]: string[] = node.columns ?? ["title", "description"];
   const bullets = items.map((item) => {
     const label = titleInlines({ ...item, title: cellText(item[first]) || item.title });
     const meta = rest.map((col) => cellText(item[col])).filter(Boolean).join(" · ");
@@ -356,15 +386,13 @@ function renderFeed(items: any[], node: any) {
 /** Each item as a real section of the page: an H2 that shows up in the page
  * outline, a date line linking to the item, tags, and the full body. Use
  * `feed` instead to keep items out of the outline. */
-// Heading ids already used on the current page. Shared between listings so
-// the same item in two listings gets two different anchors; plugin.ts resets
-// this for each page.
-const usedSectionIds = new Map<string, number>();
-export function resetSectionIds() {
-  usedSectionIds.clear();
-}
+// Heading ids already used on each page, keyed by the page's vfile. Shared
+// between listings so the same item in two listings gets two different anchors.
+const sectionIdsByPage = new WeakMap<object, Map<string, number>>();
 
-function renderSections(items: any[], node: any) {
+function renderSections(items: any[], node: any, vfile: any) {
+  if (!sectionIdsByPage.has(vfile)) sectionIdsByPage.set(vfile, new Map());
+  const usedSectionIds = sectionIdsByPage.get(vfile)!;
   const sections = items.map((item, i) => {
     // MyST's own heading-label pass has already run, so set the anchor here.
     // Like that pass, identifier and html_id are the same slugified value.
