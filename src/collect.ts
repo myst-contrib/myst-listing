@@ -38,9 +38,9 @@ function pageItem(abs: string, vfile: any) {
   const ast = ctxRef.parseMyst!(text);
   const { frontmatter } = getFrontmatter(vfile, ast);
   // url is the project-rooted source path ("/posts/x.md"); MyST's link
-  // resolver rewrites it to the real output URL. body (parsed blocks, only
-  // rendered by the feed display) has a known limitation: relative image/link
-  // paths resolve against the listing page, not the source file.
+  // resolver rewrites it to the real output URL. body (the parsed blocks, for
+  // displays that show page content) has a known limitation: relative
+  // image/link paths resolve against the listing page, not the source file.
   return {
     ...frontmatter,
     url: `/${relative(process.cwd(), abs)}`,
@@ -93,47 +93,34 @@ function collectToc(node: any, vfile: any) {
   node.ordered = true;
 }
 
-function requireTitles(entries: any[], src: string, node: any, vfile: any) {
-  return entries.filter((item: any) => {
+/** A structured-data source: parse the directive body (which wins over :path:)
+ * or the :path: file into a list of items, skipping entries with no title.
+ * `shape` describes the expected layout for the error message. */
+function collectData(node: any, vfile: any, parse: (text: string) => any, shape: string) {
+  const src = node.body ? "directive body" : node.path;
+  const entries = parse(node.body ?? readFileSync(fromPage(vfile, node.path), { encoding: "utf-8" }));
+  if (!Array.isArray(entries)) throw new Error(`${node.source} source ${src} must be ${shape}`);
+  node.items = entries.filter((item: any) => {
     if (item?.title) return true;
     fileWarn(vfile, `Skipping ${src} entry with no title`, { node });
     return false;
   });
 }
 
-function collectYaml(node: any, vfile: any) {
-  // Inline YAML in the directive body wins over :path:; either is a top-level list.
-  const src = node.body ? "directive body" : node.path;
-  const entries = load(node.body ?? readFileSync(fromPage(vfile, node.path), { encoding: "utf-8" }));
-  if (!Array.isArray(entries)) throw new Error(`yaml source ${src} is not a top-level list`);
-  node.items = requireTitles(entries, src, node, vfile);
-}
-
-function collectJson(node: any, vfile: any) {
-  // Same shape as yaml: the file (or directive body) is one top-level list.
-  const src = node.body ? "directive body" : node.path;
-  const entries = JSON.parse(node.body ?? readFileSync(fromPage(vfile, node.path), { encoding: "utf-8" }));
-  if (!Array.isArray(entries)) throw new Error(`json source ${src} is not a top-level list`);
-  node.items = requireTitles(entries, src, node, vfile);
-}
-
-function collectToml(node: any, vfile: any) {
-  // TOML has no top-level list, so the items live in one array-of-tables
-  // (e.g. [[items]]); the key's name doesn't matter, but there must be only one.
-  const src = node.body ? "directive body" : node.path;
-  const doc: any = parseToml(node.body ?? readFileSync(fromPage(vfile, node.path), { encoding: "utf-8" }));
+/** TOML has no top-level list, so the items live in one array-of-tables
+ * (e.g. [[items]]); the key's name doesn't matter, but there must be only one. */
+function tomlEntries(text: string) {
+  const doc: any = parseToml(text);
   const keys = Object.keys(doc);
-  const entries = keys.length === 1 ? doc[keys[0]] : undefined;
-  if (!Array.isArray(entries)) throw new Error(`toml source ${src} must hold one top-level array-of-tables, e.g. [[items]]`);
-  node.items = requireTitles(entries, src, node, vfile);
+  return keys.length === 1 ? doc[keys[0]] : undefined;
 }
 
 /** Built-in collectors, keyed by `:source:`. */
 export const collectors: Record<string, Collector> = {
   files: collectFiles,
-  yaml: collectYaml,
-  json: collectJson,
-  toml: collectToml,
+  yaml: (node, vfile) => collectData(node, vfile, load, "a top-level list"),
+  json: (node, vfile) => collectData(node, vfile, JSON.parse, "a top-level list"),
+  toml: (node, vfile) => collectData(node, vfile, tomlEntries, "one top-level array-of-tables, e.g. [[items]]"),
   toc: collectToc,
 };
 

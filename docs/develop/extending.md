@@ -38,17 +38,18 @@ Now `:display: count` works:
 
 ### Add a built-in collector
 
-A collector fills `node.items`. Add a function to the `collectors` map in `src/collect.ts`. For example, a source that reads a JSON array of items:
+A collector fills `node.items`.
+Add a function to the `collectors` map in `src/collect.ts`.
+
+For a structured-data format, pass a parse function to `collectData`.
+It reads the directive body or the `:path:` file, checks for a list, and skips entries with no title.
+For example, the `json` source is one line:
 
 ```ts
-function collectJson(node: any, vfile: any) {
-  node.items = JSON.parse(readFileSync(fromPage(vfile, node.path), "utf-8"));
-}
-
-export const collectors = { files: collectFiles, json: collectJson };
+json: (node, vfile) => collectData(node, vfile, JSON.parse, "a top-level list"),
 ```
 
-Now `:source: json` `:path: data.json` works.
+Other sources set `node.items` themselves; see `collectFiles` and `collectToc`.
 
 ### Change sorting or filtering
 

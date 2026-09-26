@@ -44,21 +44,21 @@ No field is _required_, but the built-in displays and options understand these:
 * - Field
   - Used for
 * - `title`
-  - The item's name. Shown as the heading, linked to `url` when set. (The `files` collector uses the page's first heading when frontmatter has no `title`.)
+  - The item's name, linked to `url` when set. The `yaml`, `json` and `toml` sources skip entries without one; the `files` collector falls back to the page's first heading.
 * - `url`
-  - Where the title and gallery cards link to.
+  - Where the item links to.
 * - `description`
-  - Summary text. Shown in full by `summary`, truncated by `gallery`, and used as the `feed` body for items with no page.
+  - Summary text. Displays that show page content fall back to it when an item has no `body`.
 * - `date`
-  - Sorted on by the default `date-desc`, and shown in the `summary` meta line and the `feed` rail. A Date or `YYYY-MM-DD` string renders long, e.g. *January 1, 2025*.
+  - The default sort key (`date-desc`), and part of the meta line. A Date or `YYYY-MM-DD` string renders long, e.g. *January 1, 2025*.
 * - `author` / `authors`
-  - A single name or a list. Shown beside the date in `summary` and in the `feed` rail. Names are shown as written (an id referencing a project author is not resolved).
+  - A single name or a list, shown beside the date. Names are shown as written (an id referencing a project author is not resolved).
 * - `tags`
-  - A list of strings. Shown as a tag row; `:filter: tags=news` matches by containment.
+  - A list of strings, shown as a tag row (see `:tag-fields:`). `:filter: tags=news` matches by containment.
 * - `thumbnail`
-  - Image URL. Leads each `gallery` card, sits beside each `summary` card, and tops the `feed` rail.
+  - Image URL for displays that show images.
 * - `body`
-  - Set by the `files` collector to the page's parsed content; rendered only by `feed`.
+  - The page's parsed content, set by the `files` and `toc` collectors, for displays that show page content.
 ```
 
 Any other fields pass through untouched; use them as `:columns:` or `:filter:` targets.
