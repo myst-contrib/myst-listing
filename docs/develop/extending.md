@@ -24,7 +24,7 @@ function renderCount(items: any[]) {
   return { type: "paragraph", children: [{ type: "text", value: `${items.length} items` }] };
 }
 
-export const displays = { table: renderTable, count: renderCount };
+export const displays = { table: renderTable, /* ...the other displays */ count: renderCount };
 ```
 
 Now `:display: count` works:
@@ -43,6 +43,7 @@ Add a function to the `collectors` map in `src/collect.ts`.
 
 For a structured-data format, pass a parse function to `collectData`.
 It reads the directive body or the `:path:` file, checks for a list, and skips entries with no title.
+The last argument describes the expected shape, for the error message when the data doesn't match.
 For example, the `json` source is one line:
 
 ```ts
@@ -67,24 +68,34 @@ Each option is a field of the same name, camelCased when hyphenated (`:tag-field
 Collectors fill in the rest:
 
 - `items`: the list of items.
-- `ordered`: set to `true` if the item order is meaningful (as the `toc` source does). This skips the default `date-desc` sort and limit of 10.
-- `error`: a message to show instead of the listing. myst-listing warns and renders it as an error box.
+- `ordered`: set to `true` if the item order is meaningful (as the `toc` source does).
+- `error`: a message to show instead of the listing, for example when a fetch fails. myst-listing warns and renders it as an error box.
+
+Unless a collector sets `ordered`, its items get the same defaults as any listing: sorted `date-desc` and capped at 10.
+With `ordered`, neither default applies.
 
 Your plugin should ship a `document`-stage transform that selects those nodes and either:
 
 - **collects**: sets `node.items` to a list of items (a collector), or
 - **displays**: replaces a node whose `:display:` you own with your rendered AST (a display).
 
-An item is a plain object; see [Items](#items) for the fields the built-ins understand.
+An item is a plain object; see [Items on the Collectors page](#items) for the fields the built-ins understand.
 
 ### Staging and ordering
 
-Transforms in MyST can run in one of two stages: `document` first, and `project` after.
-For your transform to run at the right time:
+Run your transform at the `document` stage.
+It can be `async`, for example to fetch from an API.
+Plugins run in the order they're listed in `myst.yml`:
 
-- Run at the `document` stage. `myst-listing` resolves title links during this stage, so items collected later won't link correctly.
-- Run before `myst-listing`'s render. Cross-plugin order follows load order in `myst.yml`, so list your plugin before `myst-listing` there.
-- A node whose `:source:` or `:display:` `myst-listing` doesn't recognize is left untouched through the document stage, so your transform can claim it. Anything still unclaimed by the project stage is reported as an unknown source.
+- List a **collector** plugin before `myst-listing`, so it fills in `node.items` before `myst-listing` renders the placeholder.
+- List a **display** plugin after `myst-listing`, so the built-in collectors have already filled `node.items`.
+
+Order matters because of links.
+MyST resolves links at the start of the `project` stage, so item titles only link correctly if the listing is rendered before then.
+If a collector is listed after `myst-listing` by mistake, its items still render, but their titles won't link.
+
+`myst-listing` leaves a placeholder alone if it doesn't recognize its `:source:` or `:display:`, so your plugin can claim it.
+A placeholder that no collector has filled by the `project` stage is reported as an unknown source.
 
 ### Add a collector
 
@@ -154,3 +165,5 @@ const renderBadges = {
 
 export default { name: "Listing badges", transforms: [renderBadges] };
 ```
+
+Load it after `myst-listing` in `myst.yml`, and `:display: badges` now works.

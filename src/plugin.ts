@@ -30,7 +30,7 @@ const listingDirective: DirectiveSpec = {
     filter: { type: String, doc: "Keep only items where field=value." },
     sortable: { type: Boolean, doc: "Let readers re-sort the table by clicking its column headers. Table display only." },
     columns: { type: String, doc: "Comma-separated fields for the table and list views. Default 'title,date' (table) or 'title,description' (list)." },
-    "tag-fields": { type: String, doc: "Frontmatter fields shown as colored tag groups (all displays except table). Default 'tags'." },
+    "tag-fields": { type: String, doc: "Frontmatter fields shown as colored tag groups (gallery, summary, feed, and sections). Default 'tags'." },
     "grid-columns": { type: Number, doc: "Gallery only: number of columns. Default: responsive 1–4." },
     "body-limit": { type: Number, doc: "Feed only: cap each item's body to N blocks, with a 'Continue reading' link. Default: full body." },
     label: { type: String, doc: "Label to target this listing from links or ![](#label) embeds." },
