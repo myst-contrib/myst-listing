@@ -2,7 +2,7 @@
 
 A simple MyST plugin for **collecting** items, optionally **transforming** them to add extra metadata, and then **displaying** them in a variety of structured views.
 
-Out of the box, this plugin supports **tables**, **galleries**, **summaries**, **feeds**, and **sections** of each entry.
+Out of the box, this plugin supports **tables**, **lists**, **galleries**, **summaries**, **feeds**, and **sections**.
 
 > [!NOTE]
 >
@@ -21,7 +21,7 @@ project:
 
 To pin a specific version, swap `latest/download` for a tag, e.g. `download/v0.1.0`.
 
-Alternatively, build the bundle yourself (`bun run build`) and reference it from a local path:
+Alternatively, clone this repository, build the bundle with `bun run build`, and reference it from a local path:
 
 ```yaml
 project:
@@ -30,7 +30,8 @@ project:
 ```
 
 Then collect a folder of pages and display them.
-With no options, `{listing}` shows a table of the markdown files in the page's own folder:
+This shows the pages in `posts/` as a table, newest first.
+By default a listing shows at most 10 items.
 
 ````markdown
 ```{listing}
