@@ -402,3 +402,13 @@ describe("unknown source (collectors.md)", () => {
     expect(JSON.stringify(errors)).toContain("Unknown listing source: 'nope'");
   });
 });
+
+describe("landing page (index.md)", () => {
+  it("renders the showcase in table, list, gallery, and summary tabs", () => {
+    const ast = loadPage("index");
+    for (const cls of ["table", "list", "gallery", "summary"]) {
+      const found = cls === "table" ? tablesIn(ast).length : withClass(ast, `myst-listing-${cls}`).length;
+      expect(found, cls).toBe(1);
+    }
+  });
+});

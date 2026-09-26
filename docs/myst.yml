@@ -20,6 +20,7 @@ project:
     - https://github.com/jupyter-book/myst-plugins/releases/download/github-handle-links%402025-12-01/index.mjs
   toc:
     - file: index.md
+    - file: get-started.md
     - file: collectors.md
     - file: transform.md
     - file: displays/index.md

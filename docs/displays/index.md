@@ -76,6 +76,7 @@ Each display page has a demo.
 | `gallery` | `.myst-listing-gallery .myst-card` |
 | every other display | `.myst-listing-item` |
 
+(labels)=
 ### Labels and embeds
 
 A `:label:` makes a listing a reference target.

@@ -4,51 +4,72 @@ title: MyST Listing
 
 ```{include} ../README.md
 :start-after: # MyST Listings
+:end-before: ## Usage
 ```
 
-Rendered:
+## What it looks like
 
+Point `{listing}` at some pages and choose how to show them.
+Here are the same three posts, four different ways:
+
+::::::::{tab-set}
+:::::::{tab-item} Table
 ::::::{myst:demo}
 :::{listing}
 :path: posts/*.md
-:columns: title,date
+:display: table
+:limit: 3
 :::
 ::::::
+:::::::
+:::::::{tab-item} List
+::::::{myst:demo}
+:::{listing}
+:path: posts/*.md
+:display: list
+:limit: 3
+:::
+::::::
+:::::::
+:::::::{tab-item} Gallery
+::::::{myst:demo}
+:::{listing}
+:path: posts/*.md
+:display: gallery
+:limit: 3
+:::
+::::::
+:::::::
+:::::::{tab-item} Summary
+::::::{myst:demo}
+:::{listing}
+:path: posts/*.md
+:display: summary
+:limit: 3
+:::
+::::::
+:::::::
+::::::::
+
+There are six displays in all (see [Displays](./displays/index.md)).
+To install the plugin and make your first listing, see [Get started](./get-started.md).
 
 ## How it works
 
-A listing runs in three stages, and each option belongs to one of them:
+Each listing goes through three stages:
 
-- [Collect](./collectors.md): find the items, from files, the toc, or a data file. Options: `:source:`, `:path:`.
-- [Transform](./transform.md): sort, filter, and cap the items. By default, the 10 newest by `date`. Options: `:sort:`, `:filter:`, `:limit:`.
-- [Display](./displays/index.md): render the items as a table, list, gallery, and more. Options: `:display:`, `:columns:`, `:tag-fields:`, `:label:`.
-  Some displays add their own: `:sortable:` (table), `:grid-columns:` (gallery), and `:body-limit:` (feed).
+- [Collect](./collectors.md) items from files, your table of contents, or a data file.
+  Options: `:source:`, `:path:`.
+- [Transform](./transform.md) them by sorting, filtering, and limiting.
+  By default you get the 10 newest, by their `date`.
+  Options: `:sort:`, `:filter:`, `:limit:`.
+- [Display](./displays/index.md) them as a table, list, gallery, and so on.
+  Options: `:display:`, `:columns:`, `:tag-fields:`, `:label:`, plus `:sortable:` (table), `:grid-columns:` (gallery), and `:body-limit:` (feed).
 
 Other plugins can add their own collectors and displays (see [Extending](./develop/extending.md)).
-The transform stage is not an extension point yet.
+You can't extend the transform stage yet.
 
-## Design
-
-The code for each stage is described in [Architecture](./develop/architecture.md).
-The design came from several one-off plugins, listed below, that each hand-rolled their own collect-and-display logic.
-It separates the stages so that other plugins can reuse the same displays; if that turns out to be more complex than it's worth, we'll simplify it.
-
-## Design usecases
-
-This was designed to be a single tool that could be re-used across these use-cases:
-
-For built-in functionality:
-
-- The [blog plugin](https://github.com/jupyter-book/blog-plugin) has some logic for collecting files on disk and displaying them in a table.
-- The [Jupyter Book gallery](https://github.com/jupyter-book/jupyterbook.org/tree/main/docs/src/gallery.yml) has code for hand-rolling a gallery with Python.
-- The `feed` display follows the changelog pattern of the Zen browser and nteract changelogs, and the staff-bio pattern of a Berkeley course staff page; see the screenshots in [issue #7](https://github.com/myst-contrib/myst-listing/issues/7).
-
-For plugin-level extensions functionality (ie, we want other MyST plugins to extend `myst-listing` functionality to meet these extra use-cases):
-
-- The [GitHub Issue Table plugin](https://github.com/jupyter-book/myst-plugins) has logic for collecting issues, adding columns, and displaying them in a table.
-- The [Project Pythia cookbooks gallery](https://github.com/ProjectPythia/cookbook-gallery) which _collects_ YAML files from a bunch of repositories and then uses them to render the gallery.
-
-## Reasons you might not want to use this plugin
+## Status
 
 - This is an experimental plugin and its design and UX isn't yet proven!
 - Jupyter Book has an [issue about adding `listing` functionality](https://github.com/jupyter-book/mystmd/issues/840) and if that results in a _different_ MyST implementation, I'll probably shut this project down and recommend people just use that.

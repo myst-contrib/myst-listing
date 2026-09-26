@@ -21,7 +21,7 @@ project:
 
 To pin a specific version, swap `latest/download` for a tag, e.g. `download/v0.1.0`.
 
-Alternatively, clone this repository, build the bundle with `bun run build`, and reference it from a local path:
+Alternatively, clone this repository, build the bundle with `bun run build` (it ends up in `dist/plugin.mjs`), and reference it from a local path:
 
 ```yaml
 project:
