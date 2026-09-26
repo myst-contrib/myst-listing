@@ -24,7 +24,7 @@ Each release below is a section, and the page outline on the right lists them:
 
 ## Filter it live
 
-Each item carries the same `myst-listing-item` class as the other displays, so [`searchfilter`](https://github.com/jupyter-book/myst-plugins/tree/main/plugins/searchfilter) works here too:
+Filter sections as you type with [searchfilter](#filter-live):
 
 ::::::{myst:demo}
 :::{searchfilter} .myst-listing-item

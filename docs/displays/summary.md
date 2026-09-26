@@ -23,7 +23,7 @@ An id that references a project author is not yet resolved ([issue #4](https://g
 
 ## Filter it live
 
-Every item carries a `myst-listing-item` class, so the [`searchfilter`](https://github.com/jupyter-book/myst-plugins/tree/main/plugins/searchfilter) plugin can filter the cards as you type.
+Filter cards as you type with [searchfilter](#filter-live).
 It matches against everything in each card (title, tags, date, description):
 
 ::::::{myst:demo}

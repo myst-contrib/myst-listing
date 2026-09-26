@@ -3,7 +3,7 @@ title: Displays
 ---
 
 A `{listing}` renders its collected items with one of six built-in **displays**, chosen with the `:display:` option.
-Each leads with a different field:
+Each leads with something different:
 
 ```{list-table}
 :header-rows: 1
@@ -27,94 +27,73 @@ Each leads with a different field:
   - blogs, bios (read in place)
   - the full body
 * - [`sections`](./sections.md)
-  - pages that are the listing: release notes or combined meeting notes
+  - whole pages built from a listing, like release notes or combined meeting notes
   - an `##` heading per item, then the full body
 ```
 
-Below is a quick tour of each; follow the links for the full options.
 Sorting, filtering, and limiting work the same in every display and are covered in [](../transform.md).
 
-## `table`
+## Options for every display
 
-The default. Pick the columns you want with `:columns:`.
+Each display page covers its own options.
+These work across displays.
 
-::::::{myst:demo}
-:::{listing}
-:path: ../posts/*.md
-:columns: title,date
-:::
-::::::
+(tag-fields)=
+### Color-code several tag fields
 
-## `list`
-
-One bullet per item, with the linked title and its description on one line.
-
-::::::{myst:demo}
-:::{listing}
-:path: ../posts/*.md
-:display: list
-:limit: 3
-:::
-::::::
-
-## `gallery`
-
-An image-forward card grid.
+By default the tag row shows each item's `tags`.
+List several fields with `:tag-fields:` to show more than one kind of tag, each in its own color.
+In an item, each of these fields can hold a list or a comma-separated string:
 
 ::::::{myst:demo}
 :::{listing}
 :source: yaml
 :path: ../links.yml
 :display: gallery
+:tag-fields: libraries, domains
 :::
 ::::::
 
-## `summary`
+Colors come from a small fixed palette, assigned by list order, so keep the order consistent across pages.
+It works in every display that shows tags: `gallery`, `summary`, `feed`, and `sections`.
 
-Stacked cards that show each item's `description`.
+(filter-live)=
+### Filter it live
+
+Add the [`searchfilter`](https://github.com/jupyter-book/myst-plugins/tree/main/plugins/searchfilter) plugin to your `myst.yml` to give readers a search box that filters a listing as they type:
+
+```yaml
+project:
+  plugins:
+    - https://raw.githubusercontent.com/jupyter-book/myst-plugins/main/plugins/searchfilter/searchfilter.mjs
+```
+
+Then put a `{searchfilter}` directive on the page, with the item selector for your display as its argument.
+Each display page has a demo.
+
+| Display | Selector |
+| --- | --- |
+| `gallery` | `.myst-listing-gallery .myst-card` |
+| every other display | `.myst-listing-item` |
+
+### Labels and embeds
+
+A `:label:` makes a listing a reference target.
+Link to it, or embed it on any page in your project with `![](#label)`.
+The embed shows the same items as the original.
+Its `:path:` resolves from the page that holds the `{listing}`, not the page that embeds it:
 
 ::::::{myst:demo}
 :::{listing}
+:label: recent-posts
 :path: ../posts/*.md
-:display: summary
+:columns: title,date
 :::
+
+![](#recent-posts)
 ::::::
 
-## `feed`
-
-The full body of each item, stacked for reading straight down.
-
-::::::{myst:demo}
-:::{listing}
-:path: ../posts/*.md
-:display: feed
-:body-limit: 2
-:limit: 3
-:::
-::::::
-
-## `sections`
-
-Like `feed`, but each item is a real `##`-level section that appears in the page outline.
-
-::::::{myst:demo}
-:::{listing}
-:path: ../posts/*.md
-:filter: tags=release
-:display: sections
-:limit: 2
-:::
-::::::
-
-## Graceful degradation for unknown configuration
-
-An unknown `:source:` warns and renders a note:
-
-::::::{myst:demo}
-:::{listing}
-:source: nope
-:::
-::::::
+### Unknown displays
 
 An unknown `:display:` warns and falls back to a table:
 

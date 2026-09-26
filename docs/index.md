@@ -10,32 +10,24 @@ Rendered:
 
 ::::::{myst:demo}
 :::{listing}
-:label: recent-posts
 :path: posts/*.md
 :columns: title,date
 :::
 ::::::
 
-See [Displays](./displays/index.md) for the built-in displays and their options.
+## How it works
 
-## Labels and embeds
+A listing runs in three stages, and each option belongs to one of them:
 
-A `:label:` makes a listing a reference target, so you can link to it or embed it on another page with `![](#label)`:
-
-::::::{myst:demo}
-![](#recent-posts)
-::::::
-
-## Design
-
-This plugin is designed around the following three stages:
-
-- [Collect](./collectors.md): Download, find, or otherwise collect items and return a structured dataset of those items.
-- [Transform](./transform.md): Take this dataset and optionally transform them by modifying entries, adding metadata, etc.
-- [Display](./displays/index.md): Take the dataset and use the structured data to render each entry in a few common ways (lists, tables, etc).
+- [Collect](./collectors.md): find the items, from files, the toc, or a data file. Options: `:source:`, `:path:`.
+- [Transform](./transform.md): sort, filter, and cap the items. By default, the 10 newest by `date`. Options: `:sort:`, `:filter:`, `:limit:`.
+- [Display](./displays/index.md): render the items as a table, list, gallery, and more. Options: `:display:`, `:columns:`, `:tag-fields:`, `:label:`.
+  Some displays add their own: `:sortable:` (table), `:grid-columns:` (gallery), and `:body-limit:` (feed).
 
 Other plugins can add their own collectors and displays (see [Extending](./develop/extending.md)).
 The transform stage is not an extension point yet.
+
+## Design
 
 The code for each stage is described in [Architecture](./develop/architecture.md).
 The design came from several one-off plugins, listed below, that each hand-rolled their own collect-and-display logic.

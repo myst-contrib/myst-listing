@@ -8,7 +8,7 @@ The `feed` display shows each item's **full body**, for reading straight down th
 It suits blogs read in place, changelogs, and staff or bio pages.
 
 Each item is a row: a left **rail** with the `thumbnail` (if any), date, author(s), and tags, and the linked title and rendered body on the right.
-Tags use the same [`:tag-fields:`](#color-code-several-tag-fields) option as the other displays.
+Tags use the same [`:tag-fields:`](#tag-fields) option as the other displays.
 On a narrow screen the rail stacks above the body.
 To show only each item's description, use [`summary`](./summary.md) instead.
 
@@ -42,7 +42,7 @@ To put each release in the table of contents as its own section, use [`sections`
 
 ## A staff page
 
-Items can also come from YAML.
+Items can also come from YAML (see the [item fields](#items)).
 A YAML entry has no page body, so its `description` is shown instead, and with an image the rail becomes an avatar column:
 
 ::::::{myst:demo}
@@ -88,7 +88,7 @@ You can also mix items with and without images; the body's left edge stays align
 
 ## Filter it live
 
-Each item carries the same `myst-listing-item` class as the [summary display](./summary.md), so [`searchfilter`](https://github.com/jupyter-book/myst-plugins/tree/main/plugins/searchfilter) can filter the feed as you type:
+Filter the feed as you type with [searchfilter](#filter-live):
 
 ::::::{myst:demo}
 :::{searchfilter} .myst-listing-item

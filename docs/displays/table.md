@@ -20,7 +20,7 @@ It is the default, so a bare `{listing}` is already a table.
 
 ## Filter it live
 
-Each **data** row carries a `myst-listing-item` class (the header doesn't, so it stays put), which the [`searchfilter`](https://github.com/jupyter-book/myst-plugins/tree/main/plugins/searchfilter) plugin can target to filter rows as you type:
+Filter rows as you type with [searchfilter](#filter-live). The header row stays put:
 
 ::::::{myst:demo}
 :::{searchfilter} .myst-listing-item
@@ -36,8 +36,9 @@ Each **data** row carries a `myst-listing-item` class (the header doesn't, so it
 ## Interactive sorting
 
 Add the `:sortable:` flag and readers can re-sort the table by clicking a column header.
-Re-sorting happens in the browser and only rearranges the rows shown, so `:limit:` still applies.
-There's some basic logic to try to sort sensibly: dates are sorted by date, not alpha-numerically, and the first click on a numeric or date column sorts largest/newest first (text sorts A–Z).
+Re-sorting happens in the browser and only reorders the rows already on the page, so items cut by `:limit:` stay hidden.
+Dates sort as dates, not as text.
+The first click on a number or date column sorts largest or newest first, and on a text column A to Z.
 
 ::::::{myst:demo}
 :::{listing}

@@ -56,7 +56,7 @@ Pair `list` with the [`toc` source](#toc-source) to list the pages under a page 
 
 ## Filter it live
 
-Every bullet carries a `myst-listing-item` class, so the [`searchfilter`](https://github.com/jupyter-book/myst-plugins/tree/main/plugins/searchfilter) plugin can filter them as you type:
+Filter bullets as you type with [searchfilter](#filter-live):
 
 ::::::{myst:demo}
 :::{searchfilter} .myst-listing-item

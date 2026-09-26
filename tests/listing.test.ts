@@ -128,17 +128,8 @@ describe("gallery display (displays/gallery.md)", () => {
   const galleries = withClass(ast, "myst-listing-gallery");
 
   it("renders every gallery listing on the page", () => {
-    // yaml, files, grid-columns, tag-fields, and the filter-live demo.
-    expect(galleries.length).toBe(5);
-  });
-
-  it("colors :tag-fields: groups by their position in the list", () => {
-    // The tag-fields demo (4th gallery) renders `libraries` then `domains`.
-    const pills = withClass(galleries[3], "myst-listing-tag");
-    const backgrounds = new Set(pills.map((p: any) => p.style?.background));
-    expect(pills.length).toBeGreaterThan(0);
-    // Two fields → two distinct pill colors.
-    expect(backgrounds.size).toBe(2);
+    // yaml, files, grid-columns, and the filter-live demo.
+    expect(galleries.length).toBe(4);
   });
 
   it("uses MyST's clickable card node, with the url on the whole card", () => {
@@ -375,23 +366,22 @@ describe("sections display (displays/sections.md)", () => {
   });
 });
 
-describe("graceful degradation (displays/index.md)", () => {
+describe("shared display options (displays/index.md)", () => {
   const ast = loadPage("displays.index");
 
-  it("warns (does not fail) on an unknown source", () => {
-    const errors = allNodes(ast).filter(
-      (n: any) => n.type === "admonition" && n.kind === "error",
-    );
-    expect(JSON.stringify(errors)).toContain("Unknown listing source: 'nope'");
+  it("colors :tag-fields: groups by their position in the list", () => {
+    // The tag-fields demo renders `libraries` then `domains`.
+    const gallery = withClass(ast, "myst-listing-gallery")[0];
+    const pills = withClass(gallery, "myst-listing-tag");
+    const backgrounds = new Set(pills.map((p: any) => p.style?.background));
+    expect(pills.length).toBeGreaterThan(0);
+    // Two fields → two distinct pill colors.
+    expect(backgrounds.size).toBe(2);
   });
 
   it("falls back to a table on an unknown display", () => {
     expect(tablesIn(ast).length).toBeGreaterThanOrEqual(2);
   });
-});
-
-describe("labels and embeds (index.md)", () => {
-  const ast = loadPage("index");
 
   it("keeps :label: on the rendered listing", () => {
     expect(allNodes(ast).some((n: any) => n.identifier === "recent-posts")).toBe(true);
@@ -401,5 +391,14 @@ describe("labels and embeds (index.md)", () => {
     const embed = allNodes(ast).find((n: any) => n.type === "embed");
     expect(embed).toBeTruthy();
     expect(tablesIn(embed).length).toBe(1);
+  });
+});
+
+describe("unknown source (collectors.md)", () => {
+  it("warns (does not fail) on an unknown source", () => {
+    const errors = allNodes(loadPage("collectors")).filter(
+      (n: any) => n.type === "admonition" && n.kind === "error",
+    );
+    expect(JSON.stringify(errors)).toContain("Unknown listing source: 'nope'");
   });
 });

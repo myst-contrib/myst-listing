@@ -194,3 +194,13 @@ A `.toml` file works the same way:
 :columns: title,description,date
 :::
 ::::::
+
+## Unknown sources
+
+An unknown `:source:` warns and renders a note:
+
+::::::{myst:demo}
+:::{listing}
+:source: nope
+:::
+::::::
