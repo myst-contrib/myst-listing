@@ -222,7 +222,7 @@ describe("list display (displays/list.md)", () => {
 describe("data sources (collectors.md)", () => {
   // Skip the page's own {list-table}s; only listings carry the myst-listing class.
   const listings = tablesIn(loadPage("collectors")).filter((t: any) => t.class === "myst-listing");
-  const [yaml, inlineYaml, json, inlineToml, toml] = listings;
+  const [yaml, inlineYaml, json, inlineToml, toml, csv, inlineCsv, tsv] = listings;
 
   it("collects from yaml and skips the title-less entry", () => {
     const titles = column(yaml, "title");
@@ -244,6 +244,19 @@ describe("data sources (collectors.md)", () => {
 
   it("collects from a toml file, sorting its parsed dates", () => {
     expect(column(toml, "title")).toEqual(["Jupyter Book", "MyST Markdown"]); // date-desc
+  });
+
+  it("collects from a csv file, sorting its date strings", () => {
+    expect(column(csv, "title")).toEqual(["Jupyter Book", "MyST Markdown"]); // date-desc
+  });
+
+  it("collects from inline CSV, keeping a quoted comma", () => {
+    expect(column(inlineCsv, "title")).toEqual(["Csv One", "Csv Two"]);
+    expect(column(inlineCsv, "description")).toContain("Quoted, so it can hold a comma");
+  });
+
+  it("collects from a tsv file", () => {
+    expect(column(tsv, "title")).toEqual(["Jupyter Book", "MyST Markdown"]); // date-desc
   });
 });
 

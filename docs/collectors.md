@@ -27,6 +27,9 @@ These collectors are built in, and other plugins can add more (see [Extending](.
 * - `toml`
   - A TOML file whose array-of-tables entries are items
   - a `.toml` file
+* - `csv`, `tsv`
+  - A CSV or TSV file whose header row names the fields and whose other rows are items
+  - a `.csv` or `.tsv` file
 ```
 
 A relative `:path:` resolves from the page containing the directive, like a Markdown link.
@@ -192,6 +195,44 @@ A `.toml` file works the same way:
 :source: toml
 :path: links.toml
 :columns: title,description,date
+:::
+::::::
+
+## `csv` and `tsv`
+
+Set `:source: csv` and point `:path:` at a `.csv` file.
+The header row names the [item fields](#items), and each row after it is one item.
+Separate several tags in one cell with `;`:
+
+::::::{myst:demo}
+:::{listing}
+:source: csv
+:path: links.csv
+:columns: title,description,tags
+:::
+::::::
+
+Like the other data sources, you can write the CSV in the directive body instead:
+
+::::::{myst:demo}
+:::{listing}
+:source: csv
+:columns: title,description
+title,description
+Csv One,Written in the directive body
+Csv Two,"Quoted, so it can hold a comma"
+:::
+::::::
+
+Every value is a string, so a numeric column sorts as text.
+
+For a tab-separated file, use `:source: tsv`:
+
+::::::{myst:demo}
+:::{listing}
+:source: tsv
+:path: links.tsv
+:columns: title,description
 :::
 ::::::
 

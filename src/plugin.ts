@@ -20,11 +20,11 @@ const csv = (s: string) => s.split(",").map((c) => c.trim()).filter(Boolean);
 const listingDirective: DirectiveSpec = {
   name: "listing",
   doc: "Collect items and display them as a table, list, gallery, summary, feed, or sections.",
-  body: { type: String, doc: "Inline list of items (used with source: yaml, json, or toml)." },
+  body: { type: String, doc: "Inline items, instead of a :path: file, for the yaml, json, toml, csv, and tsv sources." },
   options: {
-    source: { type: String, doc: "Where items come from: 'files', 'toc', 'yaml', 'json', or 'toml'. Default 'files'." },
+    source: { type: String, doc: "Where items come from: 'files', 'toc', 'yaml', 'json', 'toml', 'csv', or 'tsv'. Default 'files'." },
     display: { type: String, doc: "View: 'table', 'list', 'gallery', 'summary', 'feed', or 'sections'. Default 'table'." },
-    path: { type: String, doc: "Glob for 'files' (default './*.md'), page whose toc children 'toc' lists (default: this page), or path to a .yml/.json/.toml file. Relative to the page." },
+    path: { type: String, doc: "Glob for 'files' (default './*.md'), page whose toc children 'toc' lists (default: this page), or path to a .yml/.json/.toml/.csv/.tsv file. Relative to the page." },
     sort: { type: String, doc: "Sort by 'field' (ascending), 'field-asc', 'field-desc', or 'random'. Default 'date-desc' (toc order for 'toc')." },
     limit: { type: Number, doc: "Maximum number of items. Default 10 (no limit for 'toc'); 0 or less means no limit." },
     filter: { type: String, doc: "Keep only items where field=value." },

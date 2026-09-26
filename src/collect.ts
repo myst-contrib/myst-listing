@@ -9,6 +9,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { load } from "js-yaml";
 import { parse as parseToml } from "smol-toml";
+import { parse as parseCsv } from "csv-parse/sync";
 import { getFrontmatter } from "myst-transforms";
 import { fileWarn, type TransformSpec } from "myst-common";
 import { PLACEHOLDER, ctxRef } from "./shared.js";
@@ -115,12 +116,18 @@ function tomlEntries(text: string) {
   return keys.length === 1 ? doc[keys[0]] : undefined;
 }
 
+/** CSV (or TSV) rows as objects keyed by the header row. `bom` strips the marker Excel adds. */
+const csvRows = (text: string, delimiter = ",") =>
+  parseCsv(text, { delimiter, columns: true, bom: true, skip_empty_lines: true, trim: true });
+
 /** Built-in collectors, keyed by `:source:`. */
 export const collectors: Record<string, Collector> = {
   files: collectFiles,
   yaml: (node, vfile) => collectData(node, vfile, load, "a top-level list"),
   json: (node, vfile) => collectData(node, vfile, JSON.parse, "a top-level list"),
   toml: (node, vfile) => collectData(node, vfile, tomlEntries, "one top-level array-of-tables, e.g. [[items]]"),
+  csv: (node, vfile) => collectData(node, vfile, csvRows, "a header row, then one row per item"),
+  tsv: (node, vfile) => collectData(node, vfile, (text) => csvRows(text, "\t"), "a header row, then one row per item"),
   toc: collectToc,
 };
 

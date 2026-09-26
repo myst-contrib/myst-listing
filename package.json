@@ -17,6 +17,7 @@
     "test": "bun run build:docs && bunx vitest run"
   },
   "dependencies": {
+    "csv-parse": "^7.0.3",
     "glob": "^11.0.2",
     "js-yaml": "^4.1.0",
     "myst-common": "^1.7.11",
