@@ -1,54 +1,13 @@
 /**
- * Display layer. A display turns the (already filtered/sorted/limited) items
+ * Display layer. A display turns the items chosen by transform.ts
  * into a single AST node. Add a built-in view via the `displays` map below.
  * See docs/extending.md for adding one from an external plugin.
  */
 import { createHtmlId, normalizeLabel } from "myst-common";
 import { htmlTransform, reconstructHtmlTransform } from "myst-transforms";
-import { ctxRef, rawImageSrc, toTagList } from "./shared.js";
+import { cellText, ctxRef, rawImageSrc, toTagList } from "./shared.js";
 
 export type Display = (items: any[], node: any) => any;
-
-/** A long, locale-aware date ("May 20, 2026"). Formatted in UTC because YAML
- * dates are midnight-UTC, and a local timezone could roll them back a day. */
-const dateFmt = new Intl.DateTimeFormat("en", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-  timeZone: "UTC",
-});
-
-/** A YAML/ISO date (Date object or "2026-05-20..." string), else null. */
-function asDate(value: any): Date | null {
-  if (value instanceof Date) return value;
-  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value)) {
-    const d = new Date(value);
-    if (!isNaN(d.getTime())) return d;
-  }
-  return null;
-}
-
-/** A field's value as display text: lists join with commas, dates format long,
- * author-like objects render by name. */
-function cellText(value: any): string {
-  if (value == null) return "";
-  if (Array.isArray(value)) return value.map(cellText).join(", ");
-  const d = asDate(value);
-  if (d) return dateFmt.format(d);
-  if (typeof value === "object") return value.name ?? value.id ?? "";
-  return String(value);
-}
-
-/** A field's value as a sort key: dates become epoch ms, empties become null
- * (sorted last). Used by both the build-time sort and the sort widget's
- * precomputed orders (see plugin.ts). */
-export function sortValue(value: any): string | number | null {
-  if (value == null || value === "") return null;
-  if (typeof value === "number") return value;
-  const d = asDate(value);
-  if (d) return d.getTime();
-  return cellText(value);
-}
 
 /** Shared muted-text look for meta lines (date · author). */
 const muted = { opacity: 0.6, fontSize: "0.85rem" };

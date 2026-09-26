@@ -12,6 +12,7 @@ import { toText } from "myst-common";
 import { load } from "js-yaml";
 import { rawImageSrc, toTagList } from "../src/shared";
 import { displays } from "../src/display";
+import { selectItems } from "../src/transform";
 
 const loadPage = (slug: string) =>
   JSON.parse(readFileSync(`docs/_build/site/content/${slug}.json`, "utf-8")).mdast;
@@ -133,6 +134,13 @@ describe("transform options (transform.md)", () => {
 
   it("shows every item with :limit: 0", () => {
     expect(rowCount(unlimited)).toBe(POST_COUNT);
+  });
+
+  it("sorts by a dashed field name, with empty values last either way", () => {
+    const items = [{ title: "none" }, { title: "b", "short-title": "B" }, { title: "a", "short-title": "A" }];
+    const order = (sort: string) => selectItems(items, { sort }).map((it) => it.title);
+    expect(order("short-title-desc")).toEqual(["b", "a", "none"]);
+    expect(order("short-title-asc")).toEqual(["a", "b", "none"]);
   });
 });
 

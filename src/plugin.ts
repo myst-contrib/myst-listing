@@ -1,7 +1,7 @@
 /**
  * MyST Listing: a {listing} directive that collects items and displays them.
  * Pipeline: directive emits a listingPlaceholder -> collect.ts fills node.items
- * -> the render transform here filters/sorts/limits and picks a display.ts view.
+ * -> transform.ts filters/sorts/limits -> the render transform here picks a display.ts view.
  * See docs/extending.md for the extension points.
  */
 import {
@@ -13,7 +13,8 @@ import {
 } from "myst-common";
 import { PLACEHOLDER, ctxRef } from "./shared.js";
 import { collectTransform } from "./collect.js";
-import { displays, resetSectionIds, sortValue } from "./display.js";
+import { displays, resetSectionIds } from "./display.js";
+import { compareValues, selectItems, sortValue } from "./transform.js";
 import { sortWidgetEsm } from "./sort-widget.js";
 
 const csv = (s: string) => s.split(",").map((c) => c.trim()).filter(Boolean);
@@ -63,55 +64,6 @@ const listingDirective: DirectiveSpec = {
   },
 };
 
-function applyFilter(items: any[], filter?: string) {
-  if (!filter) return items;
-  const eq = filter.indexOf("=");
-  if (eq < 0) return items; // only field=value is supported
-  const field = filter.slice(0, eq).trim();
-  const value = filter.slice(eq + 1).trim();
-  return items.filter((it) => {
-    const v = it[field];
-    // List fields (e.g. tags) match if they contain the value.
-    if (Array.isArray(v)) return v.map(String).includes(value);
-    return String(v ?? "") === value;
-  });
-}
-
-/** Fisher-Yates shuffle. */
-function shuffle(items: any[]) {
-  const out = [...items];
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
-  return out;
-}
-
-/** Compare two sort keys. Shared by the build-time sort and the client-side
- * interactive sort. If a value is empty, it is always last. */
-function compareValues(a: string | number | null, b: string | number | null, dir: number) {
-  if (a == null) return b == null ? 0 : 1;
-  if (b == null) return -1;
-  // Dates are already epoch ms via sortValue, so they compare as numbers.
-  // For text, `numeric: true` orders "v9" before "v10".
-  const c =
-    typeof a === "number" && typeof b === "number"
-      ? a - b
-      : String(a).localeCompare(String(b), undefined, { numeric: true });
-  return c * dir;
-}
-
-function sortItems(items: any[], sort: string) {
-  if (sort === "random") return shuffle(items);
-  // Only a trailing "-asc"/"-desc" is a direction; any other dash is part of the field name.
-  const dash = sort.lastIndexOf("-");
-  const suffix = dash >= 0 ? sort.slice(dash + 1) : "";
-  const hasOrder = suffix === "asc" || suffix === "desc";
-  const field = hasOrder ? sort.slice(0, dash) : sort;
-  const dir = suffix === "desc" ? -1 : 1;
-  return [...items].sort((a, b) => compareValues(sortValue(a[field]), sortValue(b[field]), dir));
-}
-
 function noteNode(message: string) {
   return {
     type: "paragraph",
@@ -150,19 +102,11 @@ function finalize(node: any, vfile: any) {
     fileWarn(vfile, `Listing collect failed: ${node.error}`, { node, source: "listing" });
     return replace(node, errorNode(`Could not collect items: ${node.error}`));
   }
-  // Defaults live here, not in the directive, so they can depend on the display
-  // and so wrapper directives (see extending.md) don't have to copy them.
+  // Defaults live here (and in selectItems), not in the directive, so they can
+  // depend on the display and wrapper directives (see extending.md) needn't copy them.
   node.display ??= "table";
-  // A collector sets `ordered` when its item order is meaningful (e.g. toc).
-  if (!node.ordered) {
-    node.sort ??= "date-desc";
-    node.limit ??= 10;
-  }
   node.columns ??= node.display === "list" ? ["title", "description"] : ["title", "date"];
-  let items = applyFilter(node.items ?? [], node.filter);
-  if (node.sort) items = sortItems(items, node.sort);
-  // A :limit: of 0 or less means "no limit" (same convention as :body-limit:).
-  if (node.limit > 0) items = items.slice(0, node.limit);
+  const items = selectItems(node.items ?? [], node);
   if (items.length === 0) return replace(node, noteNode("No items found."));
   let display = displays[node.display];
   // Only reachable from the project-stage cleanup: renderTransform skips

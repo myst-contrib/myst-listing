@@ -3,7 +3,7 @@ title: Extending from another plugin
 ---
 
 You can add a new source or a new display from a **separate** MyST plugin.
-Your plugin finds the **placeholder nodes** and fills them in.
+Your plugin finds the {term}`placeholder` nodes and fills them in.
 (To add a built-in source/display to this repo instead, see [Contributing](./contributing.md).)
 
 ## How to define your own collector or display function

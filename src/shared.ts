@@ -1,3 +1,5 @@
+/** Small helpers used by more than one pipeline stage. */
+
 /** The node the `{listing}` directive emits. Collectors fill `.items`; the
  * render transform later replaces it with the chosen display. */
 export const PLACEHOLDER = "listingPlaceholder";
@@ -26,4 +28,34 @@ export function toTagList(value: unknown): string[] {
       ? value.split(/[;,]/)
       : [];
   return parts.map((s) => s.trim()).filter(Boolean);
+}
+
+/** A long, locale-aware date ("May 20, 2026"). Formatted in UTC because YAML
+ * dates are midnight-UTC, and a local timezone could roll them back a day. */
+const dateFmt = new Intl.DateTimeFormat("en", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  timeZone: "UTC",
+});
+
+/** A YAML/ISO date (Date object or "2026-05-20..." string), else null. */
+export function asDate(value: any): Date | null {
+  if (value instanceof Date) return value;
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+    const d = new Date(value);
+    if (!isNaN(d.getTime())) return d;
+  }
+  return null;
+}
+
+/** A field's value as display text: lists join with commas, dates format long,
+ * author-like objects render by name. */
+export function cellText(value: any): string {
+  if (value == null) return "";
+  if (Array.isArray(value)) return value.map(cellText).join(", ");
+  const d = asDate(value);
+  if (d) return dateFmt.format(d);
+  if (typeof value === "object") return value.name ?? value.id ?? "";
+  return String(value);
 }

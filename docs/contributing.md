@@ -14,12 +14,25 @@ The plugin is a three-stage pipeline, split one file per stage:
                                             (sources)   (sort/etc)    (views)
 ```
 
-- **Collect** (`src/collect.ts`) turns a `:source:` into a list of items.
-- **Transform** (`src/plugin.ts`) filters/sorts/limits the items.
-- **Render** (`src/display.ts`) turns items into a `:display:`.
+- **Collect** (`src/collect.ts`): a {term}`collector` turns a `:source:` into a list of {term}`items <item>`.
+- **Transform** (`src/transform.ts`): `selectItems` filters, sorts and limits the items.
+- **Render** (`src/display.ts`): a {term}`display` turns items into the finished node.
 
-`src/plugin.ts` also holds the directive and wires the transforms together; `src/shared.ts` holds a few things they share.
-The **item** is the plain object that flows between these stages; see [Items](./collectors.md#items) for the fields it carries.
+`src/plugin.ts` holds the directive and wires the stages together; `src/shared.ts` holds a few things they share.
+
+```{glossary}
+Placeholder
+: The `listingPlaceholder` node the `{listing}` directive emits. It carries the directive's options, and the pipeline fills it in and finally replaces it.
+
+Collector
+: The code behind a `:source:`. It sets the placeholder's `items` (see [Add a collector](./extending.md#add-a-collector)).
+
+Item
+: The plain object that flows between the stages, one per listed thing. See [Items](./collectors.md#items) for the fields it carries.
+
+Display
+: The code behind a `:display:`. It turns the selected items into one AST node.
+```
 
 ## Build and test
 
@@ -80,9 +93,9 @@ Now `:source: json` `:path: data.json` works.
 
 ## Change sorting or filtering
 
-The middle layer lives in `src/plugin.ts` (`applyFilter`, `sortItems`).
-To add a new behaviour, read a new option off the placeholder and act on the item list before it reaches the display.
-Return the same shape you receive: a list of items in, a list of items out.
+The Transform stage lives in `src/transform.ts`, behind `selectItems(items, node)`.
+To add a new behaviour, read a new option off the {term}`placeholder` inside `selectItems`.
+It's pure (a list of items in, a list of items out), so you can unit-test it without building the docs.
 
 ## How this package was developed
 
