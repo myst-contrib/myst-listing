@@ -6,7 +6,6 @@ description: One bullet per item, with a few fields on the same line.
 
 The `list` display renders one bullet per item, with a few fields on the same line.
 It suits compact link lists, like a section's landing page that links to each page with a short blurb.
-This page covers the list-specific options; sorting, filtering, and limiting are the same in every display and are covered in [](../transform.md).
 
 ## Titles and descriptions
 

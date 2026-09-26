@@ -4,7 +4,7 @@ title: Collectors
 
 Before a `{listing}` can display anything, it has to **collect** its items.
 The `:source:` option picks a collector, which produces a list of **items** (defined [below](#items)).
-Five collectors are built in:
+These collectors are built in, and other plugins can add more (see [Extending](./develop/extending.md#separate-plugin)):
 
 ```{list-table}
 :header-rows: 1
@@ -119,11 +119,29 @@ A few things to know:
 
 ## `yaml`
 
-Set `:source: yaml` and point `:path:` at a `.yml` file whose top-level entries already use the [item fields](#items).
-The [`table`](./displays/table.md) and [`gallery`](./displays/gallery.md) pages both collect from `links.yml`.
+Set `:source: yaml` and point `:path:` at a `.yml` file whose top-level entries use the [item fields](#items):
 
-You can also write the YAML list directly in the directive body instead of pointing at a file, which is handy for a short, one-off listing.
+::::::{myst:demo}
+:::{listing}
+:source: yaml
+:path: links.yml
+:columns: title,description,date
+:::
+::::::
+
+For a short, one-off listing, write the YAML list in the directive body instead.
 The body wins over `:path:` when both are given.
+
+::::::{myst:demo}
+:::{listing}
+:source: yaml
+:columns: title,description
+- title: Inline One
+  description: Written in the directive body
+- title: Inline Two
+  description: No file needed
+:::
+::::::
 
 ## `json`
 
@@ -136,26 +154,43 @@ For example, `gh` can dump GitHub issues into a listing-ready file:
 gh issue list --limit 5 --json title,url,updatedAt > issues.json
 ```
 
-See the [table display page](./displays/table.md) for a listing built from this file.
+This site's `issues.json` came from that command, so the table below shows this repo's open issues:
+
+::::::{myst:demo}
+:::{listing}
+:source: json
+:path: issues.json
+:columns: title,updatedAt
+:sort: updatedAt-desc
+:::
+::::::
 
 ## `toml`
 
 Like `yaml`, but for TOML.
-TOML has no top-level list, so wrap the items in a single array-of-tables (the key's name is up to you, below we use `items`):
+TOML has no top-level list, so wrap the items in a single array-of-tables.
+The key's name is up to you; here it's `items`:
 
-```toml
+::::::{myst:demo}
+:::{listing}
+:source: toml
+:columns: title,description
 [[items]]
-title = "MyST Markdown"
-description = "Write once, publish anywhere"
+title = "Toml One"
+description = "Written in the directive body"
 
 [[items]]
-title = "Jupyter Book"
-```
+title = "Toml Two"
+description = "No file needed"
+:::
+::::::
 
-Inline TOML in the directive body works the same way as inline YAML.
-See the [table display page](./displays/table.md) for an example.
+A `.toml` file works the same way:
 
-## Add new collectors
-
-Collectors are designed to be extendable with other MyST plugins.
-See [Extending from another plugin](./develop/extending.md).
+::::::{myst:demo}
+:::{listing}
+:source: toml
+:path: links.toml
+:columns: title,description,date
+:::
+::::::

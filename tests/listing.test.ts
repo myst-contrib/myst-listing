@@ -66,26 +66,10 @@ describe("toTagList", () => {
 describe("table display (displays/table.md)", () => {
   const ast = loadPage("displays.table");
   const tables = tablesIn(ast);
-  const [byColumns, yaml, inlineYaml, json, toml, inlineToml] = tables;
+  const [byColumns] = tables;
 
   it("renders one table per listing", () => {
-    expect(tables.length).toBe(8); // columns, sortable, yaml, inline-yaml, json, toml, inline-toml, filter-live
-  });
-
-  it("collects from a json file", () => {
-    expect(column(json, "title")).toContain("Add a JSON collector");
-  });
-
-  it("collects from inline YAML in the directive body", () => {
-    expect(column(inlineYaml, "title")).toEqual(["Inline One", "Inline Two"]);
-  });
-
-  it("collects from a toml file, sorting its parsed dates", () => {
-    expect(column(toml, "title")).toEqual(["Jupyter Book", "MyST Markdown"]); // date-desc
-  });
-
-  it("collects from inline TOML in the directive body", () => {
-    expect(column(inlineToml, "title")).toEqual(["Toml One", "Toml Two"]);
+    expect(tables.length).toBe(3); // columns, filter-live, sortable
   });
 
   it("links the title to the resolved internal page url", () => {
@@ -101,11 +85,6 @@ describe("table display (displays/table.md)", () => {
     expect(times).toEqual([...times].sort((a, b) => b - a));
   });
 
-  it("collects from yaml and skips the title-less entry", () => {
-    const titles = column(yaml, "title");
-    expect(titles).toContain("MyST Markdown");
-    expect(titles.every((t: string) => t.length > 0)).toBe(true); // none blank
-  });
 });
 
 describe("transform options (transform.md)", () => {
@@ -246,6 +225,34 @@ describe("list display (displays/list.md)", () => {
       "Administrator guide: manage users and organizations",
       "Deployer guide",
     ]);
+  });
+});
+
+describe("data sources (collectors.md)", () => {
+  // Skip the page's own {list-table}s; only listings carry the myst-listing class.
+  const listings = tablesIn(loadPage("collectors")).filter((t: any) => t.class === "myst-listing");
+  const [yaml, inlineYaml, json, inlineToml, toml] = listings;
+
+  it("collects from yaml and skips the title-less entry", () => {
+    const titles = column(yaml, "title");
+    expect(titles).toContain("MyST Markdown");
+    expect(titles.every((t: string) => t.length > 0)).toBe(true); // none blank
+  });
+
+  it("collects from inline YAML in the directive body", () => {
+    expect(column(inlineYaml, "title")).toEqual(["Inline One", "Inline Two"]);
+  });
+
+  it("collects from a json file", () => {
+    expect(column(json, "title")).toContain("Add a JSON collector");
+  });
+
+  it("collects from inline TOML in the directive body", () => {
+    expect(column(inlineToml, "title")).toEqual(["Toml One", "Toml Two"]);
+  });
+
+  it("collects from a toml file, sorting its parsed dates", () => {
+    expect(column(toml, "title")).toEqual(["Jupyter Book", "MyST Markdown"]); // date-desc
   });
 });
 
