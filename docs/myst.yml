@@ -21,6 +21,7 @@ project:
   toc:
     - file: index.md
     - file: get-started.md
+    - file: tutorial.md
     - file: collectors.md
     - file: transform.md
     - file: displays/index.md

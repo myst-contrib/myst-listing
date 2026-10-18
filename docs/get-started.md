@@ -21,6 +21,7 @@ Give each page a `date` in its frontmatter so the newest ones come first.
 
 ## Next steps
 
+- For a walkthrough of the main sources and displays, follow the [Tutorial](./tutorial.md).
 - To show cards, bullets, or full posts, pick a [display](./displays/index.md).
 - To sort, filter, or limit items, see [Transform](./transform.md).
 - To list the pages in one section of your site, use the [`toc` source](#toc-source).
