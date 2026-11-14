@@ -34,6 +34,8 @@ export default {
         // Grey-with-alpha tint reads on light and dark themes; :has scopes it
         // to sortable headers so other tables on the page are untouched.
         "th:has(>.myst-sort-arrow):hover{background:rgba(128,128,128,0.12);}",
+        // Keep the arrow on the same line as the header text in narrow columns.
+        "th:has(>.myst-sort-arrow){white-space:nowrap;}",
       ].join("");
       document.head.append(style);
     }
