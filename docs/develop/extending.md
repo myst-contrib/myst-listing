@@ -17,6 +17,10 @@ There are two ways to add a new `:source:` or `:display:`:
 A display takes the items and returns a single AST node.
 It also gets the placeholder `node` (for its options) and the page's `vfile`.
 Defaults and options that only one display uses belong inside that display, like `renderTable`'s handling of `:sortable:`.
+Options that every display shares, like `:search:`, belong in `finalize` in `src/plugin.ts`.
+`finalize` wraps the node that the display returns.
+Give each item's wrapper the class `myst-listing-item` so the search widget can hide the items that don't match.
+Cards and list items lose that class in the theme, so see `ITEMS` in `src/widgets.ts` for what the widget matches instead.
 Add a function to the `displays` map in `src/display.ts`:
 
 ```ts
@@ -167,3 +171,5 @@ export default { name: "Listing badges", transforms: [renderBadges] };
 ```
 
 Load it after `myst-listing` in `myst.yml`, and `:display: badges` now works.
+The placeholder carries every option, including `search`, but myst-listing only applies `:search:` to displays it owns.
+To support it, wrap your output the way `withSearch` in `src/display.ts` does.

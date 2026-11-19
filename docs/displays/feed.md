@@ -85,18 +85,3 @@ You can also mix items with and without images; the body's left edge stays align
   description: Every other Thursday we host an open call for contributors, with a short demo slot, a triage pass over new issues, and an open floor that we time-box so the call always ends on schedule.
 :::
 ::::::
-
-## Filter it live
-
-Filter the feed as you type with [searchfilter](#filter-live):
-
-::::::{myst:demo}
-:::{searchfilter} .myst-listing-item
-:::
-
-:::{listing}
-:path: ../posts/*.md
-:display: feed
-:body-limit: 1
-:::
-::::::

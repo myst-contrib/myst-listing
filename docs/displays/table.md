@@ -18,17 +18,15 @@ It is the default, so a bare `{listing}` is already a table.
 :::
 ::::::
 
-## Filter it live
+## Search and filter
 
-Filter rows as you type with [searchfilter](#filter-live). The header row stays put:
+Add `:search:` to [filter rows as you type](#search). The header row stays put:
 
 ::::::{myst:demo}
-:::{searchfilter} .myst-listing-item
-:::
-
 :::{listing}
 :path: ../posts/*.md
 :columns: title,date,tags
+:search:
 :::
 ::::::
 

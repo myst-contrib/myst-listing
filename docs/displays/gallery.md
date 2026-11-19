@@ -51,19 +51,3 @@ Pin it to a fixed count with `:grid-columns:`:
 :grid-columns: 2
 :::
 ::::::
-
-## Filter it live
-
-Filter cards as you type with [searchfilter](#filter-live).
-The gallery uses MyST's built-in `card`, whose renderer drops custom classes, so point it at `.myst-listing-gallery .myst-card` instead of `.myst-listing-item`:
-
-::::::{myst:demo}
-:::{searchfilter} .myst-listing-gallery .myst-card
-:::
-
-:::{listing}
-:source: yaml
-:path: ../links.yml
-:display: gallery
-:::
-::::::

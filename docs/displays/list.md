@@ -53,17 +53,3 @@ If the first field is empty (say, a page with no `short_title`), the bullet fall
 ## A table of contents
 
 Pair `list` with the [`toc` source](#toc-source) to list the pages under a page in your `myst.yml` table of contents, each with its description.
-
-## Filter it live
-
-Filter bullets as you type with [searchfilter](#filter-live):
-
-::::::{myst:demo}
-:::{searchfilter} .myst-listing-item
-:::
-
-:::{listing}
-:path: ../posts/*.md
-:display: list
-:::
-::::::
