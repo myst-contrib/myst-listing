@@ -81,56 +81,49 @@ const SORT_SOURCE = HEADER + `export default {
 };
 `;
 
-const SEARCH_SOURCE = HEADER + `export default {
+const SEARCH_SOURCE = HEADER + `// Scoped to the widget: the theme renders it in a shadow root. A transparent
+// background and inherited color keep the box readable on dark themes.
+const STYLE = [
+  ".box{position:relative;max-width:24rem;margin:0 0 1rem;}",
+  // appearance:none stops Safari drawing its own search field over the border and padding.
+  "input{appearance:none;-webkit-appearance:none;width:100%;box-sizing:border-box;padding:0.45rem 2rem 0.45rem 0.7rem;",
+  "font:inherit;font-size:0.9rem;color:inherit;background:transparent;",
+  "border:1px solid rgba(128,128,128,0.5);border-radius:6px;}",
+  "input::-webkit-search-cancel-button{display:none;}", // the clear button replaces it, so every browser gets one
+  "button{position:absolute;right:0.25rem;top:50%;transform:translateY(-50%);",
+  "border:0;background:none;color:inherit;opacity:0.6;cursor:pointer;font-size:1.1rem;line-height:1;padding:0.2rem 0.45rem;}",
+  "button:hover,button:focus-visible{opacity:1;}",
+  "[role=status]:not(:empty){margin:0 0 1rem;opacity:0.6;font-size:0.9rem;}",
+].join("");
+
+export default {
   render({ model, el }) {
     const root = document.querySelector(".myst-listing-search-" + model.get("id"));
     if (!root) return;
-    // The theme empties the shadow root before each render() call, so a re-run
-    // rebuilds the box and restores it from the URL.
-    // Every built-in display except gallery marks its items with
-    // myst-listing-item, but the theme drops that class from <li>. So the
-    // selector also matches gallery cards by the theme's own .myst-card class,
-    // and list bullets by position. The list display's <ul> is this root's
-    // direct child.
+    // myst-listing-item marks the items, but the theme drops the class from
+    // <li>, and gallery cards never had it. So cards match by the theme's own
+    // class, and list bullets by position because the <ul> is root's direct child.
     const ITEMS = ".myst-listing-item, .myst-listing-gallery .myst-card, :scope > ul > li";
-    // One URL param per searchable listing, so readers can link to a filtered
-    // view. Numbered by position on the page (search, search2, ...) because the
-    // id changes every build.
+    // One URL param per searchable listing, numbered by position on the page
+    // (search, search2, ...) because the id changes every build.
     const roots = document.querySelectorAll('[class*="myst-listing-search-"]');
     const n = Array.prototype.indexOf.call(roots, root);
     const PARAM = n > 0 ? "search" + (n + 1) : "search";
 
-    // The theme renders the widget in a shadow root, so this stylesheet only
-    // applies inside the widget. A transparent background and inherited color
-    // keep the box readable on dark themes, and greys with alpha work on both.
-    el.innerHTML = [
-      "<style>",
-      ".box{position:relative;max-width:24rem;margin:0 0 1rem;}",
-      // appearance:none stops Safari drawing its own search field over the border and padding.
-      "input{appearance:none;-webkit-appearance:none;display:block;width:100%;box-sizing:border-box;padding:0.45rem 2rem 0.45rem 0.7rem;",
-      "font:inherit;font-size:0.9rem;color:inherit;background:transparent;",
-      "border:1px solid rgba(128,128,128,0.5);border-radius:6px;}",
-      "input::-webkit-search-cancel-button{display:none;}", // the clear button below replaces it, so every browser gets one
-      "button{position:absolute;right:0.25rem;top:50%;transform:translateY(-50%);",
-      "border:0;background:none;color:inherit;opacity:0.6;cursor:pointer;font-size:1.1rem;line-height:1;padding:0.2rem 0.45rem;}",
-      "button:hover,button:focus-visible{opacity:1;}",
-      "[role=status]:not(:empty){margin:0 0 1rem;opacity:0.6;font-size:0.9rem;}",
-      "</style>",
-      '<div class="box">',
-      '<input type="search" placeholder="Search…" autocomplete="off" aria-label="Search this listing">',
-      '<button type="button" aria-label="Clear search" hidden>×</button>',
-      "</div>",
-      // Stays in the tree with changing text, so screen readers announce it.
-      '<div role="status"></div>',
-    ].join("");
+    // The theme empties the shadow root before each render() call, so this
+    // builds a fresh box every time.
+    el.innerHTML =
+      "<style>" + STYLE + "</style>" +
+      '<div class="box">' +
+      '<input type="search" placeholder="Search…" aria-label="Search this listing">' +
+      '<button type="button" aria-label="Clear search" hidden>×</button>' +
+      "</div>" +
+      '<div role="status"></div>'; // text changes in place, so screen readers announce it
     const input = el.querySelector("input");
     const clear = el.querySelector("button");
     const empty = el.querySelector("[role=status]");
 
-    // Hiding sets the item's inline display. Each display keeps everything that
-    // belongs to an item inside the item's wrapper, so hiding the wrapper hides
-    // all of it. An item stays visible only when every typed word appears in
-    // its text.
+    // An item stays visible only when every typed word appears in its text.
     const apply = () => {
       const words = input.value.toLowerCase().split(/\\s+/).filter(Boolean);
       let shown = 0;

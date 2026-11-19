@@ -20,9 +20,7 @@ Defaults and options that only one display uses belong inside that display, like
 Options that every display shares, like `:search:`, belong in `finalize` in `src/plugin.ts`.
 `finalize` wraps the node that the display returns.
 Give each item's wrapper the class `myst-listing-item` so the search widget can hide the items that don't match.
-The theme keeps that class on `div`, `span`, and table rows, but drops it on list items and cards.
-For those, the widget also matches `.myst-card` inside a `.myst-listing-gallery` wrapper, and `<li>` inside a `<ul>` that the display returns directly.
-A new display built from cards or list items has to match one of those selectors.
+Cards and list items lose that class in the theme, so see `ITEMS` in `src/widgets.ts` for what the widget matches instead.
 Add a function to the `displays` map in `src/display.ts`:
 
 ```ts
