@@ -48,7 +48,7 @@ This is useful if you have a gallery and don't want the same things showing up a
 
 ## Limit how many
 
-`:limit:` caps the number of items (default 10, or no limit for the `toc` source).
+`:limit:` caps the number of items (default 10, or no limit for the `toc` source and for listings with `:search:`).
 Combine it with `:sort:` to make a "top N" list.
 Here, the three most recent posts:
 

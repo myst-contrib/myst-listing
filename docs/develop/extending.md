@@ -173,3 +173,5 @@ export default { name: "Listing badges", transforms: [renderBadges] };
 ```
 
 Load it after `myst-listing` in `myst.yml`, and `:display: badges` now works.
+The placeholder carries every option, including `search`, but myst-listing only applies `:search:` to displays it owns.
+To support it, wrap your output the way `withSearch` in `src/display.ts` does.

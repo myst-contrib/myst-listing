@@ -62,7 +62,9 @@ It works in every display that shows tags: `gallery`, `summary`, `feed`, and `se
 
 Add the `:search:` flag and readers get a search box above the listing.
 The box hides every item whose text doesn't contain every word they type, so title, tags, date, and description all count.
+A searchable listing shows every item unless you set `:limit:`, so the search covers the whole collection.
 The box also writes the query to the page URL as `?search=`, so readers can link to a filtered view.
+A page with several searchable listings numbers the params: `search`, `search2`, and so on.
 The flag works with every built-in display:
 
 ::::::::{tab-set}

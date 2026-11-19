@@ -202,6 +202,17 @@ describe("client-side search (:search:, displays/table.md)", () => {
     expect(widgets(loadPage("transform")).length).toBe(0);
   });
 
+  it("wraps every display: one widget per tab in the Search and filter demo", () => {
+    expect(widgets(loadPage("displays.index")).length).toBe(6);
+  });
+
+  it("drops the default limit when :search: is set, so the box covers every item", () => {
+    const items = Array.from({ length: 12 }, (_, i) => ({ title: `Item ${i}` }));
+    expect(selectItems(items, {}).length).toBe(10);
+    expect(selectItems(items, { search: true }).length).toBe(12);
+    expect(selectItems(items, { search: true, limit: 3 }).length).toBe(3);
+  });
+
   it("emits a widget module that parses as JS and exports render()", async () => {
     const mod = await import("../dist/myst-listing-search.mjs");
     expect(typeof mod.default.render).toBe("function");

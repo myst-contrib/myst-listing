@@ -6,13 +6,14 @@ import { asDate, cellText } from "./shared.js";
 
 /** The items a listing shows, in order. Reads `sort`, `limit`, `filter` and
  * `ordered` off the placeholder and never writes to it. Unless a collector set
- * `ordered`, the defaults are `sort: date-desc` and `limit: 10`. */
+ * `ordered`, the defaults are `sort: date-desc` and `limit: 10`. A listing
+ * with `search` has no default limit, so the search box covers every item. */
 export function selectItems(items: any[], node: any) {
   let { sort, limit } = node;
   // A collector sets `ordered` when its item order is meaningful (e.g. toc).
   if (!node.ordered) {
     sort ??= "date-desc";
-    limit ??= 10;
+    limit ??= node.search ? 0 : 10;
   }
   items = applyFilter(items, node.filter);
   if (sort) items = sortItems(items, sort);

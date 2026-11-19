@@ -84,16 +84,21 @@ const SORT_SOURCE = HEADER + `export default {
 const SEARCH_SOURCE = HEADER + `export default {
   render({ model, el }) {
     const root = document.querySelector(".myst-listing-search-" + model.get("id"));
-    if (!root || el.querySelector("input")) return;
+    if (!root) return;
+    // The theme empties the shadow root before each render() call, so a re-run
+    // rebuilds the box and restores it from the URL.
     // Every built-in display except gallery marks its items with
     // myst-listing-item, but the theme drops that class from <li>. So the
     // selector also matches gallery cards by the theme's own .myst-card class,
     // and list bullets by position. The list display's <ul> is this root's
     // direct child.
     const ITEMS = ".myst-listing-item, .myst-listing-gallery .myst-card, :scope > ul > li";
-    // One param for every searchable listing on the page, so readers can link
-    // to a filtered view.
-    const PARAM = "search";
+    // One URL param per searchable listing, so readers can link to a filtered
+    // view. Numbered by position on the page (search, search2, ...) because the
+    // id changes every build.
+    const roots = document.querySelectorAll('[class*="myst-listing-search-"]');
+    const n = Array.prototype.indexOf.call(roots, root);
+    const PARAM = n > 0 ? "search" + (n + 1) : "search";
 
     // The theme renders the widget in a shadow root, so this stylesheet only
     // applies inside the widget. A transparent background and inherited color
@@ -101,20 +106,22 @@ const SEARCH_SOURCE = HEADER + `export default {
     el.innerHTML = [
       "<style>",
       ".box{position:relative;max-width:24rem;margin:0 0 1rem;}",
-      "input{display:block;width:100%;box-sizing:border-box;padding:0.45rem 2rem 0.45rem 0.7rem;",
+      // appearance:none stops Safari drawing its own search field over the border and padding.
+      "input{appearance:none;-webkit-appearance:none;display:block;width:100%;box-sizing:border-box;padding:0.45rem 2rem 0.45rem 0.7rem;",
       "font:inherit;font-size:0.9rem;color:inherit;background:transparent;",
       "border:1px solid rgba(128,128,128,0.5);border-radius:6px;}",
       "input::-webkit-search-cancel-button{display:none;}", // the clear button below replaces it, so every browser gets one
       "button{position:absolute;right:0.25rem;top:50%;transform:translateY(-50%);",
       "border:0;background:none;color:inherit;opacity:0.6;cursor:pointer;font-size:1.1rem;line-height:1;padding:0.2rem 0.45rem;}",
       "button:hover,button:focus-visible{opacity:1;}",
-      "[role=status]{margin:0 0 1rem;opacity:0.6;font-size:0.9rem;}",
+      "[role=status]:not(:empty){margin:0 0 1rem;opacity:0.6;font-size:0.9rem;}",
       "</style>",
       '<div class="box">',
       '<input type="search" placeholder="Search…" autocomplete="off" aria-label="Search this listing">',
       '<button type="button" aria-label="Clear search" hidden>×</button>',
       "</div>",
-      '<div role="status" hidden>No matches.</div>',
+      // Stays in the tree with changing text, so screen readers announce it.
+      '<div role="status"></div>',
     ].join("");
     const input = el.querySelector("input");
     const clear = el.querySelector("button");
@@ -134,14 +141,18 @@ const SEARCH_SOURCE = HEADER + `export default {
         if (show) shown++;
       }
       clear.hidden = !input.value;
-      empty.hidden = shown > 0;
+      empty.textContent = shown || !words.length ? "" : "No matches.";
     };
     const update = () => {
       apply();
       const url = new URL(location.href);
       if (input.value) url.searchParams.set(PARAM, input.value);
       else url.searchParams.delete(PARAM);
-      history.replaceState(history.state, "", url);
+      // Safari throws after 100 replaceState calls in 30 seconds; the filter
+      // has already applied, so a lost URL update is fine.
+      try {
+        history.replaceState(history.state, "", url);
+      } catch {}
     };
     input.addEventListener("input", update);
     clear.addEventListener("click", () => {

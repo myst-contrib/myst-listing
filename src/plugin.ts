@@ -26,7 +26,7 @@ const listingDirective: DirectiveSpec = {
     display: { type: String, doc: "View: 'table', 'list', 'gallery', 'summary', 'feed', or 'sections'. Default 'table'." },
     path: { type: String, doc: "Glob for 'files' (default './*.md'), page whose toc children 'toc' lists (default: this page), or path to a .yml/.json/.toml/.csv/.tsv file. Relative to the page." },
     sort: { type: String, doc: "Sort by 'field' (ascending), 'field-asc', 'field-desc', or 'random'. Default 'date-desc' (toc order for 'toc')." },
-    limit: { type: Number, doc: "Maximum number of items. Default 10 (no limit for 'toc'); 0 or less means no limit." },
+    limit: { type: Number, doc: "Maximum number of items. Default 10, or no limit for 'toc' and for :search:. 0 or less means no limit." },
     filter: { type: String, doc: "Keep only items where field=value." },
     sortable: { type: Boolean, doc: "Let readers re-sort the table by clicking its column headers. Table display only." },
     search: { type: Boolean, doc: "Add a search box that filters the items as readers type." },
