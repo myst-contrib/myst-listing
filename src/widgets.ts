@@ -83,17 +83,20 @@ const SORT_SOURCE = HEADER + `export default {
 
 const SEARCH_SOURCE = HEADER + `// Scoped to the widget: the theme renders it in a shadow root. A transparent
 // background and inherited color keep the box readable on dark themes.
+// Sized like the theme's own controls: 40px tall, 1rem text, 8px radius.
 const STYLE = [
-  ".box{position:relative;max-width:24rem;margin:0 0 1rem;}",
+  ".box{position:relative;max-width:24rem;margin:0 0 0.75rem;}",
   // appearance:none stops Safari drawing its own search field over the border and padding.
-  "input{appearance:none;-webkit-appearance:none;width:100%;box-sizing:border-box;padding:0.45rem 2rem 0.45rem 0.7rem;",
-  "font:inherit;font-size:0.9rem;color:inherit;background:transparent;",
-  "border:1px solid rgba(128,128,128,0.5);border-radius:6px;}",
+  "input{appearance:none;-webkit-appearance:none;width:100%;height:2.5rem;box-sizing:border-box;padding:0 2.25rem 0 0.7rem;",
+  "font:inherit;font-size:1rem;color:inherit;background:transparent;",
+  "border:1px solid rgba(128,128,128,0.5);border-radius:8px;}",
+  "input::placeholder{color:inherit;opacity:0.55;}", // the browser default grey fails contrast on dark themes
   "input::-webkit-search-cancel-button{display:none;}", // the clear button replaces it, so every browser gets one
-  "button{position:absolute;right:0.25rem;top:50%;transform:translateY(-50%);",
-  "border:0;background:none;color:inherit;opacity:0.6;cursor:pointer;font-size:1.1rem;line-height:1;padding:0.2rem 0.45rem;}",
+  "button{position:absolute;right:0.25rem;top:50%;transform:translateY(-50%);display:grid;place-items:center;",
+  "min-width:2rem;min-height:2rem;padding:0;border:0;border-radius:4px;background:none;",
+  "font:inherit;font-size:1.1rem;line-height:1;color:inherit;opacity:0.6;cursor:pointer;}",
   "button:hover,button:focus-visible{opacity:1;}",
-  "[role=status]:not(:empty){margin:0 0 1rem;opacity:0.6;font-size:0.9rem;}",
+  "[role=status]:not(:empty){margin:0 0 1rem;padding:0 0.7rem;opacity:0.6;font-size:0.9rem;}",
 ].join("");
 
 export default {
@@ -122,6 +125,7 @@ export default {
     const input = el.querySelector("input");
     const clear = el.querySelector("button");
     const empty = el.querySelector("[role=status]");
+    const listing = root.lastElementChild; // the rendered display, after this widget's host
 
     // An item stays visible only when every typed word appears in its text.
     const apply = () => {
@@ -134,7 +138,11 @@ export default {
         if (show) shown++;
       }
       clear.hidden = !input.value;
-      empty.textContent = shown || !words.length ? "" : "No matches.";
+      // With nothing to show, hide the listing too, or a table leaves its
+      // header row hanging under the message.
+      const none = words.length > 0 && shown === 0;
+      listing.style.display = none ? "none" : "";
+      empty.textContent = none ? "No matches for \u201C" + input.value.trim() + "\u201D." : "";
     };
     const update = () => {
       apply();
