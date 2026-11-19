@@ -12,7 +12,7 @@ import {
 } from "myst-common";
 import { PLACEHOLDER, ctxRef } from "./shared.js";
 import { collectTransform } from "./collect.js";
-import { displays } from "./display.js";
+import { displays, withSearch } from "./display.js";
 import { selectItems } from "./transform.js";
 
 const csv = (s: string) => s.split(",").map((c) => c.trim()).filter(Boolean);
@@ -29,6 +29,7 @@ const listingDirective: DirectiveSpec = {
     limit: { type: Number, doc: "Maximum number of items. Default 10 (no limit for 'toc'); 0 or less means no limit." },
     filter: { type: String, doc: "Keep only items where field=value." },
     sortable: { type: Boolean, doc: "Let readers re-sort the table by clicking its column headers. Table display only." },
+    search: { type: Boolean, doc: "Add a search box that filters the items as readers type." },
     columns: { type: String, doc: "Comma-separated fields for the table and list views. Default 'title,date' (table) or 'title,description' (list)." },
     "tag-fields": { type: String, doc: "Frontmatter fields shown as colored tag groups (gallery, summary, feed, and sections). Default 'tags'." },
     "grid-columns": { type: Number, doc: "Gallery only: number of columns. Default: responsive 1–4." },
@@ -60,6 +61,7 @@ const listingDirective: DirectiveSpec = {
         filter: o.filter as string | undefined,
         columns: o.columns ? csv(o.columns as string) : undefined,
         sortable: o.sortable as boolean | undefined,
+        search: o.search as boolean | undefined,
         tagFields: o["tag-fields"] ? csv(o["tag-fields"] as string) : undefined,
         gridColumns: o["grid-columns"] as number | undefined,
         bodyLimit: o["body-limit"] as number | undefined,
@@ -118,7 +120,8 @@ function finalize(node: any, vfile: any) {
     });
     display = displays.table;
   }
-  replace(node, display(items, node, vfile));
+  const rendered = display(items, node, vfile);
+  replace(node, node.search ? withSearch(rendered, vfile) : rendered);
 }
 
 const renderTransform: TransformSpec = {

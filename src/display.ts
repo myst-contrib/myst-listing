@@ -6,7 +6,7 @@
 import { createHtmlId, createId, normalizeLabel } from "myst-common";
 import { htmlTransform, reconstructHtmlTransform } from "myst-transforms";
 import { cellText, ctxRef, rawImageSrc, toTagList } from "./shared.js";
-import { sortWidgetEsm } from "./sort-widget.js";
+import { searchWidgetEsm, sortWidgetEsm } from "./widgets.js";
 import { compareValues, sortValue } from "./transform.js";
 
 export type Display = (items: any[], node: any, vfile: any) => any;
@@ -21,8 +21,8 @@ const muted = { opacity: 0.6, fontSize: "0.85rem" };
 const S: Record<string, any> = {
   // Card gap wider than the gaps within a card, so each post reads as one unit.
   summaryStack: { display: "flex", flexDirection: "column", gap: "1.75rem", margin: "1.5rem 0" },
-  // The flex row lives on an inner wrapper, not the card: searchfilter toggles
-  // the card's inline `display`, which would otherwise clobber `flex`.
+  // The flex row is on an inner wrapper, not the card, because the search
+  // widget sets the card's inline `display` and that would clobber `flex`.
   summaryCard: { borderLeft: "3px solid rgba(128,128,128,0.3)", paddingLeft: "1rem" },
   summaryRow: { display: "flex", gap: "1rem", alignItems: "flex-start" },
   // Framed thumbnail: a fixed 3:2 background-image box (not an <image> node) so
@@ -52,8 +52,8 @@ const S: Record<string, any> = {
   },
   meta: { margin: "0.1rem 0", ...muted },
   feedStack: { display: "flex", flexDirection: "column", gap: "2rem", margin: "1.5rem 0" },
-  // The rule between items lives on the card itself (not a sibling <hr>) so a
-  // searchfilter hiding the card hides its rule too. Padding mirrors the stack
+  // The rule between items is a border on the card rather than a sibling <hr>,
+  // so hiding the card also hides its rule. Padding mirrors the stack
   // gap, centering the rule between items.
   feedDivider: { borderTop: "1px solid rgba(128,128,128,0.35)", paddingTop: "2rem" },
   // Identity rail beside the prose. flexWrap stacks the rail above the prose on
@@ -170,8 +170,8 @@ function renderTable(items: any[], node: any, vfile: any) {
   };
   const rows = items.map((item) => ({
     type: "tableRow",
-    // On data rows only (not the header) so searchfilter can hide rows while
-    // keeping the header visible.
+    // Data rows only, so the search widget in widgets.ts can hide rows and
+    // leave the header visible.
     class: "myst-listing-item",
     children: columns.map((col) => {
       const text = cellText(item[col]);
@@ -203,7 +203,7 @@ function renderTable(items: any[], node: any, vfile: any) {
     }
   }
   const id = createId();
-  // The sort widget locates its table by this class (see sort-widget.ts).
+  // The sort widget locates its table by this class (see widgets.ts).
   table.class = `${table.class} myst-listing-sort-${id}`;
   const widget = {
     type: "anywidget",
@@ -222,7 +222,8 @@ function renderList(items: any[], node: any) {
     const meta = rest.map((col) => cellText(item[col])).filter(Boolean).join(" · ");
     return {
       type: "listItem",
-      // myst-listing-item is the searchfilter hook (see renderTable).
+      // The theme drops class on <li>, so the search widget matches bullets by
+      // position instead (see widgets.ts); the class stays for the mdast.
       class: "myst-listing-item",
       children: meta ? [...label, { type: "text", value: `: ${meta}` }] : label,
     };
@@ -281,7 +282,7 @@ function renderSummary(items: any[], node: any) {
     const row = { type: "div", style: S.summaryRow, children: thumb ? [content, thumb] : [content] };
     return {
       type: "div",
-      // myst-listing-item is the searchfilter hook (see renderTable).
+      // myst-listing-item is the search widget hook (see renderTable).
       class: "myst-listing-card myst-listing-item",
       style: S.summaryCard,
       children: [row],
@@ -372,7 +373,7 @@ function renderFeed(items: any[], node: any) {
     const railCol =
       rail.length > 0 ? { type: "div", class: "myst-listing-rail", style: S.feedRail, children: rail } : null;
     const row = { type: "div", style: S.feedRow, children: railCol ? [railCol, content] : [content] };
-    // myst-listing-item is the searchfilter hook (see renderTable).
+    // myst-listing-item is the search widget hook (see renderTable).
     return {
       type: "div",
       class: "myst-listing-card myst-listing-item",
@@ -427,14 +428,26 @@ function renderSections(items: any[], node: any, vfile: any) {
     const body = itemBody(item).map(demoteHeading);
     return {
       type: "div",
-      // myst-listing-item is the searchfilter hook (see renderTable); the rule
-      // between items is a border on the card, as in feed.
+      // myst-listing-item is the search widget hook, as in renderTable. The
+      // rule between items is a border on the card, as in feed.
       class: "myst-listing-card myst-listing-item",
       style: i ? S.feedDivider : undefined,
       children: [heading, meta, ...renderTagGroups(item, node), ...body].filter(Boolean),
     };
   });
   return { type: "div", class: "myst-listing myst-listing-sections", style: S.feedStack, children: sections };
+}
+
+/** Wrap a rendered display in a div with a search box above it, for the
+ * `:search:` option. The search widget in widgets.ts finds the div by its
+ * `myst-listing-search-<id>` class and hides the items that don't match. */
+export function withSearch(rendered: any, vfile: any) {
+  const id = createId();
+  return {
+    type: "div",
+    class: `myst-listing-search-${id}`,
+    children: [{ type: "anywidget", esm: searchWidgetEsm(vfile), model: { id } }, rendered],
+  };
 }
 
 /** Built-in displays, keyed by `:display:`. */

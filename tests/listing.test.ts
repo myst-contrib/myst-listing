@@ -156,7 +156,7 @@ describe("gallery display (displays/gallery.md)", () => {
 });
 
 describe("client-side sorting (:sortable:, displays/table.md)", () => {
-  // Ours only: searchfilter demos also emit anywidget nodes.
+  // Only sort widgets, because the :search: demo on this page also emits an anywidget node.
   const widgets = (ast: any) =>
     allNodes(ast).filter((n: any) => n.type === "anywidget" && n.esm?.includes("myst-listing-sort"));
   const table = loadPage("displays.table");
@@ -179,9 +179,31 @@ describe("client-side sorting (:sortable:, displays/table.md)", () => {
   });
 
   it("emits a widget module that parses as JS and exports render()", async () => {
-    // The module ships embedded in a TS string (see sort-widget.ts), so a JS
+    // The module ships embedded in a TS string (see widgets.ts), so a JS
     // error inside it would otherwise only surface in the browser.
     const mod = await import("../dist/myst-listing-sort.mjs");
+    expect(typeof mod.default.render).toBe("function");
+  });
+});
+
+describe("client-side search (:search:, displays/table.md)", () => {
+  const widgets = (ast: any) =>
+    allNodes(ast).filter((n: any) => n.type === "anywidget" && n.esm?.includes("myst-listing-search"));
+
+  it("wraps the listing in a root the widget can find, with every item inside", () => {
+    const table = loadPage("displays.table");
+    expect(widgets(table).length).toBe(1); // only the "Search and filter" demo
+    const [widget] = widgets(table);
+    const [root] = withClass(table, `myst-listing-search-${widget.model.id}`);
+    expect(withClass(root, "myst-listing-item").length).toBe(POST_COUNT);
+  });
+
+  it("emits no widget for listings without :search:", () => {
+    expect(widgets(loadPage("transform")).length).toBe(0);
+  });
+
+  it("emits a widget module that parses as JS and exports render()", async () => {
+    const mod = await import("../dist/myst-listing-search.mjs");
     expect(typeof mod.default.render).toBe("function");
   });
 });
