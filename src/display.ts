@@ -222,8 +222,8 @@ function renderList(items: any[], node: any) {
     const meta = rest.map((col) => cellText(item[col])).filter(Boolean).join(" · ");
     return {
       type: "listItem",
-      // The theme drops class on <li>, so the search widget matches bullets by
-      // position instead (see widgets.ts); the class stays for the mdast.
+      // The theme drops class on <li>, so the search widget in widgets.ts
+      // matches bullets by position instead. The class stays for the mdast.
       class: "myst-listing-item",
       children: meta ? [...label, { type: "text", value: `: ${meta}` }] : label,
     };

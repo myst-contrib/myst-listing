@@ -60,10 +60,10 @@ It works in every display that shows tags: `gallery`, `summary`, `feed`, and `se
 (search)=
 ### Search and filter
 
-Add the `:search:` flag and readers get a search box above the listing that hides items as they type.
-It matches every word you type against all the text in the item, so title, tags, date, and description all count.
-The query is kept in the page URL as `?search=`, so you can link to a filtered view.
-It works with every built-in display:
+Add the `:search:` flag and readers get a search box above the listing.
+The box hides every item whose text doesn't contain every word they type, so title, tags, date, and description all count.
+The box also writes the query to the page URL as `?search=`, so readers can link to a filtered view.
+The flag works with every built-in display:
 
 ::::::::{tab-set}
 :::::::{tab-item} Table

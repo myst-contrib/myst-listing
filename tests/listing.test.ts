@@ -179,8 +179,8 @@ describe("client-side sorting (:sortable:, displays/table.md)", () => {
   });
 
   it("emits a widget module that parses as JS and exports render()", async () => {
-    // The module ships embedded in a TS string (see widgets.ts), so a JS
-    // error inside it would otherwise only surface in the browser.
+    // The module is a string inside widgets.ts, so without this import a JS
+    // error in it would only show up in the browser.
     const mod = await import("../dist/myst-listing-sort.mjs");
     expect(typeof mod.default.render).toBe("function");
   });
@@ -190,7 +190,7 @@ describe("client-side search (:search:, displays/table.md)", () => {
   const widgets = (ast: any) =>
     allNodes(ast).filter((n: any) => n.type === "anywidget" && n.esm?.includes("myst-listing-search"));
 
-  it("wraps the listing in a root the widget can find, with every item inside", () => {
+  it("wraps the listing in a root that the widget can find, with every item inside", () => {
     const table = loadPage("displays.table");
     expect(widgets(table).length).toBe(1); // only the "Search and filter" demo
     const [widget] = widgets(table);
@@ -312,8 +312,8 @@ describe("feed display (displays/feed.md)", () => {
   it("shows one item per release post, separated by a rule", () => {
     const items = withClass(changelog, "myst-listing-item");
     expect(items.length).toBe(3); // posts with :filter: tags=release
-    // The rule is a border on each card after the first (not a sibling <hr>),
-    // so the search widget hides an item's rule together with the item.
+    // The rule is a border on each card after the first, so hiding a card with
+    // the search widget hides its rule too.
     expect(items[0].style?.borderTop).toBeUndefined();
     expect(items.slice(1).every((n: any) => n.style?.borderTop)).toBe(true);
     // Every post has a date, so every item gets an identity rail; tags render too.
