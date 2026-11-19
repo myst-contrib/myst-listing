@@ -64,7 +64,7 @@ Each listing goes through three stages:
   By default you get the 10 newest, by their `date`.
   Options: `:sort:`, `:filter:`, `:limit:`.
 - [Display](./displays/index.md) them as a table, list, gallery, and so on.
-  Options: `:display:`, `:columns:`, `:tag-fields:`, `:label:`, plus `:sortable:` (table), `:grid-columns:` (gallery), and `:body-limit:` (feed).
+  Options: `:display:`, `:columns:`, `:tag-fields:`, `:search:`, `:label:`, plus `:sortable:` (table), `:grid-columns:` (gallery), and `:body-limit:` (feed).
 
 Other plugins can add their own collectors and displays (see [Extending](./develop/extending.md)).
 You can't extend the transform stage yet.

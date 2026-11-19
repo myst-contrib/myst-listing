@@ -20,18 +20,3 @@ An id that references a project author is not yet resolved ([issue #4](https://g
 :display: summary
 :::
 ::::::
-
-## Filter it live
-
-Filter cards as you type with [searchfilter](#filter-live).
-It matches against everything in each card (title, tags, date, description):
-
-::::::{myst:demo}
-:::{searchfilter} .myst-listing-item
-:::
-
-:::{listing}
-:path: ../posts/*.md
-:display: summary
-:::
-::::::

@@ -69,7 +69,7 @@ describe("table display (displays/table.md)", () => {
   const [byColumns] = tables;
 
   it("renders one table per listing", () => {
-    expect(tables.length).toBe(3); // columns, filter-live, sortable
+    expect(tables.length).toBe(3); // columns, search, sortable
   });
 
   it("links the title to the resolved internal page url", () => {
@@ -128,8 +128,8 @@ describe("gallery display (displays/gallery.md)", () => {
   const galleries = withClass(ast, "myst-listing-gallery");
 
   it("renders every gallery listing on the page", () => {
-    // yaml, files, grid-columns, and the filter-live demo.
-    expect(galleries.length).toBe(4);
+    // yaml, files, and grid-columns.
+    expect(galleries.length).toBe(3);
   });
 
   it("uses MyST's clickable card node, with the url on the whole card", () => {
@@ -306,14 +306,14 @@ describe("feed display (displays/feed.md)", () => {
   const [blog, changelog, staff] = feeds;
 
   it("renders every feed listing on the page", () => {
-    expect(feeds.length).toBe(5); // blog, changelog, staff, no-images, filter-live
+    expect(feeds.length).toBe(4); // blog, changelog, staff, no-images
   });
 
   it("shows one item per release post, separated by a rule", () => {
     const items = withClass(changelog, "myst-listing-item");
     expect(items.length).toBe(3); // posts with :filter: tags=release
     // The rule is a border on each card after the first (not a sibling <hr>),
-    // so searchfilter hides an item's rule together with the item.
+    // so the search widget hides an item's rule together with the item.
     expect(items[0].style?.borderTop).toBeUndefined();
     expect(items.slice(1).every((n: any) => n.style?.borderTop)).toBe(true);
     // Every post has a date, so every item gets an identity rail; tags render too.

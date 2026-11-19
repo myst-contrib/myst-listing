@@ -21,18 +21,3 @@ Each release below is a section, and the page outline on the right lists them:
 :display: sections
 :::
 ::::::
-
-## Filter it live
-
-Filter sections as you type with [searchfilter](#filter-live):
-
-::::::{myst:demo}
-:::{searchfilter} .myst-listing-item
-:::
-
-:::{listing}
-:path: ../posts/*.md
-:display: sections
-:limit: 3
-:::
-::::::

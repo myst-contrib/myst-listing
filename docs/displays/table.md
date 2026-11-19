@@ -20,7 +20,7 @@ It is the default, so a bare `{listing}` is already a table.
 
 ## Search and filter
 
-Add `:search:` to [filter rows as you type](#filter-live). The header row stays put:
+Add `:search:` to [filter rows as you type](#search). The header row stays put:
 
 ::::::{myst:demo}
 :::{listing}

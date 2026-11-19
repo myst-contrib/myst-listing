@@ -57,24 +57,75 @@ In an item, each of these fields can hold a list or a comma-separated string:
 Colors come from a small fixed palette, assigned by list order, so keep the order consistent across pages.
 It works in every display that shows tags: `gallery`, `summary`, `feed`, and `sections`.
 
-(filter-live)=
-### Filter it live
+(search)=
+### Search and filter
 
-Add the [`searchfilter`](https://github.com/jupyter-book/myst-plugins/tree/main/plugins/searchfilter) plugin to your `myst.yml` to give readers a search box that filters a listing as they type:
+Add the `:search:` flag and readers get a search box above the listing that hides items as they type.
+It matches every word you type against all the text in the item, so title, tags, date, and description all count.
+The query is kept in the page URL as `?search=`, so you can link to a filtered view.
+It works with every built-in display:
 
-```yaml
-project:
-  plugins:
-    - https://raw.githubusercontent.com/jupyter-book/myst-plugins/main/plugins/searchfilter/searchfilter.mjs
-```
-
-Then put a `{searchfilter}` directive on the page, with the item selector for your display as its argument.
-Each display page has a demo.
-
-| Display | Selector |
-| --- | --- |
-| `gallery` | `.myst-listing-gallery .myst-card` |
-| every other display | `.myst-listing-item` |
+::::::::{tab-set}
+:::::::{tab-item} Table
+::::::{myst:demo}
+:::{listing}
+:path: ../posts/*.md
+:columns: title,date,tags
+:search:
+:sortable:
+:::
+::::::
+:::::::
+:::::::{tab-item} List
+::::::{myst:demo}
+:::{listing}
+:path: ../posts/*.md
+:display: list
+:search:
+:::
+::::::
+:::::::
+:::::::{tab-item} Gallery
+::::::{myst:demo}
+:::{listing}
+:source: yaml
+:path: ../links.yml
+:display: gallery
+:search:
+:::
+::::::
+:::::::
+:::::::{tab-item} Summary
+::::::{myst:demo}
+:::{listing}
+:path: ../posts/*.md
+:display: summary
+:search:
+:::
+::::::
+:::::::
+:::::::{tab-item} Feed
+::::::{myst:demo}
+:::{listing}
+:path: ../posts/*.md
+:display: feed
+:body-limit: 1
+:limit: 3
+:search:
+:::
+::::::
+:::::::
+:::::::{tab-item} Sections
+::::::{myst:demo}
+:::{listing}
+:path: ../posts/*.md
+:display: sections
+:limit: 2
+:search:
+:::
+::::::
+:::::::
+::::::::
 
 (labels)=
 ### Labels and embeds
